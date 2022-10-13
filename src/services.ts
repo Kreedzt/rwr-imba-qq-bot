@@ -11,7 +11,7 @@ export class RemoteService {
         logger.info('Remote service init with:', remoteUrl);
         const axiosInst = axios.create({
             baseURL: remoteUrl,
-            timeout: 1000,
+            timeout: 10 * 1000,
         });
 
         axiosInst.defaults.headers.post['Content-Type'] = 'application/json';

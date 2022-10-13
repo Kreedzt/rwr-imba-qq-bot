@@ -6,7 +6,7 @@ import { getAllServerListDisplay, getServerInfoDisplayText, getUserInServerListD
 
 export const ServersCommandRegister: IRegister = {
     name: 'servers',
-    description: '查询所有在线的 rwr 服务器列表.',
+    description: '查询所有在线的 rwr 服务器列表.[5s CD]',
     isAdmin: false,
     timesInterval: 5,
     exec: async (ctx) => {
@@ -21,15 +21,48 @@ export const ServersCommandRegister: IRegister = {
 
 export const WhereIsCommandRegister: IRegister = {
     name: 'whereis',
-    description: '查询玩家所在的 rwr 服务器, 需要一个参数.',
+    description: '查询玩家所在的 rwr 服务器, 需要一个参数.[5s CD]',
     isAdmin: false,
     timesInterval: 5,
+    parseParams: (msg: string) => {
+        const step1Msg = msg.replace('#whereis', '');
+        let skipped = true;
+        let targetName = '';
+
+        const params = new Map<string, boolean>();
+
+        let hasNameStart = false;
+        step1Msg.split(' ').forEach((userInput) => {
+            if (userInput === '' && skipped) {
+                skipped = false;
+            } else if (userInput === '') {
+                if (hasNameStart) {
+                    targetName += ' ';
+                }
+            } else {
+                if (hasNameStart) {
+                    targetName += ' ' + userInput;
+                } else {
+                    targetName += userInput;
+                }
+                hasNameStart = true;
+            }
+        });
+
+        if (targetName) {
+            params.set(targetName, true);
+        }
+
+        return params;
+    },
     exec: async (ctx) => {
-        let targetName: string = '';
         if (ctx.params.size === 0) {
             await ctx.reply('需要一个用户名参数!\n示例: #whereis kreedzt');
             return;
         }
+
+        let targetName = '';
+
         ctx.params.forEach((_v, name) => {
             if (!targetName) {
                 targetName = name.toUpperCase();

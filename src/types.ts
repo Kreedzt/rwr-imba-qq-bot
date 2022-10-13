@@ -47,5 +47,6 @@ export interface IRegister<T extends RegisterParamType = RegisterParamType> {
     // 短期单用户使用限制, 单位: 秒
     timesInterval?: number;
     defaultParams?: T;
+    parseParams?: (msg: string) => Map<string, boolean>;
     exec: (ctx: ExecCtx) => Promise<void>;
 }

@@ -11,8 +11,9 @@ import { logger } from '../logger';
 import { RemoteService } from '../services';
 import { getCommandParams, getFirstCommand } from '../utils';
 import { checkTimeIntervalValid } from './utils';
+import { SetuCommandRegister } from './setu/register';
 
-const allCommands: IRegister[] = [ServersCommandRegister, WhereIsCommandRegister, RollCommandRegister];
+const allCommands: IRegister[] = [ServersCommandRegister, WhereIsCommandRegister, RollCommandRegister, SetuCommandRegister];
 
 const quickReply = async (event: MessageEvent, text: string) => {
     if (event.group_id) {
@@ -45,7 +46,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
         let helpText = '帮助列表: \n';
 
         allCommands.forEach((c) => {
-            helpText += `#${c.name}: ${c.description}\n`;
+            helpText += `#${c.name}: ${c.description}\n\n`;
         });
 
         await quickReply(event, helpText);
@@ -63,7 +64,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
     }
 
     if (firstCommand === hitCommand.name) {
-        if (!checkTimeIntervalValid(hitCommand, event).success) {
+        if (!hitCommand.isAdmin && !checkTimeIntervalValid(hitCommand, event).success) {
             await quickReply(event, '请求命令频繁, 请稍后再试');
             return;
         }
@@ -71,7 +72,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
 
         const ctx: ExecCtx = {
             msg,
-            params: params as ParamsType,
+            params: hitCommand.parseParams ? hitCommand.parseParams(msg) : params as ParamsType,
             env,
             event,
             reply: async (msg: string) => {
@@ -79,6 +80,10 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
             },
         };
 
-        await hitCommand.exec(ctx);
+        try {
+            await hitCommand.exec(ctx);
+        } catch (e) {
+            logger.error(e);
+        }
     }
 };

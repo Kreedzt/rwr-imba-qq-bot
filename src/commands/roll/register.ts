@@ -4,7 +4,7 @@ import { IRegister } from "../../types";
 
 export const RollCommandRegister: IRegister = {
     name: 'roll',
-    description: '生成随机数, 需要指定 2 个参数来确定范围(左闭右闭区间).',
+    description: '生成随机数, 需要指定 2 个参数来确定范围(左闭右闭区间).[5s CD]',
     timesInterval: 5,
     isAdmin: false,
     exec: async (ctx) => {

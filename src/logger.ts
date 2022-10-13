@@ -8,4 +8,10 @@ export const logger = tracer.dailyfile({
             console.log(data.output)
         }
     ]
-});
+}) as {
+    info: (...args: any[]) => void,
+    warn: (...args: any[]) => void,
+    debug: (...args: any[]) => void,
+    error: (...args: any[]) => void,
+    log: (...args: any[]) => void,
+};

@@ -202,7 +202,7 @@ const getUserInfoInServerDisplayText = (
 
     // const serverUrl = getJoinServerUrl(server);
 
-    const infoText = `${user} 正在游玩 ${server.name}: ${
+    const infoText = `[${user}] 正在游玩 ${server.name}: ${
         server.current_players + '/' + server.max_players
     } (${mapName})\n`;
 
