@@ -20,7 +20,9 @@ export class RemoteService {
             const queryUrl = config.url;
             const queryParams = config.params;
 
-            logger.info('> request:', queryUrl, queryParams);
+            const data = config.data;
+
+            logger.info('> request:', queryUrl, data);
             return config;
         });
 

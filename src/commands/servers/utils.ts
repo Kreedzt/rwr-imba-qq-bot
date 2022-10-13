@@ -3,11 +3,9 @@ import { XMLParser } from 'fast-xml-parser';
 import type { Nullable } from '../../types';
 import { logger } from '../../logger';
 import type { Res, ResServerItem, OnlineServerItem } from './types';
+import { MATCH_REGEX, QUERY_USER_IN_SERVERS_LIMIT } from './constants';
 
 const SERVER_API_URL = 'http://rwr.runningwithrifles.com/rwr_server_list';
-
-const MATCH_REGEX = 'Imba >';
-const QUERY_USER_IN_SERVERS_LIMIT = 10;
 
 const axiosInst = axios.create({
     timeout: 1500,
@@ -202,15 +200,15 @@ const getUserInfoInServerDisplayText = (
 
     const mapName = mapPathArr[mapPathArr.length - 1];
 
-    const serverUrl = getJoinServerUrl(server);
+    // const serverUrl = getJoinServerUrl(server);
 
-    const infoText = `${user} is in ${server.name}: ${
+    const infoText = `${user} 正在游玩 ${server.name}: ${
         server.current_players + '/' + server.max_players
     } (${mapName})\n`;
 
-    const text = infoText + serverUrl + '\n\n';
+    // const text = infoText + serverUrl + '\n\n';
 
-    return text;
+    return infoText;
 };
 
 /**

@@ -29,13 +29,13 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
         let helpText = '帮助列表: \n';
 
         allCommands.forEach((c) => {
-            helpText += `/${c.name}: ${c.description}\n`;
+            helpText += `#${c.name}: ${c.description}\n`;
         });
 
         if (event.group_id) {
             await RemoteService.getInst().sendGroupMsg({
                 group_id: event.group_id,
-                message: `[CQ:at,qq=${event.user_id}]\n ${helpText}`,
+                message: `[CQ:at,qq=${event.user_id}]\n${helpText}`,
             });
         } else {
             await RemoteService.getInst().sendPrivateMsg({
@@ -68,7 +68,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
                 if (event.group_id) {
                     await RemoteService.getInst().sendGroupMsg({
                         group_id: event.group_id,
-                        message: `[CQ:at,qq=${event.user_id}]\n ${msg}`,
+                        message: `[CQ:at,qq=${event.user_id}]\n${msg}`,
                     });
                 } else {
                     await RemoteService.getInst().sendPrivateMsg({
