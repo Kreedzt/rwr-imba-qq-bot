@@ -6,11 +6,12 @@ import {
     ParamsType,
 } from '../types';
 import { ServersCommandRegister, WhereIsCommandRegister } from './servers/register';
+import { RollCommandRegister } from './roll/register';
 import { logger } from '../logger';
 import { RemoteService } from '../services';
 import { getCommandParams, getFirstCommand } from '../utils';
 
-const allCommands: IRegister[] = [ServersCommandRegister, WhereIsCommandRegister];
+const allCommands: IRegister[] = [ServersCommandRegister, WhereIsCommandRegister, RollCommandRegister];
 
 export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
     const msg = event.message;

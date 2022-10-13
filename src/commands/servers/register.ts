@@ -41,7 +41,7 @@ export const WhereIsCommandRegister: IRegister = {
         logger.info('> call getUserInServerListDisplay', targetName);
         const { text, count } = getUserInServerListDisplay(targetName, serverList);
 
-        const titleText = `查询 '${targetName}' 所在服务器结果:\n`;
+        const titleText = `查询 '${targetName}'所在服务器结果:\n`;
         let bodyText = '';
         if (count === 0) {
             bodyText = '未找到玩家';
