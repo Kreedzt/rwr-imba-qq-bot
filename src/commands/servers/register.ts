@@ -6,8 +6,9 @@ import { getAllServerListDisplay, getServerInfoDisplayText, getUserInServerListD
 
 export const ServersCommandRegister: IRegister = {
     name: 'servers',
-    description: '查询所有在线的 rwr 服务器列表',
+    description: '查询所有在线的 rwr 服务器列表.',
     isAdmin: false,
+    timesInterval: 5,
     exec: async (ctx) => {
         const serverList = await queryAllServers();
         const text = getAllServerListDisplay(serverList);
@@ -20,8 +21,9 @@ export const ServersCommandRegister: IRegister = {
 
 export const WhereIsCommandRegister: IRegister = {
     name: 'whereis',
-    description: '查询玩家所在的 rwr 服务器, 需要一个参数',
+    description: '查询玩家所在的 rwr 服务器, 需要一个参数.',
     isAdmin: false,
+    timesInterval: 5,
     exec: async (ctx) => {
         let targetName: string = '';
         if (ctx.params.size === 0) {

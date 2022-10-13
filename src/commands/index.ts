@@ -10,8 +10,23 @@ import { RollCommandRegister } from './roll/register';
 import { logger } from '../logger';
 import { RemoteService } from '../services';
 import { getCommandParams, getFirstCommand } from '../utils';
+import { checkTimeIntervalValid } from './utils';
 
 const allCommands: IRegister[] = [ServersCommandRegister, WhereIsCommandRegister, RollCommandRegister];
+
+const quickReply = async (event: MessageEvent, text: string) => {
+    if (event.group_id) {
+        await RemoteService.getInst().sendGroupMsg({
+            group_id: event.group_id,
+            message: `[CQ:at,qq=${event.user_id}]\n${text}`,
+        });
+    } else {
+        await RemoteService.getInst().sendPrivateMsg({
+            user_id: event.user_id,
+            message: text,
+        });
+    }
+}
 
 export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
     const msg = event.message;
@@ -33,17 +48,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
             helpText += `#${c.name}: ${c.description}\n`;
         });
 
-        if (event.group_id) {
-            await RemoteService.getInst().sendGroupMsg({
-                group_id: event.group_id,
-                message: `[CQ:at,qq=${event.user_id}]\n${helpText}`,
-            });
-        } else {
-            await RemoteService.getInst().sendPrivateMsg({
-                user_id: event.user_id,
-                message: helpText,
-            });
-        }
+        await quickReply(event, helpText);
         return;
     }
 
@@ -58,6 +63,10 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
     }
 
     if (firstCommand === hitCommand.name) {
+        if (!checkTimeIntervalValid(hitCommand, event).success) {
+            await quickReply(event, '请求命令频繁, 请稍后再试');
+            return;
+        }
         const params = getCommandParams(msg, hitCommand.defaultParams);
 
         const ctx: ExecCtx = {
@@ -66,17 +75,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
             env,
             event,
             reply: async (msg: string) => {
-                if (event.group_id) {
-                    await RemoteService.getInst().sendGroupMsg({
-                        group_id: event.group_id,
-                        message: `[CQ:at,qq=${event.user_id}]\n${msg}`,
-                    });
-                } else {
-                    await RemoteService.getInst().sendPrivateMsg({
-                        user_id: event.user_id,
-                        message: msg,
-                    });
-                }
+                await quickReply(event, msg);
             },
         };
 
