@@ -29,6 +29,8 @@ const quickReply = async (event: MessageEvent, text: string) => {
     }
 }
 
+const handlingRequestSet = new Set<number>();
+
 export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
     const msg = event.message;
 
@@ -81,9 +83,16 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
         };
 
         try {
+            // handling... skiped re-replay
+            if (handlingRequestSet.has(event.message_id)) {
+                return;
+            }
+            handlingRequestSet.add(event.message_id);
             await hitCommand.exec(ctx);
         } catch (e) {
             logger.error(e);
+        } finally {
+            handlingRequestSet.delete(event.message_id);
         }
     }
 };
