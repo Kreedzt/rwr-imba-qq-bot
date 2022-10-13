@@ -66,28 +66,30 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
     }
 
     if (firstCommand === hitCommand.name) {
-        if (!hitCommand.isAdmin && !checkTimeIntervalValid(hitCommand, event).success) {
-            await quickReply(event, '请求命令频繁, 请稍后再试');
+        // handling... skiped re-replay
+        if (handlingRequestSet.has(event.message_id)) {
             return;
         }
-        const params = getCommandParams(msg, hitCommand.defaultParams);
-
-        const ctx: ExecCtx = {
-            msg,
-            params: hitCommand.parseParams ? hitCommand.parseParams(msg) : params as ParamsType,
-            env,
-            event,
-            reply: async (msg: string) => {
-                await quickReply(event, msg);
-            },
-        };
 
         try {
-            // handling... skiped re-replay
-            if (handlingRequestSet.has(event.message_id)) {
+            handlingRequestSet.add(event.message_id);
+
+            if (!hitCommand.isAdmin && !checkTimeIntervalValid(hitCommand, event).success) {
+                await quickReply(event, '请求命令频繁, 请稍后再试');
                 return;
             }
-            handlingRequestSet.add(event.message_id);
+            const params = getCommandParams(msg, hitCommand.defaultParams);
+
+            const ctx: ExecCtx = {
+                msg,
+                params: hitCommand.parseParams ? hitCommand.parseParams(msg) : params as ParamsType,
+                env,
+                event,
+                reply: async (msg: string) => {
+                    await quickReply(event, msg);
+                },
+            };
+
             await hitCommand.exec(ctx);
         } catch (e) {
             logger.error(e);
