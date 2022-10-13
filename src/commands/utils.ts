@@ -37,6 +37,16 @@ export const checkTimeIntervalValid = (c: IRegister, event: MessageEvent): {
         return res;
     }
 
+    if (!requestMapRes[commandName]) {
+        userCommandRequestMap.set(user, {
+            ...requestMapRes,
+            [c.name]: {
+                lastCallTime: currentTimestamp
+            }
+        })
+        return res;
+    }
+
     // Get time diff, check res
     const timeDiff = currentTimestamp - requestMapRes[commandName].lastCallTime;
     logger.info('> get timeDiff', timeDiff);
