@@ -12,8 +12,15 @@ import { RemoteService } from '../services';
 import { getCommandParams, getFirstCommand } from '../utils';
 import { checkTimeIntervalValid } from './utils';
 import { SetuCommandRegister } from './setu/register';
+import { TouhouCommandRegister } from './touhou/register';
 
-const allCommands: IRegister[] = [ServersCommandRegister, WhereIsCommandRegister, RollCommandRegister, SetuCommandRegister];
+const allCommands: IRegister[] = [
+    ServersCommandRegister,
+    WhereIsCommandRegister,
+    RollCommandRegister,
+    SetuCommandRegister,
+    TouhouCommandRegister
+];
 
 const quickReply = async (event: MessageEvent, text: string) => {
     if (event.group_id) {
