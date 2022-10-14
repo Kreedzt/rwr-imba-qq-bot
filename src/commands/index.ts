@@ -14,6 +14,7 @@ import { checkTimeIntervalValid } from './utils';
 import { SetuCommandRegister } from './setu/register';
 import { TouhouCommandRegister } from './touhou/register';
 import { WaifuCommandRegister } from './waifu/registers';
+import { OnePtCommandRegister } from './1pt/register';
 
 const allCommands: IRegister[] = [
     ServersCommandRegister,
@@ -21,7 +22,8 @@ const allCommands: IRegister[] = [
     RollCommandRegister,
     SetuCommandRegister,
     TouhouCommandRegister,
-    WaifuCommandRegister
+    WaifuCommandRegister,
+    OnePtCommandRegister
 ];
 
 const quickReply = async (event: MessageEvent, text: string) => {
