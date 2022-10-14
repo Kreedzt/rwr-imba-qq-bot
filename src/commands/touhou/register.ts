@@ -17,10 +17,9 @@ export const TouhouCommandRegister: IRegister = {
         let descText = '';
 
         descText += `作者:${res.author}\n`;
-        descText += `[CQ:image,file=${res.preview}]`;
+        descText += `来源:${res.url}\n`;
+        descText += `[CQ:image,file=${res.url}]`;
 
         await ctx.reply(descText);
-
-        await ctx.reply(`[CQ:share,url=${res.url},title=来源]`);
     }
 }
