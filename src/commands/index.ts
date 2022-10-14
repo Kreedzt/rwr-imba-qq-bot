@@ -13,13 +13,15 @@ import { getCommandParams, getFirstCommand } from '../utils';
 import { checkTimeIntervalValid } from './utils';
 import { SetuCommandRegister } from './setu/register';
 import { TouhouCommandRegister } from './touhou/register';
+import { WaifuCommandRegister } from './waifu/registers';
 
 const allCommands: IRegister[] = [
     ServersCommandRegister,
     WhereIsCommandRegister,
     RollCommandRegister,
     SetuCommandRegister,
-    TouhouCommandRegister
+    TouhouCommandRegister,
+    WaifuCommandRegister
 ];
 
 const quickReply = async (event: MessageEvent, text: string) => {
