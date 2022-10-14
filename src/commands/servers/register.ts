@@ -57,7 +57,7 @@ export const WhereIsCommandRegister: IRegister = {
     },
     exec: async (ctx) => {
         if (ctx.params.size === 0) {
-            await ctx.reply('需要一个用户名参数!\n示例: #whereis kreedzt');
+            await ctx.reply('需要一个用户名参数!\n示例: #whereis KREEDZT');
             return;
         }
 
@@ -65,7 +65,7 @@ export const WhereIsCommandRegister: IRegister = {
 
         ctx.params.forEach((_v, name) => {
             if (!targetName) {
-                targetName = name.toUpperCase();
+                targetName = name;
             }
         });
 
