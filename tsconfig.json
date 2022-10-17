@@ -1,18 +1,23 @@
 {
-  "compilerOptions": {
-    "outDir": "./dist",
-    "sourceMap": true,
-    "downlevelIteration": true,
-    "experimentalDecorators": true,
-    "moduleResolution": "node",
-    "target": "esnext",
-    "module": "commonjs",
-    "lib": ["es2020"],
-    "strict": true
-  },
-  "include": ["./types/*.d.ts", "src"],
-  "exclude": [
-    "node_modules",
-    "**/*.spec.ts"
-  ]
+    "compilerOptions": {
+        "outDir": "./dist",
+        "sourceMap": true,
+        "downlevelIteration": true,
+        "experimentalDecorators": true,
+        "moduleResolution": "node",
+        "target": "esnext",
+        "module": "ES6",
+        "lib": [
+            "es2020"
+        ],
+        "strict": true
+    },
+    "include": [
+        "./types/*.d.ts",
+        "src"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ]
 }
