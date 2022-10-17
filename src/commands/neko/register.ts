@@ -22,8 +22,8 @@ export const NekoCommandRegister: IRegister = {
         }
 
         let descText = '';
-        descText += `作者: ${firstImg.artist_name}`;
-        descText += `来源: ${firstImg.source_url}`;
+        descText += `作者: ${firstImg.artist_name}\n`;
+        descText += `来源: ${firstImg.source_url}\n`;
         descText += `[CQ:image,file=${firstImg.url}]`;
 
         await ctx.reply(descText);
