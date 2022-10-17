@@ -1,29 +1,29 @@
 import * as _ from 'lodash';
 import { logger } from "../../logger";
 import { IRegister } from "../../types";
-import { getImgInfo } from './utils';
+import { getNekoImgs } from './utils';
 
-const COMMAND_NAME = 'waifu';
+const COMMAND_NAME = 'neko';
 
-export const WaifuCommandRegister: IRegister = {
+export const NekoCommandRegister: IRegister = {
     name: COMMAND_NAME,
-    description: '获取 Waifu 来源的随机图片[30s CD]',
+    description: '获取 Neko 来源的随机图片[30s CD]',
     timesInterval: 30,
     isAdmin: false,
-    exec: async (ctx) => {        
-        const res = await getImgInfo();
+    exec: async (ctx) => {
+        const res = await getNekoImgs();
 
         logger.info(`> ${COMMAND_NAME} res:`, res);
 
-        const firstImg = res.images[0];
+        const firstImg = res.results[0];
 
         if (!firstImg) {
             await ctx.reply('未找到图片');
         }
 
         let descText = '';
-
-        descText += `来源: ${firstImg.source}`;
+        descText += `作者: ${firstImg.artist_name}`;
+        descText += `来源: ${firstImg.source_url}`;
         descText += `[CQ:image,file=${firstImg.url}]`;
 
         await ctx.reply(descText);
