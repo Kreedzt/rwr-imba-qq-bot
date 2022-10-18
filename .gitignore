@@ -14,3 +14,5 @@ yarn-error.log*
 *.tsbuildinfo
 .npm
 .eslintcache
+
+welcome.template
