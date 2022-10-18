@@ -12,6 +12,8 @@ export interface BaseEvent {
     self_id: number;
     // message, request, notice, meta_event
     post_type: string;
+    group_id?: number;
+    user_id?: number;
 }
 
 export interface MessageEvent extends BaseEvent {
@@ -29,14 +31,36 @@ export interface MessageEvent extends BaseEvent {
     sender: Record<string, any>;
 }
 
+export interface NewMemberEvent extends BaseEvent {
+    time: number;
+    // bot qq
+    self_id: number;
+    post_type: 'notice';
+    notice_type: 'group_increase';
+    sub_type: 'approve' | 'invite';
+    // QQ Group
+    group_id: number;
+    operator_id: number;
+    // QQ
+    user_id: number;
+}
+
+export type NoticeEvent = NewMemberEvent;
+
 export type ParamsType = Map<string, boolean>;
 export type RegisterParamType = Record<string, boolean>;
 
-export interface ExecCtx {
+export interface MsgExecCtx {
     msg: string;
     params: ParamsType;
     env: GlobalEnv;
     event: MessageEvent;
+    reply: (msg: string) => Promise<void>;
+}
+
+export interface NoticeExecCtx {
+    env: GlobalEnv;
+    event: NoticeEvent;
     reply: (msg: string) => Promise<void>;
 }
 
@@ -48,5 +72,5 @@ export interface IRegister<T extends RegisterParamType = RegisterParamType> {
     timesInterval?: number;
     defaultParams?: T;
     parseParams?: (msg: string) => Map<string, boolean>;
-    exec: (ctx: ExecCtx) => Promise<void>;
+    exec: (ctx: MsgExecCtx) => Promise<void>;
 }

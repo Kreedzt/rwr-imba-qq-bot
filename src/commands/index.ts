@@ -1,5 +1,5 @@
 import {
-    ExecCtx,
+    MsgExecCtx,
     GlobalEnv,
     IRegister,
     MessageEvent,
@@ -93,7 +93,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
             }
             const params = getCommandParams(msg, hitCommand.defaultParams);
 
-            const ctx: ExecCtx = {
+            const ctx: MsgExecCtx = {
                 msg,
                 params: hitCommand.parseParams ? hitCommand.parseParams(msg) : params as ParamsType,
                 env,

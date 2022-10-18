@@ -1,10 +1,11 @@
 import * as express from 'express';
 import * as dotenv from 'dotenv';
 import * as bodyParser from 'body-parser';
-import { BaseEvent, GlobalEnv, MessageEvent } from './types';
+import { BaseEvent, GlobalEnv, MessageEvent, NoticeEvent } from './types';
 import { logger } from './logger';
 import { RemoteService } from './services';
 import { msgHandler } from './commands';
+import { noticeHandler } from './notices';
 
 const app = express();
 
@@ -35,6 +36,10 @@ app.post('/in', async (req, res) => {
         case 'message':
             const msgEvent = bodyData as MessageEvent;
             await msgHandler(env, msgEvent);
+            break;
+        case 'notice':
+            const noticeEvent = bodyData as NoticeEvent;
+            await noticeHandler(env, noticeEvent);
             break;
     }
     res.send('OK');
