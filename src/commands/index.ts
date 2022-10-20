@@ -21,7 +21,7 @@ const allCommands: IRegister[] = [
     ServersCommandRegister,
     WhereIsCommandRegister,
     RollCommandRegister,
-    SetuCommandRegister,
+    // SetuCommandRegister,
     TouhouCommandRegister,
     WaifuCommandRegister,
     OnePtCommandRegister,
