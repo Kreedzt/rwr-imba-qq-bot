@@ -18,7 +18,8 @@ const _env = process.env as Record<string, string>;
 const env = {
     ..._env,
     ADMIN_QQ: parseInt(_env.ADMIN_QQ),
-    PORT: parseInt(_env.PORT)
+    PORT: parseInt(_env.PORT),
+    ACTIVE_COMMANDS: JSON.parse(_env.ACTIVE_COMMANDS)
 } as GlobalEnv;
 
 RemoteService.init(env.REMOTE_URL);

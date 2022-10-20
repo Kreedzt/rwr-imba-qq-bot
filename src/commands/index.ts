@@ -21,7 +21,7 @@ const allCommands: IRegister[] = [
     ServersCommandRegister,
     WhereIsCommandRegister,
     RollCommandRegister,
-    // SetuCommandRegister,
+    SetuCommandRegister,
     TouhouCommandRegister,
     WaifuCommandRegister,
     OnePtCommandRegister,
@@ -43,6 +43,7 @@ const quickReply = async (event: MessageEvent, text: string) => {
 }
 
 const handlingRequestSet = new Set<number>();
+const activeCommandSet = new Set<string>();
 
 export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
     const msg = event.message;
@@ -56,11 +57,20 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
 
     const firstCommand = getFirstCommand(msg);
 
+    /**
+     * Generate activeCommandSet
+     */
+    env.ACTIVE_COMMANDS.forEach(c => {
+        activeCommandSet.add(c);
+    });
+
+    const avaliableCommands = allCommands.filter(c => activeCommandSet.has(c));
+
     // help:
     if (firstCommand === 'help') {
         let helpText = '帮助列表: \n';
 
-        allCommands.forEach((c) => {
+        avaliableCommands.forEach((c) => {
             helpText += `#${c.name}: ${c.description}\n\n`;
         });
 
@@ -68,7 +78,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
         return;
     }
 
-    const hitCommand = allCommands.find((c) => c.name === firstCommand);
+    const hitCommand = avaliableCommands.find((c) => c.name === firstCommand);
 
     if (!hitCommand) {
         return;

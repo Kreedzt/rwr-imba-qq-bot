@@ -5,6 +5,7 @@ export interface GlobalEnv {
     START_MATCH: string;
     REMOTE_URL: string;
     ADMIN_QQ: number;
+    ACTIVE_COMMANDS: string[];
     WELCOME_TEMPLATE: string;
 }
 
