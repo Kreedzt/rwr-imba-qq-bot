@@ -64,7 +64,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
         activeCommandSet.add(c);
     });
 
-    const avaliableCommands = allCommands.filter(c => activeCommandSet.has(c));
+    const avaliableCommands = allCommands.filter(c => activeCommandSet.has(c.name));
 
     // help:
     if (firstCommand === 'help') {
