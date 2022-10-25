@@ -15,6 +15,9 @@ app.use(bodyParser.json());
 // ENV
 dotenv.config();
 const _env = process.env as Record<string, string>;
+
+console.log('_env: ACTIVE_COMMANDS', _env.ACTIVE_COMMANDS, typeof _env.ACTIVE_COMMANDS);
+
 const env = {
     ..._env,
     ADMIN_QQ: parseInt(_env.ADMIN_QQ),

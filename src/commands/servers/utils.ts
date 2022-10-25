@@ -232,7 +232,7 @@ export const getUserInServerListDisplay = (
         const playersList = getCorrectPlayersList(s);
 
         playersList.forEach((player) => {
-            if (player.includes(user)) {
+            if (player.toUpperCase().includes(user.toUpperCase())) {
                 count += 1;
 
                 if (count >= QUERY_USER_IN_SERVERS_LIMIT) {
