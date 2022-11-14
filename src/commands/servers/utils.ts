@@ -122,6 +122,20 @@ export const getAllServerListDisplay = (
 };
 
 /**
+ * Get total players count
+ * @param servers all server list
+ * @returns total players count
+ */
+export const countTotalPlayers = (servers: OnlineServerItem[]): number => {
+    let total = 0;
+    servers.forEach((s) => {
+        total += s.playersCount;
+    });
+
+    return total;
+}
+
+/**
  * Send Http request, get all server list with matchRegex filter
  * @param matchRegex server name match regex
  * @returns all server list

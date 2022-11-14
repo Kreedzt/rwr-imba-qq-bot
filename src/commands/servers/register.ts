@@ -2,7 +2,7 @@ import { logger } from "../../logger";
 import { RemoteService } from "../../services";
 import { IRegister } from "../../types";
 import { QUERY_USER_IN_SERVERS_LIMIT } from "./constants";
-import { getAllServerListDisplay, getServerInfoDisplayText, getUserInServerListDisplay, queryAllServers } from "./utils";
+import { countTotalPlayers, getAllServerListDisplay, getServerInfoDisplayText, getUserInServerListDisplay, queryAllServers } from "./utils";
 
 export const ServersCommandRegister: IRegister = {
     name: 'servers',
@@ -12,7 +12,9 @@ export const ServersCommandRegister: IRegister = {
     exec: async (ctx) => {
         const serverList = await queryAllServers();
         const text = getAllServerListDisplay(serverList);
+        const playersCount = countTotalPlayers(serverList);
 
+        const headerText = `在线服务器数: ${serverList.length}, 在线玩家数: ${playersCount}\n`;
         const totalText = '当前在线的服务器列表:\n' + text;
 
         await ctx.reply(totalText);
