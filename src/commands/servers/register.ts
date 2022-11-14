@@ -15,7 +15,7 @@ export const ServersCommandRegister: IRegister = {
         const playersCount = countTotalPlayers(serverList);
 
         const headerText = `在线服务器数: ${serverList.length}, 在线玩家数: ${playersCount}\n`;
-        const totalText = '当前在线的服务器列表:\n' + text;
+        const totalText = headerText + '当前在线的服务器列表:\n' + text;
 
         await ctx.reply(totalText);
     }
