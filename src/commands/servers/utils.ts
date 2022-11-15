@@ -129,7 +129,7 @@ export const getAllServerListDisplay = (
 export const countTotalPlayers = (servers: OnlineServerItem[]): number => {
     let total = 0;
     servers.forEach((s) => {
-        total += s.playersCount;
+        total += getCorrectPlayersList(s).length;
     });
 
     return total;
