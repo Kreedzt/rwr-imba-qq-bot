@@ -8,7 +8,7 @@ import { MATCH_REGEX, QUERY_USER_IN_SERVERS_LIMIT } from './constants';
 const SERVER_API_URL = 'http://rwr.runningwithrifles.com/rwr_server_list';
 
 const axiosInst = axios.create({
-    timeout: 1500,
+    timeout: 3000,
 });
 
 /**
