@@ -11,6 +11,7 @@ import { logger } from '../logger';
 import { RemoteService } from '../services';
 import { getCommandParams, getFirstCommand } from '../utils';
 import { checkTimeIntervalValid } from './utils';
+import { FuckCommandRegister } from './fuck/register';
 import { SetuCommandRegister } from './setu/register';
 import { TouhouCommandRegister } from './touhou/register';
 import { WaifuCommandRegister } from './waifu/registers';
@@ -18,6 +19,7 @@ import { OnePtCommandRegister } from './1pt/register';
 import { NekoCommandRegister } from './neko/register';
 
 const allCommands: IRegister[] = [
+    FuckCommandRegister,
     ServersCommandRegister,
     WhereIsCommandRegister,
     RollCommandRegister,
@@ -70,7 +72,13 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
     if (firstCommand === 'help') {
         let helpText = '帮助列表: \n';
 
-        avaliableCommands.forEach((c) => {
+        avaliableCommands.filter(c => {
+            if (c.isAdmin && event.user_id !== env.ADMIN_QQ) {
+                return false;
+            }
+
+            return true;
+        }).forEach((c) => {
             helpText += `#${c.name}: ${c.description}\n\n`;
         });
 
@@ -115,6 +123,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
 
             await hitCommand.exec(ctx);
         } catch (e) {
+            await quickReply(event, '命令执行失败, 请检查日志');
             logger.error(e);
         } finally {
             handlingRequestSet.delete(event.message_id);
