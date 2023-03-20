@@ -7,6 +7,7 @@ export interface GlobalEnv {
     ADMIN_QQ: number;
     ACTIVE_COMMANDS: string[];
     WELCOME_TEMPLATE: string;
+    WEBSITE_FILE: string;
 }
 
 export interface BaseEvent {

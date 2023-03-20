@@ -31,7 +31,8 @@ logger.info('Env initialized:', {
     START_MATCH: env.START_MATCH,
     REMOTE_URL: env.REMOTE_URL,
     ADMIN_QQ: env.ADMIN_QQ,
-    ACTIVE_COMMANDS: env.ACTIVE_COMMANDS
+    ACTIVE_COMMANDS: env.ACTIVE_COMMANDS,
+    WEBSITE_FILE: env.WEBSITE_FILE
 });
 
 app.post('/in', async (req, res) => {

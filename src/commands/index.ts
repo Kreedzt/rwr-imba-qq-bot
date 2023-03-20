@@ -17,6 +17,7 @@ import { TouhouCommandRegister } from './touhou/register';
 import { WaifuCommandRegister } from './waifu/registers';
 import { OnePtCommandRegister } from './1pt/register';
 import { NekoCommandRegister } from './neko/register';
+import { WebsiteCommandRegister } from './website/register';
 
 const allCommands: IRegister[] = [
     FuckCommandRegister,
@@ -27,7 +28,8 @@ const allCommands: IRegister[] = [
     TouhouCommandRegister,
     WaifuCommandRegister,
     OnePtCommandRegister,
-    NekoCommandRegister
+    NekoCommandRegister,
+    WebsiteCommandRegister
 ];
 
 const quickReply = async (event: MessageEvent, text: string) => {
