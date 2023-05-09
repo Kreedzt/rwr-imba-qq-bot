@@ -1,6 +1,7 @@
 import { logger } from "../../logger";
 import { RemoteService } from "../../services";
 import { IRegister } from "../../types";
+import { printPng } from "./canvas";
 import { QUERY_USER_IN_SERVERS_LIMIT } from "./constants";
 import { countTotalPlayers, getAllServerListDisplay, getServerInfoDisplayText, getUserInServerListDisplay, queryAllServers } from "./utils";
 
@@ -13,11 +14,21 @@ export const ServersCommandRegister: IRegister = {
         const serverList = await queryAllServers();
         const text = getAllServerListDisplay(serverList);
         const playersCount = countTotalPlayers(serverList);
-
+        
         const headerText = `在线服务器数: ${serverList.length}, 在线玩家数: ${playersCount}\n`;
-        const totalText = headerText + '当前在线的服务器列表:\n' + text;
 
-        await ctx.reply(totalText);
+        const serversOutputList: string[] = serverList.map(s => {
+           return getServerInfoDisplayText(s);
+        })
+
+        const path = printPng(headerText, serversOutputList);
+
+        const cqOutput = `[CQ:image,file=file:///${path}]`;
+
+        //const headerText = `在线服务器数: ${serverList.length}, 在线玩家数: ${playersCount}\n`;
+        // const totalText = headerText + '当前在线的服务器列表:\n' + text;
+
+        await ctx.reply(cqOutput);
     }
 };
 

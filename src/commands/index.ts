@@ -120,7 +120,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
                 event,
                 reply: async (msg: string) => {
                     await quickReply(event, msg);
-                },
+                }
             };
 
             await hitCommand.exec(ctx);
