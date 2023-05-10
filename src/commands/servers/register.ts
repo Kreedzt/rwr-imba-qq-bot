@@ -2,7 +2,7 @@ import { logger } from "../../logger";
 import { RemoteService } from "../../services";
 import { IRegister } from "../../types";
 import { printPng } from "./canvas";
-import { QUERY_USER_IN_SERVERS_LIMIT } from "./constants";
+import { QUERY_USER_IN_SERVERS_LIMIT, SERVERS_OUTPUT_FILE, WHEREIS_OUTPUT_FILE } from "./constants";
 import { countTotalPlayers, getAllServerListDisplay, getServerInfoDisplayText, getUserInServerListDisplay, queryAllServers } from "./utils";
 
 export const ServersCommandRegister: IRegister = {
@@ -21,7 +21,7 @@ export const ServersCommandRegister: IRegister = {
            return getServerInfoDisplayText(s);
         })
 
-        const path = printPng(headerText, serversOutputList);
+        const path = printPng(headerText, serversOutputList, SERVERS_OUTPUT_FILE);
 
         const cqOutput = `[CQ:image,file=file:///${path}]`;
 
@@ -87,20 +87,23 @@ export const WhereIsCommandRegister: IRegister = {
         }
         const serverList = await queryAllServers();
         logger.info('> call getUserInServerListDisplay', targetName);
-        const { text, count } = getUserInServerListDisplay(targetName, serverList);
+        const contentText = getUserInServerListDisplay(targetName, serverList);
+        const count = contentText.length;
 
-        const titleText = `查询 '${targetName}'所在服务器结果:\n`;
-        let bodyText = '';
+        const titleText = `查询 '${targetName}' 所在服务器结果:\n`;
+        let footerText = '';
         if (count === 0) {
-            bodyText = '未找到玩家';
+            footerText = '未找到玩家';
         } else {
-            bodyText += text;
-
-            bodyText += `\n共计 ${count} 位玩家结果(只展示 ${QUERY_USER_IN_SERVERS_LIMIT} 位玩家列表)`;
+            footerText += `共计 ${count} 位玩家结果(只展示 ${QUERY_USER_IN_SERVERS_LIMIT} 位玩家列表)`;
         }
 
-        const totalText = titleText + bodyText;
+        const totalText = [...contentText, footerText];
 
-        await ctx.reply(totalText);
+        const path = printPng(titleText, totalText, WHEREIS_OUTPUT_FILE);
+
+        const cqOutput = `[CQ:image,file=file:///${path}]`;
+
+        await ctx.reply(cqOutput);
     }
 }

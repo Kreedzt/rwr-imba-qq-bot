@@ -2,27 +2,30 @@ import { createCanvas } from "canvas";
 import * as fs from 'fs';
 import * as path from 'path';
 import * as dayjs from 'dayjs';
+import { calcCanvasTextWidth } from "./utils";
 
 const OUTPUT_FOLDER = 'out';
-const OUTPUT_FILE_NAME = 'servers-output.png';
 
-export const printPng = (title: string, servers: string[]): string => {
+export const printPng = (title: string, content: string[], fileName: string): string => {
     const fnStartTime = dayjs();
 
     if (!fs.existsSync(OUTPUT_FOLDER)) {
         fs.mkdirSync(OUTPUT_FOLDER);
     }
 
+    const titleWidth = 11 * 28 + (title.length - 11) * 14;
 
     let maxLengthStr = '';
-    servers.forEach(s => {
+    content.forEach(s => {
         if (s.length > maxLengthStr.length) {
             maxLengthStr = s;
         }
     });
 
-    const width = 20 + maxLengthStr.length * 14;
-    const height = 120 + servers.length * 40;
+    const contentOutputWidth = calcCanvasTextWidth(maxLengthStr, 14) + 20;
+
+    const width = Math.max(titleWidth, contentOutputWidth);
+    const height = 120 + content.length * 40;
 
     const canvas = createCanvas(width, height);
 
@@ -61,11 +64,11 @@ export const printPng = (title: string, servers: string[]): string => {
     const maxTextInfo = context.measureText(maxLengthStr);
     const maxTextWidth = maxTextInfo.width;
     context.strokeStyle = '#f48225';
-    context.rect(10, nextStartY + 10, maxTextWidth + 20, servers.length * 40);
+    context.rect(10, nextStartY + 10, maxTextWidth + 20, content.length * 40);
     context.stroke();
 
 
-    servers.forEach((s) => {
+    content.forEach((s) => {
         /**
          * Render server info text
          */
@@ -92,10 +95,9 @@ export const printPng = (title: string, servers: string[]): string => {
         filters: canvas.PNG_FILTER_NONE
     });
 
-    const outputPath = path.join(process.cwd(), OUTPUT_FOLDER, `./${OUTPUT_FILE_NAME}`);
+    const outputPath = path.join(process.cwd(), OUTPUT_FOLDER, `./${fileName}`);
 
     fs.writeFileSync(outputPath, buffer);
 
     return outputPath;
 }
-

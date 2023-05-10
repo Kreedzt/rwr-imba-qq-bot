@@ -11,6 +11,8 @@ const axiosInst = axios.create({
     timeout: 8 * 1000,
 });
 
+export const CN_REGEX = new RegExp("[\u4E00-\u9FA5]");
+
 /**
  * Get players list string array
  * @param server server item
@@ -234,11 +236,8 @@ const getUserInfoInServerDisplayText = (
 export const getUserInServerListDisplay = (
     user: string,
     serverList: OnlineServerItem[]
-): {
-    text: string;
-    count: number;
-} => {
-    let text = '';
+): string[] => {
+    const text: string[] = [];
 
     let count = 0;
 
@@ -253,13 +252,29 @@ export const getUserInServerListDisplay = (
                     return;
                 }
 
-                text += getUserInfoInServerDisplayText(player, s);
+                text.push(getUserInfoInServerDisplayText(player, s));
             }
         });
     });
 
-    return {
-        text,
-        count,
-    };
+    return text;
 };
+
+/**
+ * Get canvas render text width before render
+ * @param text str
+ * @param base base font width
+ * @returns calc width
+ */
+export const calcCanvasTextWidth = (text: string, base: number): number => {
+    let countWidth = 0;
+    for (let i = 0; i < text.length; ++i) {
+        if (CN_REGEX.test(text[i])) {
+            countWidth += base * 2;
+        } else {
+            countWidth += base;
+        }
+    }
+
+    return countWidth;
+}
