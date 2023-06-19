@@ -69,6 +69,7 @@ export interface NoticeExecCtx {
 
 export interface IRegister<T extends RegisterParamType = RegisterParamType> {
     name: string;
+    alias?: string;
     description: string;
     isAdmin: boolean;
     // 短期单用户使用限制, 单位: 秒

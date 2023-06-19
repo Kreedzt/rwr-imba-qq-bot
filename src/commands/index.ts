@@ -81,14 +81,14 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
 
             return true;
         }).forEach((c) => {
-            helpText += `#${c.name}: ${c.description}\n\n`;
+            helpText += `#${c.name}${c.alias ? `(${c.alias})` : ''}: ${c.description}\n\n`;
         });
 
         await quickReply(event, helpText);
         return;
     }
 
-    const hitCommand = avaliableCommands.find((c) => c.name === firstCommand);
+    const hitCommand = avaliableCommands.find((c) => c.name === firstCommand || c.alias === firstCommand);
 
     if (!hitCommand) {
         return;
@@ -98,7 +98,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
         return;
     }
 
-    if (firstCommand === hitCommand.name) {
+    if (firstCommand === hitCommand.name || firstCommand === hitCommand.alias) {
         // handling... skiped re-replay
         if (handlingRequestSet.has(event.message_id)) {
             return;

@@ -7,6 +7,7 @@ import { countTotalPlayers, getAllServerListDisplay, getServerInfoDisplayText, g
 
 export const ServersCommandRegister: IRegister = {
     name: 'servers',
+    alias: 's',
     description: '查询所有在线的 rwr 服务器列表.[5s CD]',
     isAdmin: false,
     timesInterval: 5,
@@ -34,11 +35,12 @@ export const ServersCommandRegister: IRegister = {
 
 export const WhereIsCommandRegister: IRegister = {
     name: 'whereis',
+    alias: 'w',
     description: '查询玩家所在的 rwr 服务器, 需要一个参数.[5s CD]',
     isAdmin: false,
     timesInterval: 5,
     parseParams: (msg: string) => {
-        const step1Msg = msg.replace('#whereis', '');
+        const step1Msg = msg.replace('#whereis', '').replace('#w', '');
         let skipped = true;
         let targetName = '';
 
