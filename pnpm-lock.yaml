@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   axios:
-    specifier: 0.21.1
-    version: registry.npmmirror.com/axios@0.21.1
+    specifier: 0.21.2
+    version: 0.21.2
   body-parser:
     specifier: ^1.20.1
     version: registry.npmmirror.com/body-parser@1.20.1
@@ -1573,6 +1573,14 @@ packages:
       readable-stream: 3.6.2
     dev: false
 
+  /axios@0.21.2:
+    resolution: {integrity: sha512-87otirqUw3e8CzHTMO+/9kh/FSgXt/eVDvipijwDtEuwbkySWZ9SBm6VEubmJ/kLKEoLQV/POhxXFb66bfekfg==}
+    dependencies:
+      follow-redirects: 1.15.2
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /babel-loader@8.2.5(@babel/core@7.19.3)(webpack@5.74.0):
     resolution: {integrity: sha512-OSiFfH89LrEMiWd4pLNqGz4CwJDtbs2ZVc+iGu2HrkRfPxId9F2anQj38IxWpmRfsUY0aBZYi1EFcd3mhtRMLQ==}
     engines: {node: '>= 8.9'}
@@ -1915,6 +1923,16 @@ packages:
       locate-path: 5.0.0
       path-exists: 4.0.0
     dev: true
+
+  /follow-redirects@1.15.2:
+    resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    dev: false
 
   /fs-minipass@2.1.0:
     resolution: {integrity: sha512-V/JgOLFCS+R6Vcq0slCuaeWEdNC3ouDlJMNIsacH2VtALiu9mV4LPrHc5cDl8k5aw6J8jwgWWpiTo5RYhmIzvg==}
@@ -2895,16 +2913,6 @@ packages:
     version: 1.1.1
     dev: false
 
-  registry.npmmirror.com/axios@0.21.1:
-    resolution: {integrity: sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/axios/-/axios-0.21.1.tgz}
-    name: axios
-    version: 0.21.1
-    dependencies:
-      follow-redirects: registry.npmmirror.com/follow-redirects@1.15.2
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
   registry.npmmirror.com/body-parser@1.20.1:
     resolution: {integrity: sha512-jWi7abTbYwajOytWCQc37VulmWiRae5RyTpaCyDcS5/lMdtwSz5lOpDE67srw/HYe35f1z3fDQw+3txg7gNtWw==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/body-parser/-/body-parser-1.20.1.tgz}
     name: body-parser
@@ -3110,18 +3118,6 @@ packages:
       unpipe: registry.npmmirror.com/unpipe@1.0.0
     transitivePeerDependencies:
       - supports-color
-    dev: false
-
-  registry.npmmirror.com/follow-redirects@1.15.2:
-    resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/follow-redirects/-/follow-redirects-1.15.2.tgz}
-    name: follow-redirects
-    version: 1.15.2
-    engines: {node: '>=4.0'}
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
     dev: false
 
   registry.npmmirror.com/forwarded@0.2.0:
