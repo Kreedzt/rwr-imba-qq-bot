@@ -87,7 +87,7 @@ export const printPng = (title: string, content: string[], fileName: string): st
     const fnEndTime = dayjs();
 
     const calcCost = fnEndTime.diff(fnStartTime);
-    let footerText = 'RWR Imba QQ Bot' + `(build cost=${calcCost}ms)`;
+    let footerText = 'RWR QQ Bot' + `(build cost=${calcCost}ms)`;
     context.fillText(footerText, 10, nextStartY + 20);
 
     const buffer = canvas.toBuffer('image/png', {
