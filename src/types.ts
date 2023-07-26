@@ -4,6 +4,8 @@ export interface GlobalEnv {
     PORT: number;
     START_MATCH: string;
     REMOTE_URL: string;
+    LISTEN_GROUP: string;
+    SERVERS_MATCH_REGEX: string;
     ADMIN_QQ: number;
     ACTIVE_COMMANDS: string[];
     WELCOME_TEMPLATE: string;

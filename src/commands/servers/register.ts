@@ -12,7 +12,7 @@ export const ServersCommandRegister: IRegister = {
     isAdmin: false,
     timesInterval: 5,
     exec: async (ctx) => {
-        const serverList = await queryAllServers();
+        const serverList = await queryAllServers(ctx.env.SERVERS_MATCH_REGEX);
         const text = getAllServerListDisplay(serverList);
         const playersCount = countTotalPlayers(serverList);
         
@@ -87,7 +87,7 @@ export const WhereIsCommandRegister: IRegister = {
         if (!targetName) {
             return;
         }
-        const serverList = await queryAllServers();
+        const serverList = await queryAllServers(ctx.env.SERVERS_MATCH_REGEX);
         logger.info('> call getUserInServerListDisplay', targetName);
         const contentText = getUserInServerListDisplay(targetName, serverList);
         const count = contentText.length;
