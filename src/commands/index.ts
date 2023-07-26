@@ -56,6 +56,10 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
         return;
     }
 
+    if (event.group_id && event.group_id !== +env.LISTEN_GROUP) {
+        return;
+    }
+
     logger.info('> MessageEvent', event);
     logger.info('> Got bot msg', msg);
 

@@ -17,3 +17,6 @@ yarn-error.log*
 .eslintcache
 
 welcome.template
+*.sh
+website_list.json
+ecosystem.config.js

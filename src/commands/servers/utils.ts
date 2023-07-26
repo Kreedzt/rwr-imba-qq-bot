@@ -3,7 +3,7 @@ import { XMLParser } from 'fast-xml-parser';
 import type { Nullable } from '../../types';
 import { logger } from '../../logger';
 import type { Res, ResServerItem, OnlineServerItem } from './types';
-import { MATCH_REGEX, QUERY_USER_IN_SERVERS_LIMIT } from './constants';
+import { QUERY_USER_IN_SERVERS_LIMIT } from './constants';
 
 const SERVER_API_URL = 'http://rwr.runningwithrifles.com/rwr_server_list';
 
@@ -142,7 +142,7 @@ export const countTotalPlayers = (servers: OnlineServerItem[]): number => {
  * @param matchRegex server name match regex
  * @returns all server list
  */
-export const queryAllServers = async (): Promise<OnlineServerItem[]> => {
+export const queryAllServers = async (matchRegex: string): Promise<OnlineServerItem[]> => {
     let start = 0;
     const size = 100;
 
@@ -161,8 +161,8 @@ export const queryAllServers = async (): Promise<OnlineServerItem[]> => {
             totalServerList.push(...parseServerListFromString(resString));
         } while (parsedServerList.length === size);
 
-        if (MATCH_REGEX) {
-            const regex = new RegExp(MATCH_REGEX);
+        if (matchRegex) {
+            const regex = new RegExp(matchRegex);
 
             return totalServerList.filter((s) => {
                 return regex.test(s.name);
