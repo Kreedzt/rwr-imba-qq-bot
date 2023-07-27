@@ -8,11 +8,11 @@ export interface ResServerItem {
     country: string;
     current_players: number;
     timeStamp: number;
-    version: number;
-    dedicated: number;
-    mod: number,
+    version: string;
+    dedicated: boolean;
+    mod: number;
     // [AAA, BBB] | AAA
-    player?: string[] | string,
+    player?: string[] | string;
     comment: string;
     url: string;
     max_players: number;
@@ -23,7 +23,7 @@ export interface ResServerItem {
 export interface Res {
     result: {
         server: ResServerItem[];
-    }
+    };
 }
 
 export interface OnlineServerItem extends ResServerItem {
