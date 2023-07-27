@@ -10,7 +10,7 @@
     "lib": ["es2020"],
     "strict": true
   },
-  "include": ["./types/*.d.ts", "src"],
+  "include": ["vitest/globals","./types/*.d.ts", "src"],
   "exclude": [
     "node_modules",
     "**/*.spec.ts"
