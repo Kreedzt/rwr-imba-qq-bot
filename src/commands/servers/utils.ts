@@ -138,6 +138,18 @@ export const countTotalPlayers = (servers: OnlineServerItem[]): number => {
 }
 
 /**
+ * Check server name match env regex
+ */
+export const isServerMatchRegex = (regexStr: string, server: OnlineServerItem): boolean => {
+    if (!regexStr) {
+        return true;
+    }
+
+    const regex = new RegExp(regexStr);
+    return regex.test(server.name);
+}
+
+/**
  * Send Http request, get all server list with matchRegex filter
  * @param matchRegex server name match regex
  * @returns all server list
@@ -162,10 +174,8 @@ export const queryAllServers = async (matchRegex: string): Promise<OnlineServerI
         } while (parsedServerList.length === size);
 
         if (matchRegex) {
-            const regex = new RegExp(matchRegex);
-
             return totalServerList.filter((s) => {
-                return regex.test(s.name);
+                return isServerMatchRegex(matchRegex, s);
             });
         }
     } catch (error) {
