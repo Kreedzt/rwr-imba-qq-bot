@@ -17,7 +17,9 @@ yarn-error.log*
 .eslintcache
 coverage/
 
+# local test file
 welcome.template
 *.sh
 website_list.json
 ecosystem.config.js
+tdoll_data.json

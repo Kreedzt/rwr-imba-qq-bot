@@ -10,6 +10,7 @@ export interface GlobalEnv {
     ACTIVE_COMMANDS: string[];
     WELCOME_TEMPLATE: string;
     WEBSITE_FILE: string;
+    TDOLLDATA_FILE: string;
 }
 
 export interface BaseEvent {
