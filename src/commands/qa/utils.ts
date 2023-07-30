@@ -37,6 +37,15 @@ export const getQAMatchRes = (qaData: IQADataItem[], query: string) => {
 }
 
 export const insertQAData = (origin: IQADataItem[], newItem: IQADataItem) => {
+    if (origin.some(qa => qa.q === newItem.q)) {
+        return origin.map(qa => {
+            if (qa.q === newItem.q) {
+                return newItem;
+            }
+
+            return qa;
+        })
+    }
     return [...origin, newItem];
 }
 
@@ -59,7 +68,7 @@ export const getDeleteQADataRes = () => {
 export const formatQData = (qaData: IQADataItem) => {
     let res: string = '';
 
-    res += `${qaData.q}\n\n`;
+    res += `${qaData.q}\n`;
 
     return res;
 }

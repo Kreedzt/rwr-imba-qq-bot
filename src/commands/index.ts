@@ -19,7 +19,7 @@ import { OnePtCommandRegister } from './1pt/register';
 import { NekoCommandRegister } from './neko/register';
 import { WebsiteCommandRegister } from './website/register';
 import { TDollCommandRegister } from './tdoll/register';
-import { QACommandRegister, QADefineCommandRegister, QAListCommandRegister } from './qa/register';
+import { QACommandRegister, QADefineCommandRegister, QADeleteCommandRegister, QAListCommandRegister } from './qa/register';
 
 const allCommands: IRegister[] = [
     FuckCommandRegister,
@@ -35,7 +35,8 @@ const allCommands: IRegister[] = [
     TDollCommandRegister,
     QACommandRegister,
     QADefineCommandRegister,
-    QAListCommandRegister
+    QAListCommandRegister,
+    QADeleteCommandRegister
 ];
 
 const quickReply = async (event: MessageEvent, text: string) => {
