@@ -1,12 +1,12 @@
 import { IRegister } from "../../types";
 import { IQADataItem } from "./types";
-import { deleteQAData, getDeleteQADataNotFoundRes, getInsertQADataRes, getQAListRes, getQAMatchRes, insertQAData, readQAData, writeQAData } from "./utils";
+import { deleteQAData, getDeleteQADataNotFoundRes, getDeleteQADataRes, getInsertQADataRes, getQAListRes, getQAMatchRes, insertQAData, readQAData, writeQAData } from "./utils";
 
 let qaData: IQADataItem[] = [];
 
 export const QACommandRegister: IRegister = {
     name: "qa",
-    description: "根据定义好的问答列表问题查询答案.[10s CD]",
+    description: "根据定义好的问答列表问题查询答案, 需要一个参数.[10s CD]",
     timesInterval: 10,
     isAdmin: false,
     exec: async (ctx) => {
@@ -140,7 +140,7 @@ export const QADeleteCommandRegister: IRegister = {
 
         const newData = deleteQAData(qaData, question);
 
-        if (newData.length !== qaData.length) {
+        if (newData.length === qaData.length) {
             await ctx.reply(getDeleteQADataNotFoundRes());
             return;
         }
@@ -150,7 +150,7 @@ export const QADeleteCommandRegister: IRegister = {
         qaData = newData;
 
 
-        await ctx.reply(getInsertQADataRes());
+        await ctx.reply(getDeleteQADataRes());
     }
 }
 
