@@ -11,6 +11,7 @@ export interface GlobalEnv {
     WELCOME_TEMPLATE: string;
     WEBSITE_FILE: string;
     TDOLLDATA_FILE: string;
+    QADATA_FILE: string;
 }
 
 export interface BaseEvent {
