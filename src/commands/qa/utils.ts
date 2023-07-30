@@ -44,6 +44,18 @@ export const getInsertQADataRes = () => {
     return `添加成功`;
 }
 
+export const deleteQAData = (origin: IQADataItem[], deleteKey: string) => {
+    return origin.filter(qa => !qa.q.includes(deleteKey));
+}
+
+export const getDeleteQADataNotFoundRes = () => {
+    return `未找到指定问题`;
+}
+
+export const getDeleteQADataRes = () => {
+    return `删除成功`;
+}
+
 export const formatQData = (qaData: IQADataItem) => {
     let res: string = '';
 

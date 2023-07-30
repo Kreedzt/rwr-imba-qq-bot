@@ -1,6 +1,6 @@
 import { IRegister } from "../../types";
 import { IQADataItem } from "./types";
-import { getInsertQADataRes, getQAListRes, getQAMatchRes, insertQAData, readQAData, writeQAData } from "./utils";
+import { deleteQAData, getDeleteQADataNotFoundRes, getInsertQADataRes, getQAListRes, getQAMatchRes, insertQAData, readQAData, writeQAData } from "./utils";
 
 let qaData: IQADataItem[] = [];
 
@@ -41,38 +41,43 @@ export const QADefineCommandRegister: IRegister = {
     isAdmin: true,
     parseParams: (msg: string) => {
         const step1Msg = msg.replace('#qadefine', '');
+        // skip first space
         let skipped = true;
-        let targetName = '';
+        let targetAnswer = '';
 
         const params = new Map<string, boolean>();
 
-        let hasNameStart = false;
+        let hasAnswerStart = false;
         step1Msg.split(' ').forEach((userInput) => {
             if (userInput === '' && skipped) {
                 skipped = false;
             } else if (userInput === '') {
-                if (hasNameStart) {
-                    targetName += ' ';
+                if (hasAnswerStart) {
+                    targetAnswer += ' ';
                 }
             } else {
-                if (hasNameStart) {
-                    targetName += ' ' + userInput;
+                if (hasAnswerStart) {
+                    targetAnswer += ' ' + userInput;
                 } else {
-                    targetName += userInput;
+                    params.set(userInput, true);
+                    hasAnswerStart = true;
                 }
-                hasNameStart = true;
+                
+                if (params.size !== 0) {
+                    hasAnswerStart = true;
+                }
             }
         });
 
-        if (targetName) {
-            params.set(targetName, true);
+        if (targetAnswer) {
+            params.set(targetAnswer, true);
         }
 
         return params;
     },
     exec: async (ctx) => {
         if (ctx.params.size !== 2) {
-            await ctx.reply('需要2个参数, 示例: #qa 问题 答案');
+            await ctx.reply('需要2个参数, 示例: #qadefine 问题 答案');
             return;
         }
 
@@ -109,14 +114,55 @@ export const QADefineCommandRegister: IRegister = {
     }
 }
 
+export const QADeleteCommandRegister: IRegister = {
+    name: "qadelete",
+    description: "删除 qa 的问答",
+    timesInterval: 0,
+    isAdmin: true,
+    exec: async (ctx) => {
+        if (ctx.params.size !== 1) {
+            await ctx.reply('需要1个参数, 示例: #qadelete Question1');
+            return;
+        }
+
+        if (qaData.length === 0) {
+            qaData = readQAData(ctx.env.QADATA_FILE);
+        }
+
+        let question: string = '';
+
+        ctx.params.forEach((checked, inputParam) => {
+            if (!question) {
+                question = inputParam;
+                return;
+            }
+        });
+
+        const newData = deleteQAData(qaData, question);
+
+        if (newData.length !== qaData.length) {
+            await ctx.reply(getDeleteQADataNotFoundRes());
+            return;
+        }
+
+        writeQAData(ctx.env.QADATA_FILE, newData);
+
+        qaData = newData;
+
+
+        await ctx.reply(getInsertQADataRes());
+    }
+}
+
+
 export const QAListCommandRegister: IRegister = {
     name: "qalist",
-    description: "列出定义的 qa 的问答列表",
+    description: "列出定义的 qa 的问答列表.[10s CD]",
     timesInterval: 10,
     isAdmin: false,
     exec: async (ctx) => {
         if (qaData.length === 0) {
-            qaData = readQAData(ctx.env.TDOLLDATA_FILE);
+            qaData = readQAData(ctx.env.QADATA_FILE);
         }
 
         const replayText = getQAListRes(qaData);

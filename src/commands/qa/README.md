@@ -51,4 +51,6 @@ Q: 苹果
 A: 这 是 一个苹果
 ```
 
+- qadelete: 删除指定的 QA 数据, 管理员指令, 需要一个参数(格式: `#qadelete Question1`)
+
 - qalist: 列出定义的 QA 数据
