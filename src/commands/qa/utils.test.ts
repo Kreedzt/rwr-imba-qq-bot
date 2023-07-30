@@ -31,7 +31,7 @@ describe('qa: getQAListRes', () => {
     it.concurrent('2 results', () => {
         const res = getQAListRes(MOCK_DATA);
 
-        expect(res).toBe(`已定义的问题列表:\n\nQuestion1\n\nQuestion2\n\n`);
+        expect(res).toBe(`已定义的问题列表:\n\nQuestion1\nQuestion2\n`);
     });
 });
 
