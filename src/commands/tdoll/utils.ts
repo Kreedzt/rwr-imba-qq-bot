@@ -26,7 +26,13 @@ export const formatTDollData = (tdoll: ITDollDataItem) => {
 }
 
 export const getTdollDataRes = (dataList: ITDollDataItem[], query: string): string => {
-    const targetData = dataList.filter(d => d["枪名"].includes(query));
+    const targetData = dataList.filter(d => {
+        const userInput = query.toLowerCase().replace('-', '');
+
+        const currentName = d['枪名'].toLowerCase().replace('-', '');
+
+        return currentName.includes(userInput);
+    });
 
     const slicedData = targetData.slice(0, 5);
 
