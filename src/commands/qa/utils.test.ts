@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { IQADataItem } from './types';
-import { formatQAData, getQAListRes, getQAMatchRes } from './utils';
+import { deleteQAData, formatQAData, getQAListRes, getQAMatchRes } from './utils';
 
 const MOCK_DATA: IQADataItem[] = [
     {
@@ -52,3 +52,21 @@ describe('qa: getQAMatchRes', () => {
         expect(res).toBe(`Q: ${query}\n\nA: Answer1\n`);
     });
 });
+
+describe('qa: deleteQAData', () => {
+    it.concurrent('delete fuzzy', () => {
+        const query = 'Question';
+
+        const res = deleteQAData(MOCK_DATA, query);
+
+        expect(res).toEqual(MOCK_DATA);
+    });
+
+    it.concurrent('delete extract', () => {
+        const query = 'Question1';
+
+        const res = deleteQAData(MOCK_DATA, query);
+
+        expect(res).toEqual([MOCK_DATA[1]]);
+    });
+})
