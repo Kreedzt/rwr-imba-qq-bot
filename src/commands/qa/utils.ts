@@ -54,7 +54,7 @@ export const getInsertQADataRes = () => {
 }
 
 export const deleteQAData = (origin: IQADataItem[], deleteKey: string) => {
-    return origin.filter(qa => !qa.q.includes(deleteKey));
+    return origin.filter(qa => qa.q === deleteKey);
 }
 
 export const getDeleteQADataNotFoundRes = () => {
