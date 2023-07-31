@@ -21,13 +21,13 @@ export const QACommandRegister: IRegister = {
     timesInterval: 10,
     isAdmin: false,
     exec: async (ctx) => {
-        if (ctx.params.size !== 1) {
-            await ctx.reply('需要一个参数, 示例: #qa 问题');
-            return;
-        }
-
         if (qaData.length === 0) {
             qaData = readQAData(ctx.env.TDOLLDATA_FILE);
+        }
+
+        if (ctx.params.size === 0) {
+            await ctx.reply(getQAListRes(qaData));
+            return;
         }
 
         let query: string = '';
@@ -159,21 +159,5 @@ export const QADeleteCommandRegister: IRegister = {
         qaData = newData;
 
         await ctx.reply(getDeleteQADataRes());
-    },
-};
-
-export const QAListCommandRegister: IRegister = {
-    name: 'qalist',
-    description: '列出定义的 qa 的问答列表.[10s CD]',
-    timesInterval: 10,
-    isAdmin: false,
-    exec: async (ctx) => {
-        if (qaData.length === 0) {
-            qaData = readQAData(ctx.env.QADATA_FILE);
-        }
-
-        const replayText = getQAListRes(qaData);
-
-        await ctx.reply(replayText);
     },
 };
