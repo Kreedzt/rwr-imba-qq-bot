@@ -6,7 +6,7 @@ export interface GlobalEnv {
     REMOTE_URL: string;
     LISTEN_GROUP: string;
     SERVERS_MATCH_REGEX: string;
-    ADMIN_QQ: number;
+    ADMIN_QQ_LIST: number[];
     ACTIVE_COMMANDS: string[];
     WELCOME_TEMPLATE: string;
     WEBSITE_FILE: string;
