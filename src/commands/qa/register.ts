@@ -22,7 +22,7 @@ export const QACommandRegister: IRegister = {
     isAdmin: false,
     exec: async (ctx) => {
         if (qaData.length === 0) {
-            qaData = readQAData(ctx.env.TDOLLDATA_FILE);
+            qaData = readQAData(ctx.env.QADATA_FILE);
         }
 
         if (ctx.params.size === 0) {
