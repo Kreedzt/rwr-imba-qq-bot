@@ -186,6 +186,13 @@ export const queryAllServers = async (matchRegex: string): Promise<OnlineServerI
     return totalServerList;
 };
 
+export const countServersMaxPlayers = (servers: OnlineServerItem[]): number => {
+    return servers.reduce((acc, s) => {
+        acc += s.max_players;
+        return acc;
+    }, 0);
+}
+
 /**
  * Get match query params server text
  * @param servers all server list

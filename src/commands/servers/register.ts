@@ -3,7 +3,7 @@ import { RemoteService } from "../../services";
 import { IRegister } from "../../types";
 import { printPng } from "./canvas";
 import { QUERY_USER_IN_SERVERS_LIMIT, SERVERS_OUTPUT_FILE, WHEREIS_OUTPUT_FILE } from "./constants";
-import { countTotalPlayers, getAllServerListDisplay, getServerInfoDisplayText, getUserInServerListDisplay, queryAllServers } from "./utils";
+import { countServersMaxPlayers, countTotalPlayers, getAllServerListDisplay, getServerInfoDisplayText, getUserInServerListDisplay, queryAllServers } from "./utils";
 
 export const ServersCommandRegister: IRegister = {
     name: 'servers',
@@ -16,7 +16,7 @@ export const ServersCommandRegister: IRegister = {
         const text = getAllServerListDisplay(serverList);
         const playersCount = countTotalPlayers(serverList);
         
-        const headerText = `在线服务器数: ${serverList.length}, 在线玩家数: ${playersCount}\n`;
+        const headerText = `在线服务器数: ${serverList.length}, 在线玩家数: ${playersCount} / ${countServersMaxPlayers(serverList)}\n`;
 
         const serversOutputList: string[] = serverList.map(s => {
            return getServerInfoDisplayText(s);
