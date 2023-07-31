@@ -104,7 +104,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
         return;
     }
 
-    if (hitCommand.isAdmin && event.user_id !== env.ADMIN_QQ) {
+    if (hitCommand.isAdmin && !env.ADMIN_QQ_LIST.some(qq => event.user_id === qq)) {
         return;
     }
 
