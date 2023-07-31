@@ -1,12 +1,23 @@
-import { IRegister } from "../../types";
-import { IQADataItem } from "./types";
-import { deleteQAData, getDeleteQADataNotFoundRes, getDeleteQADataRes, getInsertQADataRes, getQAListRes, getQAMatchRes, insertQAData, readQAData, writeQAData } from "./utils";
+import { IRegister } from '../../types';
+import { IQADataItem } from './types';
+import {
+    deleteQAData,
+    getDeleteQADataNotFoundRes,
+    getDeleteQADataRes,
+    getInsertQADataRes,
+    getQAListRes,
+    getQAMatchRes,
+    insertQAData,
+    readQAData,
+    writeQAData,
+} from './utils';
 
 let qaData: IQADataItem[] = [];
 
 export const QACommandRegister: IRegister = {
-    name: "qa",
-    description: "根据定义好的问答列表问题查询答案, 需要一个参数.[10s CD]",
+    name: 'qa',
+    alias: 'q',
+    description: '根据定义好的问答列表问题查询答案, 需要一个参数.[10s CD]',
     timesInterval: 10,
     isAdmin: false,
     exec: async (ctx) => {
@@ -25,18 +36,17 @@ export const QACommandRegister: IRegister = {
             if (!query) {
                 query = inputParam;
             }
-        })
+        });
 
         const replayText = getQAMatchRes(qaData, query);
 
-
         await ctx.reply(replayText);
-    }
-}
+    },
+};
 
 export const QADefineCommandRegister: IRegister = {
-    name: "qadefine",
-    description: "定义 qa 的问答列表",
+    name: 'qadefine',
+    description: '定义 qa 的问答列表',
     timesInterval: 0,
     isAdmin: true,
     parseParams: (msg: string) => {
@@ -62,7 +72,7 @@ export const QADefineCommandRegister: IRegister = {
                     params.set(userInput, true);
                     hasAnswerStart = true;
                 }
-                
+
                 if (params.size !== 0) {
                     hasAnswerStart = true;
                 }
@@ -98,25 +108,24 @@ export const QADefineCommandRegister: IRegister = {
                 answer = inputParam;
                 return;
             }
-        })
+        });
 
         const newData = insertQAData(qaData, {
             q: question,
-            a: answer
+            a: answer,
         });
 
         writeQAData(ctx.env.QADATA_FILE, newData);
 
         qaData = newData;
 
-
         await ctx.reply(getInsertQADataRes());
-    }
-}
+    },
+};
 
 export const QADeleteCommandRegister: IRegister = {
-    name: "qadelete",
-    description: "删除 qa 的问答",
+    name: 'qadelete',
+    description: '删除 qa 的问答',
     timesInterval: 0,
     isAdmin: true,
     exec: async (ctx) => {
@@ -149,15 +158,13 @@ export const QADeleteCommandRegister: IRegister = {
 
         qaData = newData;
 
-
         await ctx.reply(getDeleteQADataRes());
-    }
-}
-
+    },
+};
 
 export const QAListCommandRegister: IRegister = {
-    name: "qalist",
-    description: "列出定义的 qa 的问答列表.[10s CD]",
+    name: 'qalist',
+    description: '列出定义的 qa 的问答列表.[10s CD]',
     timesInterval: 10,
     isAdmin: false,
     exec: async (ctx) => {
@@ -167,7 +174,6 @@ export const QAListCommandRegister: IRegister = {
 
         const replayText = getQAListRes(qaData);
 
-
         await ctx.reply(replayText);
-    }
-}
+    },
+};

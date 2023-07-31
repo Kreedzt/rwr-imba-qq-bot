@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -29,6 +29,9 @@ dependencies:
   lodash:
     specifier: ^4.17.21
     version: 4.17.21
+  pinyin-match:
+    specifier: ^1.2.4
+    version: 1.2.4
   tracer:
     specifier: ^1.1.6
     version: registry.npmmirror.com/tracer@1.1.6
@@ -3010,6 +3013,10 @@ packages:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
     dev: true
+
+  /pinyin-match@1.2.4:
+    resolution: {integrity: sha512-HpUiaSxcG3rrpKAMZXq/rMHbEp7wvfu9B64lHJBy+63xAr/hVdBC8xqkWWPnNyjSb19ihdh8FnXo+9m6jAr9Mg==}
+    dev: false
 
   /pkg-dir@4.2.0:
     resolution: {integrity: sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==}

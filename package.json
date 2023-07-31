@@ -11,7 +11,14 @@
     "test:watch": "vitest --watch",
     "coverage": "vitest --coverage"
   },
-  "keywords": ["qq", "bot", "self-hosted", "go-cqhttp", "rwr", "Running with rifles"],
+  "keywords": [
+    "qq",
+    "bot",
+    "self-hosted",
+    "go-cqhttp",
+    "rwr",
+    "Running with rifles"
+  ],
   "author": "Kreedzt",
   "license": "ISC",
   "dependencies": {
@@ -23,6 +30,7 @@
     "express": "^4.18.2",
     "fast-xml-parser": "^4.0.11",
     "lodash": "^4.17.21",
+    "pinyin-match": "^1.2.4",
     "tracer": "^1.1.6"
   },
   "devDependencies": {
