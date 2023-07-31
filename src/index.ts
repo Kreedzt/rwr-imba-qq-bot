@@ -20,7 +20,7 @@ console.log('_env: ACTIVE_COMMANDS', _env.ACTIVE_COMMANDS, typeof _env.ACTIVE_CO
 
 const env = {
     ..._env,
-    ADMIN_QQ: parseInt(_env.ADMIN_QQ),
+    ADMIN_QQ_LIST: JSON.parse(_env.ADMIN_QQ_LIST),
     PORT: parseInt(_env.PORT),
     ACTIVE_COMMANDS: JSON.parse(_env.ACTIVE_COMMANDS)
 } as GlobalEnv;
@@ -30,7 +30,7 @@ logger.info('Env initialized:', {
     PORT: env.PORT,
     START_MATCH: env.START_MATCH,
     REMOTE_URL: env.REMOTE_URL,
-    ADMIN_QQ: env.ADMIN_QQ,
+    ADMIN_QQ: env.ADMIN_QQ_LIST,
     ACTIVE_COMMANDS: env.ACTIVE_COMMANDS,
     WEBSITE_FILE: env.WEBSITE_FILE,
     TDOLLDATA_FILE: env.TDOLLDATA_FILE,
