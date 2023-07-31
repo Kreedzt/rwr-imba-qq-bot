@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import PinyinMatch from 'pinyin-match';
+import * as PinyinMatch from 'pinyin-match';
 import { GlobalEnv } from '../../types';
 import { IQADataItem } from './types';
 
@@ -32,6 +32,7 @@ export const getQAPinyinMatchList = (
     query: string
 ): IQADataItem[] => {
     const matchList = qaData.filter((qa) => {
+        // @ts-ignore
         if (PinyinMatch.match(qa.q, query)) {
             return true;
         }
