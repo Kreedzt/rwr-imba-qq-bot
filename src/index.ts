@@ -17,7 +17,7 @@ app.use('/out', express.static('out'));
 dotenv.config();
 const _env = process.env as Record<string, string>;
 
-console.log('_env: ACTIVE_COMMANDS', _env.ACTIVE_COMMANDS, typeof _env.ACTIVE_COMMANDS);
+console.log('_env: ACTIVE_COMMANDS', _env.ACTIVE_COMMANDS);
 
 const env = {
     ..._env,
@@ -32,10 +32,11 @@ logger.info('Env initialized:', {
     START_MATCH: env.START_MATCH,
     REMOTE_URL: env.REMOTE_URL,
     ADMIN_QQ: env.ADMIN_QQ_LIST,
+    SERVERS_MATCH_REGEX: env.SERVERS_MATCH_REGEX,
     ACTIVE_COMMANDS: env.ACTIVE_COMMANDS,
-    WEBSITE_FILE: env.WEBSITE_DATA_FILE,
-    TDOLLDATA_FILE: env.TDOLL_DATA_FILE,
-    QADATA_FILE: env.QA_DATA_FILE
+    WEBSITE_DATA_FILE: env.WEBSITE_DATA_FILE,
+    TDOLL_DATA_FILE: env.TDOLL_DATA_FILE,
+    QA_DATA_FILE: env.QA_DATA_FILE
 });
 
 app.post('/in', async (req, res) => {
