@@ -1,0 +1,25 @@
+/.github
+/.idea
+/coverage
+/node_modules
+/.log
+/temp
+/data
+/dist
+/logs
+/.vscode
+
+# env
+.env
+.env-example
+docker-compose.yaml
+docker-compose-example.yaml
+
+LICENSE
+.gitignore
+.prettierrc
+*.md
+*.png
+*.7z
+*.sh
+codecov.yml

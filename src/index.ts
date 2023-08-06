@@ -32,9 +32,9 @@ logger.info('Env initialized:', {
     REMOTE_URL: env.REMOTE_URL,
     ADMIN_QQ: env.ADMIN_QQ_LIST,
     ACTIVE_COMMANDS: env.ACTIVE_COMMANDS,
-    WEBSITE_FILE: env.WEBSITE_FILE,
-    TDOLLDATA_FILE: env.TDOLLDATA_FILE,
-    QADATA_FILE: env.QADATA_FILE
+    WEBSITE_FILE: env.WEBSITE_DATA_FILE,
+    TDOLLDATA_FILE: env.TDOLL_DATA_FILE,
+    QADATA_FILE: env.QA_DATA_FILE
 });
 
 app.post('/in', async (req, res) => {

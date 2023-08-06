@@ -3,7 +3,7 @@ import { GlobalEnv } from "../../types";
 import { IWebsiteItem } from './types';
 
 export const getReplyOutput = (env: GlobalEnv) => {
-    const fileContent = JSON.parse(fs.readFileSync(env.WEBSITE_FILE, 'utf-8') as string) as IWebsiteItem[];
+    const fileContent = JSON.parse(fs.readFileSync(env.WEBSITE_DATA_FILE, 'utf-8') as string) as IWebsiteItem[];
 
     let replayContent = '';
 
