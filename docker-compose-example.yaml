@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  qq-bot:
+    image: zhaozisong0/rwr-imba-qq-bot:latest
+    volumes:
+      - ./data:/app/data
+    # merge your env
+    env_file: .env

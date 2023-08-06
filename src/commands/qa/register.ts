@@ -22,7 +22,7 @@ export const QACommandRegister: IRegister = {
     isAdmin: false,
     exec: async (ctx) => {
         if (qaData.length === 0) {
-            qaData = readQAData(ctx.env.QADATA_FILE);
+            qaData = readQAData(ctx.env.QA_DATA_FILE);
         }
 
         if (ctx.params.size === 0) {
@@ -92,7 +92,7 @@ export const QADefineCommandRegister: IRegister = {
         }
 
         if (qaData.length === 0) {
-            qaData = readQAData(ctx.env.QADATA_FILE);
+            qaData = readQAData(ctx.env.QA_DATA_FILE);
         }
 
         let question: string = '';
@@ -115,7 +115,7 @@ export const QADefineCommandRegister: IRegister = {
             a: answer,
         });
 
-        writeQAData(ctx.env.QADATA_FILE, newData);
+        writeQAData(ctx.env.QA_DATA_FILE, newData);
 
         qaData = newData;
 
@@ -135,7 +135,7 @@ export const QADeleteCommandRegister: IRegister = {
         }
 
         if (qaData.length === 0) {
-            qaData = readQAData(ctx.env.QADATA_FILE);
+            qaData = readQAData(ctx.env.QA_DATA_FILE);
         }
 
         let question: string = '';
@@ -154,7 +154,7 @@ export const QADeleteCommandRegister: IRegister = {
             return;
         }
 
-        writeQAData(ctx.env.QADATA_FILE, newData);
+        writeQAData(ctx.env.QA_DATA_FILE, newData);
 
         qaData = newData;
 

@@ -9,9 +9,9 @@ export interface GlobalEnv {
     ADMIN_QQ_LIST: number[];
     ACTIVE_COMMANDS: string[];
     WELCOME_TEMPLATE: string;
-    WEBSITE_FILE: string;
-    TDOLLDATA_FILE: string;
-    QADATA_FILE: string;
+    WEBSITE_DATA_FILE: string;
+    TDOLL_DATA_FILE: string;
+    QA_DATA_FILE: string;
 }
 
 export interface BaseEvent {

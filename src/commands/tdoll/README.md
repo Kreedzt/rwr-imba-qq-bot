@@ -6,7 +6,7 @@
 
 ## 环境变量
 
-- TDOLLDATA_FILE: 定义人形数据文件位置
+- TDOLL_DATA_FILE: 定义人形数据文件位置
 
 ### 数据源获取方式
 
@@ -40,7 +40,7 @@ console.log('tdollList', tdollList);
 ```
 3. 将变量值 tdollList 保存为 json, 使用环境变量 `TDOLLDATA_FILE` 指定此文件即可
 
-> 假设保存的文件为 tdoll_data.json, .env 环境变量文件中编写内容为 `TDOLLDATA_FILE=tdoll_data.json` 即可
+> 假设保存的文件为 tdoll_data.json, .env 环境变量文件中编写内容为 `TDOLL_DATA_FILE=tdoll_data.json` 即可
 
 ## 注册的指令
 
