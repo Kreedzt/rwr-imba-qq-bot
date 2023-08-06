@@ -11,6 +11,7 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use('/out', express.static('out'));
 
 // ENV
 dotenv.config();
