@@ -5,7 +5,7 @@ export const logger = tracer.dailyfile({
     maxLogFiles: 20,
     transport: [
         function (data) {
-            console.log(data.output)
+            console.log(JSON.stringify(data.output))
         }
     ]
 }) as {
