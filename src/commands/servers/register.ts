@@ -1,6 +1,6 @@
 import { logger } from "../../logger";
-import { RemoteService } from "../../services";
 import { IRegister } from "../../types";
+import { getStaticHttpPath } from "../utils";
 import { printPng } from "./canvas";
 import { QUERY_USER_IN_SERVERS_LIMIT, SERVERS_OUTPUT_FILE, WHEREIS_OUTPUT_FILE } from "./constants";
 import { countServersMaxPlayers, countTotalPlayers, getAllServerListDisplay, getServerInfoDisplayText, getUserInServerListDisplay, queryAllServers } from "./utils";
@@ -24,7 +24,7 @@ export const ServersCommandRegister: IRegister = {
 
         const path = printPng(headerText, serversOutputList, SERVERS_OUTPUT_FILE);
 
-        const cqOutput = `[CQ:image,file=file:///${path}]`;
+        const cqOutput = `[CQ:image,file=${getStaticHttpPath(ctx.env, SERVERS_OUTPUT_FILE)}]`;
 
         //const headerText = `在线服务器数: ${serverList.length}, 在线玩家数: ${playersCount}\n`;
         // const totalText = headerText + '当前在线的服务器列表:\n' + text;
@@ -104,7 +104,7 @@ export const WhereIsCommandRegister: IRegister = {
 
         const path = printPng(titleText, totalText, WHEREIS_OUTPUT_FILE);
 
-        const cqOutput = `[CQ:image,file=file:///${path}]`;
+        const cqOutput = `[CQ:image,file=${getStaticHttpPath(ctx.env, WHEREIS_OUTPUT_FILE)}]`;
 
         await ctx.reply(cqOutput);
     }
