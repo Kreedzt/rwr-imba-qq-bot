@@ -7,7 +7,7 @@
 
 通用配置:
 - PORT: 监听的 HTTP 端口号, 类型为 `number`
-- REMOTE_URL: go-cqhttp 的服务 HTTP 地址, 类型为 `string`
+- REMOTE_URL: go-cqhttp 的服务监听的 HTTP 地址, 类型为 `string`
 - START_MATCH: 机器人命令触发前缀, 类型为 `string`
 - ADMIN_QQ_LIST: 管理员 QQ 列表, 类型为 `string[]`
 - LISTEN_GROUP: 监听的 QQ 群号, 类型为 `number`
@@ -24,7 +24,23 @@
 
 ### Docker
 
+可选挂载目录
+- logs: 日志输出目录
 
+```sh
+docker run --name my-rwr-qq-bot \
+-p 8080:80 \
+-e "PORT=80" \
+-e "REMOTE_URL=<REMOTE_URL>" \
+-e "START_MATCH=<START_MATCH>" \
+-e "ADMIN_QQ_LIST=<ADMIN_QQ_LIST>" \
+-e "LISTEN_GROUP=<LISTEN_GROUP>" \
+-e "ACTIVE_COMMANDS=<ACTIVE_COMMANDS>" \
+-e "SERVER_MATCH_REGEX=<SERVER_MATCH_REGEX>" \
+-v ${PWD}/data:/app/data \
+-v ${PWD}/logs:/app/logs \
+-d zhaozisong0/rwr-imba-qq-bot:latest
+```
 
 ### Docker compose
 
