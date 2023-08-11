@@ -1,17 +1,28 @@
-import * as tracer from 'tracer';
+import * as winston from 'winston';
+import 'winston-daily-rotate-file';
 
-export const logger = tracer.dailyfile({
-    root: './logs',
-    maxLogFiles: 20,
-    transport: [
-        function (data) {
-            console.log(JSON.stringify(data.output))
-        }
-    ]
-}) as {
-    info: (...args: any[]) => void,
-    warn: (...args: any[]) => void,
-    debug: (...args: any[]) => void,
-    error: (...args: any[]) => void,
-    log: (...args: any[]) => void,
-};
+export const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.json(),
+    // defaultMeta: { service: 'rwr-imba-qq-bot' },
+    transports: [
+        new winston.transports.Console(),
+        new winston.transports.DailyRotateFile({
+            level: 'info',
+            dirname: 'logs',
+            filename: 'info-%DATE%.log',
+            datePattern: 'YYYY-MM-DD',
+            zippedArchive: true,
+            maxSize: '20m',
+            maxFiles: '14d'
+        }),
+        new winston.transports.DailyRotateFile({
+            level: 'error',
+            filename: 'error-%DATE%.log',
+            datePattern: 'YYYY-MM-DD',
+            zippedArchive: true,
+            maxSize: '20m',
+            maxFiles: '14d'
+        }),
+    ],
+});
