@@ -104,7 +104,7 @@ export const WhereIsCommandRegister: IRegister = {
 
         const path = printPng(titleText, totalText, WHEREIS_OUTPUT_FILE);
 
-        const cqOutput = `[CQ:image,file=${getStaticHttpPath(ctx.env, WHEREIS_OUTPUT_FILE)}]`;
+        const cqOutput = `[CQ:image,file=${getStaticHttpPath(ctx.env, WHEREIS_OUTPUT_FILE)},cache=0,c=8]`;
 
         await ctx.reply(cqOutput);
     }
