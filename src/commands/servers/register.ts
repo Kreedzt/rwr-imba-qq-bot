@@ -24,7 +24,7 @@ export const ServersCommandRegister: IRegister = {
 
         const path = printPng(headerText, serversOutputList, SERVERS_OUTPUT_FILE);
 
-        const cqOutput = `[CQ:image,file=${getStaticHttpPath(ctx.env, SERVERS_OUTPUT_FILE)}]`;
+        const cqOutput = `[CQ:image,file=${getStaticHttpPath(ctx.env, SERVERS_OUTPUT_FILE)},cache=0,c=8]`;
 
         //const headerText = `在线服务器数: ${serverList.length}, 在线玩家数: ${playersCount}\n`;
         // const totalText = headerText + '当前在线的服务器列表:\n' + text;
