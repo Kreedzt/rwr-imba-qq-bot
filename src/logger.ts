@@ -5,13 +5,24 @@ export const logger = tracer.dailyfile({
     maxLogFiles: 20,
     transport: [
         function (data) {
-            console.log(JSON.stringify(data.output))
-        }
-    ]
+            const logData: Record<string, any> = {
+                timestamp: data.timestamp,
+                level: data.title,
+                message: data.message,
+            };
+            if (data.title === 'error') {
+                logData.line = data.line;
+                logData.path = data.path;
+                logData.method = data.method,
+                logData.stack = data.stack;
+            }
+            console.log(JSON.stringify(logData));
+        },
+    ],
 }) as {
-    info: (...args: any[]) => void,
-    warn: (...args: any[]) => void,
-    debug: (...args: any[]) => void,
-    error: (...args: any[]) => void,
-    log: (...args: any[]) => void,
+    info: (...args: any[]) => void;
+    warn: (...args: any[]) => void;
+    debug: (...args: any[]) => void;
+    error: (...args: any[]) => void;
+    log: (...args: any[]) => void;
 };
