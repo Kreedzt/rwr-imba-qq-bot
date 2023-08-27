@@ -29,6 +29,7 @@ const env = {
 RemoteService.init(env.REMOTE_URL);
 logger.info('Env initialized:', {
     PORT: env.PORT,
+    HOSTNAME: env.HOSTNAME,
     START_MATCH: env.START_MATCH,
     REMOTE_URL: env.REMOTE_URL,
     ADMIN_QQ: env.ADMIN_QQ_LIST,

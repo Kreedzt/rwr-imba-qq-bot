@@ -44,7 +44,13 @@ RUN apk add --no-cache --virtual .build-deps \
         cairo \
 	jpeg \
 	pango \
-	giflib && npx pnpm i --production
+	giflib
+
+COPY ./consola.ttf /app/
+
+RUN apk add wqy-zenhei --update-cache --repository https://nl.alpinelinux.org/alpine/edge/testing && fc-cache -fv
+
+RUN npx pnpm i --production
 
 COPY --from=builder /app/dist /app/dist
 

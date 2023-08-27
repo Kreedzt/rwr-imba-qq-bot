@@ -61,5 +61,5 @@ export const checkTimeIntervalValid = (c: IRegister, event: MessageEvent): {
 }
 
 export const getStaticHttpPath = (env: GlobalEnv, path: string) => {
-    return `http://localhost:${env.PORT}/out/${path}`;
+    return `http://${env.HOSTNAME || 'localhost'}:${env.PORT}/out/${path}`;
 }
