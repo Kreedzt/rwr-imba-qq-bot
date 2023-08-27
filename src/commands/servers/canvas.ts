@@ -1,4 +1,4 @@
-import { createCanvas } from "canvas";
+import { createCanvas, registerFont } from "canvas";
 import * as fs from 'fs';
 import * as path from 'path';
 import * as dayjs from 'dayjs';
@@ -40,7 +40,7 @@ export const printPng = (title: string, content: string[], fileName: string): st
     /**
      * Header
      */
-    context.font = 'bold 20pt Consolas';
+    context.font = 'bold 20pt DejaVu Sans Regular';
     context.textAlign = 'left';
     context.textBaseline = 'top';
     context.fillStyle = '#3574d4';
