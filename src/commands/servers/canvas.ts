@@ -40,7 +40,7 @@ export const printPng = (title: string, content: string[], fileName: string): st
     /**
      * Header
      */
-    context.font = 'bold 20pt DejaVu Sans Regular';
+    context.font = 'bold 20pt Consolas';
     context.textAlign = 'left';
     context.textBaseline = 'top';
     context.fillStyle = '#3574d4';
