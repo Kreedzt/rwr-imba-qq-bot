@@ -1,5 +1,5 @@
 import { logger } from "../logger";
-import { IRegister, MessageEvent } from "../types";
+import { GlobalEnv, IRegister, MessageEvent } from "../types";
 
 interface UserCommandRequest {
     [k: string]: {
@@ -58,4 +58,8 @@ export const checkTimeIntervalValid = (c: IRegister, event: MessageEvent): {
     requestMapRes[commandName].lastCallTime = currentTimestamp;
 
     return res;
+}
+
+export const getStaticHttpPath = (env: GlobalEnv, path: string) => {
+    return `http://${env.HOSTNAME || 'localhost'}:${env.PORT}/out/${path}`;
 }

@@ -1,4 +1,4 @@
-import { createCanvas } from "canvas";
+import { createCanvas, registerFont } from "canvas";
 import * as fs from 'fs';
 import * as path from 'path';
 import * as dayjs from 'dayjs';

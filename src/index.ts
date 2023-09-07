@@ -11,16 +11,17 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use('/out', express.static('out'));
 
 // ENV
 dotenv.config();
 const _env = process.env as Record<string, string>;
 
-console.log('_env: ACTIVE_COMMANDS', _env.ACTIVE_COMMANDS, typeof _env.ACTIVE_COMMANDS);
+logger.info('_env: ACTIVE_COMMANDS', _env.ACTIVE_COMMANDS);
 
 const env = {
     ..._env,
-    ADMIN_QQ: parseInt(_env.ADMIN_QQ),
+    ADMIN_QQ_LIST: JSON.parse(_env.ADMIN_QQ_LIST),
     PORT: parseInt(_env.PORT),
     ACTIVE_COMMANDS: JSON.parse(_env.ACTIVE_COMMANDS)
 } as GlobalEnv;
@@ -28,12 +29,15 @@ const env = {
 RemoteService.init(env.REMOTE_URL);
 logger.info('Env initialized:', {
     PORT: env.PORT,
+    HOSTNAME: env.HOSTNAME,
     START_MATCH: env.START_MATCH,
     REMOTE_URL: env.REMOTE_URL,
-    ADMIN_QQ: env.ADMIN_QQ,
+    ADMIN_QQ: env.ADMIN_QQ_LIST,
+    SERVERS_MATCH_REGEX: env.SERVERS_MATCH_REGEX,
     ACTIVE_COMMANDS: env.ACTIVE_COMMANDS,
-    WEBSITE_FILE: env.WEBSITE_FILE,
-    TDOLLDATA_FILE: env.TDOLLDATA_FILE
+    WEBSITE_DATA_FILE: env.WEBSITE_DATA_FILE,
+    TDOLL_DATA_FILE: env.TDOLL_DATA_FILE,
+    QA_DATA_FILE: env.QA_DATA_FILE
 });
 
 app.post('/in', async (req, res) => {

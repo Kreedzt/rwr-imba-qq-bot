@@ -19,6 +19,7 @@ import { OnePtCommandRegister } from './1pt/register';
 import { NekoCommandRegister } from './neko/register';
 import { WebsiteCommandRegister } from './website/register';
 import { TDollCommandRegister } from './tdoll/register';
+import { QACommandRegister, QADefineCommandRegister, QADeleteCommandRegister } from './qa/register';
 
 const allCommands: IRegister[] = [
     FuckCommandRegister,
@@ -31,7 +32,10 @@ const allCommands: IRegister[] = [
     OnePtCommandRegister,
     NekoCommandRegister,
     WebsiteCommandRegister,
-    TDollCommandRegister
+    TDollCommandRegister,
+    QACommandRegister,
+    QADefineCommandRegister,
+    QADeleteCommandRegister
 ];
 
 const quickReply = async (event: MessageEvent, text: string) => {
@@ -81,7 +85,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
         let helpText = '帮助列表: \n';
 
         avaliableCommands.filter(c => {
-            if (c.isAdmin && event.user_id !== env.ADMIN_QQ) {
+            if (c.isAdmin && !env.ADMIN_QQ_LIST.some(qq => event.user_id === qq)) {
                 return false;
             }
 
@@ -100,7 +104,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
         return;
     }
 
-    if (hitCommand.isAdmin && event.user_id !== env.ADMIN_QQ) {
+    if (hitCommand.isAdmin && !env.ADMIN_QQ_LIST.some(qq => event.user_id === qq)) {
         return;
     }
 

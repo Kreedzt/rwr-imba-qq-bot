@@ -3,14 +3,16 @@ export type Nullable<T> = T | null | undefined;
 export interface GlobalEnv {
     PORT: number;
     START_MATCH: string;
+    HOSTNAME: string;
     REMOTE_URL: string;
     LISTEN_GROUP: string;
     SERVERS_MATCH_REGEX: string;
-    ADMIN_QQ: number;
+    ADMIN_QQ_LIST: number[];
     ACTIVE_COMMANDS: string[];
     WELCOME_TEMPLATE: string;
-    WEBSITE_FILE: string;
-    TDOLLDATA_FILE: string;
+    WEBSITE_DATA_FILE: string;
+    TDOLL_DATA_FILE: string;
+    QA_DATA_FILE: string;
 }
 
 export interface BaseEvent {

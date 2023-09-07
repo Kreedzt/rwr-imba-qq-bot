@@ -17,7 +17,7 @@ export const TDollCommandRegister: IRegister = {
         }
 
         if (tdollData.length === 0) {
-            tdollData = readTdollData(ctx.env.TDOLLDATA_FILE);
+            tdollData = readTdollData(ctx.env.TDOLL_DATA_FILE);
         }
 
         let query: string = '';
