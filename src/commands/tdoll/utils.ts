@@ -29,14 +29,14 @@ export const getTdollDataRes = (dataList: ITDollDataItem[], query: string): stri
     const targetData = dataList.filter(d => {
         const userInput = query.toLowerCase().replace('-', '');
 
-        const currentName = d['枪名'].toLowerCase().replace('-', '');
+        const currentName = d['枪名'].toLowerCase().replace('-', '').replace(' ', '');
 
         return currentName.includes(userInput);
     }).sort((a, b) => {
         const aMatch = a['枪名'];
         const bMatch = b['枪名'];
-        if (aMatch.indexOf(query) !== aMatch.indexOf(query)) {
-            return aMatch.indexOf(query) - aMatch.indexOf(query);
+        if (aMatch.indexOf(query) !== bMatch.indexOf(query)) {
+            return aMatch.indexOf(query) - bMatch.indexOf(query);
         }
 
         return aMatch.length - bMatch.length;

@@ -48,7 +48,7 @@ describe('tdoll: getTdollDataRes', () => {
         expect(res).toBe(`No.55 M4A1 突击步枪\nhttp://www.gfwiki.org/w/M4A1#MOD3\n\n最多展示 5 项结果`);
     });
 
-    
+
     it.concurrent('query found 1 result, ignore case', () => {
         const query = 'm4a1';
 
@@ -78,27 +78,41 @@ describe('tdoll: getTdollDataRes', () => {
 
         const MOCK_LOCAL_DATA: ITDollDataItem[] = [
             {
-                "编号": "No.55",
-                "枪名": "M4A1",
-                "link": "http://www.gfwiki.org/w/M4A1#MOD3",
-                "枪种": "突击步枪",
-            },
-            {
-                "编号": "No.1029",
-                "枪名": "特工416",
-                "link": "http://www.gfwiki.org/w/%E7%89%B9%E5%B7%A5416",
-                "枪种": "突击步枪",
+                "编号": "No.308",
+                "枪名": "C14",
+                "link": "http://www.gfwiki.org/w/C14",
+                "枪种": "步枪",
             },
             {
                 "编号": "No.291",
                 "枪名": "43M",
                 "link": "http://www.gfwiki.org/w/43M",
                 "枪种": "冲锋枪"
+            },
+            {
+                "编号": "No.125",
+                "枪名": "MG4",
+                "link": "http://www.gfwiki.org/w/MG4#MOD3",
+                "枪种": "机枪",
+            },
+            {
+                "编号": "No.94",
+                "枪名": "64式",
+                "link": "http://www.gfwiki.org/w/64%E5%BC%8F#MOD3",
+                "枪种": "冲锋枪",
+            },
+            {
+                "编号": "No.62",
+                "枪名": "G41",
+                "link": "http://www.gfwiki.org/w/G41",
+                "枪种": "突击步枪",
             }
         ];
 
         const res = getTdollDataRes(MOCK_LOCAL_DATA, query);
 
-        expect(res).toBe(`No.291 43M 冲锋枪\nhttp://www.gfwiki.org/w/43M\nNo.55 M4A1 突击步枪\nhttp://www.gfwiki.org/w/M4A1#MOD3\nNo.1029 特工416 突击步枪\nhttp://www.gfwiki.org/w/%E7%89%B9%E5%B7%A5416\n\n最多展示 5 项结果`);
+        expect(res).toBe(`${formatTDollData(MOCK_LOCAL_DATA[1])
+            }${formatTDollData(MOCK_LOCAL_DATA[3])}${formatTDollData(MOCK_LOCAL_DATA[4])}${formatTDollData(MOCK_LOCAL_DATA[0])}${formatTDollData(MOCK_LOCAL_DATA[2])
+            }\n最多展示 5 项结果`);
     })
 });
