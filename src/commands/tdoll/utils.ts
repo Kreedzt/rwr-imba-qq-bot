@@ -32,6 +32,14 @@ export const getTdollDataRes = (dataList: ITDollDataItem[], query: string): stri
         const currentName = d['枪名'].toLowerCase().replace('-', '');
 
         return currentName.includes(userInput);
+    }).sort((a, b) => {
+        const aMatch = a['枪名'];
+        const bMatch = b['枪名'];
+        if (aMatch.indexOf(query) !== aMatch.indexOf(query)) {
+            return aMatch.indexOf(query) - aMatch.indexOf(query);
+        }
+
+        return aMatch.length - bMatch.length;
     });
 
     const slicedData = targetData.slice(0, 5);
