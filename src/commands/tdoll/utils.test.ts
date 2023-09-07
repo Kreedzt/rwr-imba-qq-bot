@@ -20,7 +20,7 @@ const MOCK_DATA: ITDollDataItem[] = [
         "枪名": "NTW-20",
         "link": "http://www.gfwiki.org/w/NTW-20#MOD3",
         "枪种": "步枪"
-      }
+    }
 ];
 
 describe('tdoll: formatTdollData', () => {
@@ -72,4 +72,33 @@ describe('tdoll: getTdollDataRes', () => {
 
         expect(res).toBe(`No.55 M4A1 突击步枪\nhttp://www.gfwiki.org/w/M4A1#MOD3\nNo.54 M16A1 突击步枪\nhttp://www.gfwiki.org/w/M16A1\n\n最多展示 5 项结果`);
     });
+
+    it.concurrent('query start match', () => {
+        const query = '4';
+
+        const MOCK_LOCAL_DATA: ITDollDataItem[] = [
+            {
+                "编号": "No.55",
+                "枪名": "M4A1",
+                "link": "http://www.gfwiki.org/w/M4A1#MOD3",
+                "枪种": "突击步枪",
+            },
+            {
+                "编号": "No.1029",
+                "枪名": "特工416",
+                "link": "http://www.gfwiki.org/w/%E7%89%B9%E5%B7%A5416",
+                "枪种": "突击步枪",
+            },
+            {
+                "编号": "No.291",
+                "枪名": "43M",
+                "link": "http://www.gfwiki.org/w/43M",
+                "枪种": "冲锋枪"
+            }
+        ];
+
+        const res = getTdollDataRes(MOCK_LOCAL_DATA, query);
+
+        expect(res).toBe(`No.291 43M 冲锋枪\nhttp://www.gfwiki.org/w/43M\nNo.55 M4A1 突击步枪\nhttp://www.gfwiki.org/w/M4A1#MOD3\nNo.1029 特工416 突击步枪\nhttp://www.gfwiki.org/w/%E7%89%B9%E5%B7%A5416\n\n最多展示 5 项结果`);
+    })
 });
