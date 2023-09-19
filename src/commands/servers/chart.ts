@@ -2,6 +2,7 @@ import * as vega from 'vega';
 import * as fs from 'fs';
 import * as gm from 'gm';
 import { Spec } from 'vega';
+import * as path from 'path';
 
 const spec: Spec = {
     $schema: 'https://vega.github.io/schema/vega/v5.json',
@@ -150,10 +151,10 @@ const igm = gm.subClass({
 const transformSvg2Png = async (svg: string) => {
     return new Promise((resolve, reject) => {
         igm(Buffer.from(svg))
-            .density(1200, 1200)
-            .resize(100, 100)
+            .density(1000, 1000)
+            .resize(1000, 1000)
             .background('#fff')
-            .write(OUTPUT_FILENAME, function (err) {
+            .write(path.resolve(__dirname, OUTPUT_FILENAME), function (err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -165,6 +166,9 @@ const transformSvg2Png = async (svg: string) => {
 
 export const printChartPng = async () => {
     const svg = await view.toSVG();
+
+    // DEBUG
+    // fs.writeFileSync('analysis.svg', svg, 'utf-8');
 
     await transformSvg2Png(svg);
 
