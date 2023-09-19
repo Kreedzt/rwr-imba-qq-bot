@@ -4,7 +4,7 @@ import * as bodyParser from 'body-parser';
 import { BaseEvent, GlobalEnv, MessageEvent, NoticeEvent } from './types';
 import { logger } from './logger';
 import { RemoteService } from './services';
-import { msgHandler } from './commands';
+import { msgHandler, initCommands } from './commands';
 import { noticeHandler } from './notices';
 
 const app = express();
@@ -27,6 +27,7 @@ const env = {
 } as GlobalEnv;
 
 RemoteService.init(env.REMOTE_URL);
+initCommands(env);
 logger.info('Env initialized:', {
     PORT: env.PORT,
     HOSTNAME: env.HOSTNAME,

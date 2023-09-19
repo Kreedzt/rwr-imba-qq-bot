@@ -18,6 +18,7 @@ yarn-error.log*
 coverage/
 
 # local test file
+src/info.json
 welcome.template
 *.sh
 website_list.json

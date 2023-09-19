@@ -1,9 +1,10 @@
 import { logger } from "../../logger";
-import { IRegister } from "../../types";
+import {GlobalEnv, IRegister} from "../../types";
 import { getStaticHttpPath } from "../utils";
 import { printPng } from "./canvas";
 import { QUERY_USER_IN_SERVERS_LIMIT, SERVERS_OUTPUT_FILE, WHEREIS_OUTPUT_FILE } from "./constants";
 import { countServersMaxPlayers, countTotalPlayers, getAllServerListDisplay, getServerInfoDisplayText, getUserInServerListDisplay, queryAllServers } from "./utils";
+import {printChartPng} from "./chart";
 
 export const ServersCommandRegister: IRegister = {
     name: 'servers',
@@ -15,7 +16,7 @@ export const ServersCommandRegister: IRegister = {
         const serverList = await queryAllServers(ctx.env.SERVERS_MATCH_REGEX);
         const text = getAllServerListDisplay(serverList);
         const playersCount = countTotalPlayers(serverList);
-        
+
         const headerText = `在线服务器数: ${serverList.length}, 在线玩家数: ${playersCount} / ${countServersMaxPlayers(serverList)}\n`;
 
         const serversOutputList: string[] = serverList.map(s => {
@@ -107,5 +108,22 @@ export const WhereIsCommandRegister: IRegister = {
         const cqOutput = `[CQ:image,file=${getStaticHttpPath(ctx.env, WHEREIS_OUTPUT_FILE)},cache=0,c=8]`;
 
         await ctx.reply(cqOutput);
+    }
+};
+
+export const AnalysticsCommandRegister: IRegister = {
+    name: 'analystics',
+    alias: 'a',
+    description: '查询服务器统计信息.[15s CD]',
+    isAdmin: false,
+    timesInterval: 15,
+    exec: async (ctx) => {
+        const path = await printChartPng();
+        const cqOutput = `[CQ:image,file=${getStaticHttpPath(ctx.env, path)},cache=0,c=8]`;
+
+        await ctx.reply(cqOutput);
+    },
+    init: (env: GlobalEnv) => {
+        logger.info('GET servers regex:', env.SERVERS_MATCH_REGEX);
     }
 }
