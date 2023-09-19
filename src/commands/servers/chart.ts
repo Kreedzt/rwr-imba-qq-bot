@@ -135,6 +135,7 @@ const spec: Spec = {
     ],
 };
 
+const OUTPUT_FOLDER = 'out';
 const OUTPUT_FILENAME = 'analysis.png';
 const DATA_FILENAME = 'analysis.json';
 
@@ -154,7 +155,7 @@ const transformSvg2Png = async (svg: string) => {
             .density(1000, 1000)
             .resize(1000, 1000)
             .background('#fff')
-            .write(path.resolve(__dirname, OUTPUT_FILENAME), function (err) {
+            .write(path.join(process.cwd(), OUTPUT_FOLDER, `./${OUTPUT_FILENAME}`), function (err) {
                 if (err) {
                     reject(err);
                 } else {

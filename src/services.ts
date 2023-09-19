@@ -16,7 +16,7 @@ export class RemoteService {
 
         axiosInst.defaults.headers.post['Content-Type'] = 'application/json';
 
-        axiosInst.interceptors.request.use(config => {
+        axiosInst.interceptors.request.use((config) => {
             const queryUrl = config.url;
             const queryParams = config.params;
 
@@ -26,7 +26,7 @@ export class RemoteService {
             return config;
         });
 
-        axiosInst.interceptors.response.use(config => {
+        axiosInst.interceptors.response.use((config) => {
             const resData = config.data;
             logger.info('> response:', resData);
             return config;
@@ -45,27 +45,32 @@ export class RemoteService {
         return RemoteService.selfInst;
     }
 
-    sendPrivateMsg(params: {
+    async sendPrivateMsg(params: {
         user_id: number;
         message: any;
         // default: false
         auto_escape?: boolean;
     }) {
-        return this.axiosInst.post('/send_private_msg', params);
+        try {
+            await this.axiosInst.post('/send_private_msg', params);
+        } catch (e) {
+            logger.error('sendPrivateMsg error:', e);
+        }
     }
 
-    sendGroupMsg(params: {
-        group_id: number;
-        message: any;
-    }) {
-        return this.axiosInst.post('/send_group_msg', params);
+    async sendGroupMsg(params: { group_id: number; message: any }) {
+        try {
+            await this.axiosInst.post('/send_group_msg', params);
+        } catch (e) {
+            logger.error('sendGroupMsg error:', e);
+        }
     }
 
-    sendMsg(params: {
-        user_id: number;
-        group_id: number;
-        message: any;
-    }) {
-        return this.axiosInst.post('/send_msg', params);
+    async sendMsg(params: { user_id: number; group_id: number; message: any }) {
+        try {
+            await this.axiosInst.post('/send_msg', params);
+        } catch (e) {
+            logger.error('sendMsg error:', e);
+        }
     }
 }
