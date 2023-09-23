@@ -14,12 +14,13 @@ export class AnalysticsTask {
     static isUpdating = false;
 
     static write(data: IAnalysisData) {
-        const writeTarget = path.join(
-            process.cwd(),
-            OUTPUT_FOLDER,
-            `./${ANALYSIS_DATA_FILE}`
-        );
+        const folderTarget = path.join(process.cwd(), OUTPUT_FOLDER);
+        const writeTarget = path.join(folderTarget, `./${ANALYSIS_DATA_FILE}`);
+        logger.info('AnalysticsTask::write() target:', writeTarget);
         if (!fs.existsSync(writeTarget)) {
+            if (!fs.existsSync(folderTarget)) {
+                fs.mkdirSync(folderTarget);
+            }
             fs.writeFileSync(writeTarget, JSON.stringify([data]), 'utf-8');
             return;
         }
