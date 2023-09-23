@@ -4,7 +4,7 @@ import { GlobalEnv } from '../../types';
 import { countTotalPlayers, queryAllServers } from './utils';
 import { logger } from '../../logger';
 import { IAnalysisData } from './types';
-import {ANALYSIS_DATA_FILE, OUTPUT_FOLDER} from "./constants";
+import { ANALYSIS_DATA_FILE, OUTPUT_FOLDER } from './constants';
 
 export class AnalysticsTask {
     // 10 分钟更新一次
@@ -24,10 +24,7 @@ export class AnalysticsTask {
             return;
         }
         const recordValue = JSON.parse(
-            fs.readFileSync(
-                writeTarget,
-                'utf-8'
-            )
+            fs.readFileSync(writeTarget, 'utf-8')
         ) as IAnalysisData[];
 
         // 统计最近 7 天 数据, 检查日期是否已经存在
@@ -47,7 +44,16 @@ export class AnalysticsTask {
         }
 
         // 更新写入
-        fs.writeFileSync(writeTarget, JSON.stringify(recordValue), 'utf-8');
+        try {
+            fs.writeFileSync(writeTarget, JSON.stringify(recordValue), 'utf-8');
+        } catch (e: any) {
+            // FIXME: temp fix
+            if (e?.code === 'ENOENT') {
+                fs.writeFileSync(writeTarget, JSON.stringify([data]), 'utf-8');
+                return;
+            }
+            logger.error('AnalysticsTask write error', e);
+        }
     }
 
     static async updateCount(env: GlobalEnv) {
