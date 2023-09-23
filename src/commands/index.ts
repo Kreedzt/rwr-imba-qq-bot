@@ -5,7 +5,7 @@ import {
     MessageEvent,
     ParamsType,
 } from '../types';
-import {AnalysticsCommandRegister, ServersCommandRegister, WhereIsCommandRegister} from './servers/register';
+import {AnalyticsCommandRegister, ServersCommandRegister, WhereIsCommandRegister} from './servers/register';
 import { RollCommandRegister } from './roll/register';
 import { logger } from '../logger';
 import { RemoteService } from '../services';
@@ -26,7 +26,7 @@ const allCommands: IRegister[] = [
     FuckCommandRegister,
     ServersCommandRegister,
     WhereIsCommandRegister,
-    AnalysticsCommandRegister,
+    AnalyticsCommandRegister,
     RollCommandRegister,
     SetuCommandRegister,
     TouhouCommandRegister,

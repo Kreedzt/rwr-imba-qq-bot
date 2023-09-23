@@ -137,8 +137,8 @@ export const WhereIsCommandRegister: IRegister = {
     },
 };
 
-export const AnalysticsCommandRegister: IRegister = {
-    name: 'analystics',
+export const AnalyticsCommandRegister: IRegister = {
+    name: 'analytics',
     alias: 'a',
     description: '查询服务器统计信息.[15s CD]',
     isAdmin: false,
