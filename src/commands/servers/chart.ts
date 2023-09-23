@@ -6,6 +6,11 @@ import * as path from 'path';
 import { cloneDeep } from 'lodash';
 import { IAnalysisData } from './types';
 import { logger } from '../../logger';
+import {
+    ANALYSIS_DATA_FILE,
+    ANALYSIS_OUTPUT_FILE,
+    OUTPUT_FOLDER,
+} from './constants';
 
 const spec = {
     $schema: 'https://vega.github.io/schema/vega/v5.json',
@@ -138,10 +143,6 @@ const spec = {
     ],
 };
 
-const OUTPUT_FOLDER = 'out';
-const OUTPUT_FILENAME = 'analysis.png';
-const DATA_FILENAME = 'analysis.json';
-
 const igm = gm.subClass({
     imageMagick: '7+',
 });
@@ -153,12 +154,16 @@ const transformSvg2Png = async (svg: string) => {
             .resize(1000, 1000)
             .background('#fff')
             .write(
-                path.join(process.cwd(), OUTPUT_FOLDER, `./${OUTPUT_FILENAME}`),
+                path.join(
+                    process.cwd(),
+                    OUTPUT_FOLDER,
+                    `./${ANALYSIS_OUTPUT_FILE}`
+                ),
                 function (err) {
                     if (err) {
                         reject(err);
                     } else {
-                        resolve(OUTPUT_FILENAME);
+                        resolve(ANALYSIS_OUTPUT_FILE);
                     }
                 }
             );
@@ -167,7 +172,7 @@ const transformSvg2Png = async (svg: string) => {
 
 const readData = () => {
     const fileContent = fs.readFileSync(
-        path.join(process.cwd(), OUTPUT_FOLDER, DATA_FILENAME),
+        path.join(process.cwd(), OUTPUT_FOLDER, `./${ANALYSIS_DATA_FILE}`),
         'utf-8'
     );
 
@@ -192,5 +197,5 @@ export const printChartPng = async () => {
 
     await transformSvg2Png(svg);
 
-    return OUTPUT_FILENAME;
+    return ANALYSIS_OUTPUT_FILE;
 };
