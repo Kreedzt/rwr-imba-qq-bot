@@ -154,6 +154,6 @@ export const AnalyticsCommandRegister: IRegister = {
     },
     init: (env: GlobalEnv) => {
         logger.info('AnalysticsCommandRegister::init()');
-        // AnalysticsTask.start(env);
+        AnalysticsTask.start(env);
     },
 };
