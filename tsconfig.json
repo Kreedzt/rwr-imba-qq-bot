@@ -5,13 +5,15 @@
         "downlevelIteration": true,
         "experimentalDecorators": true,
         "moduleResolution": "node",
+        "resolveJsonModule": true,
         "target": "esnext",
         "module": "ES6",
         "lib": [
             "es2020",
             "dom"
         ],
-        "strict": true
+        "strict": true,
+        "rootDir": "./src"
     },
     "include": [
         "vitest/globals",

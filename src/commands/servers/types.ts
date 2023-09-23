@@ -29,3 +29,13 @@ export interface Res {
 export interface OnlineServerItem extends ResServerItem {
     playersCount: number;
 }
+
+export interface IAnalysisData {
+    date: string;
+    count: number;
+}
+
+export interface IAnalysisConfig {
+    lastUpdateTime: number;
+    data: IAnalysisData[];
+}

@@ -5,7 +5,7 @@ import {
     MessageEvent,
     ParamsType,
 } from '../types';
-import { ServersCommandRegister, WhereIsCommandRegister } from './servers/register';
+import {AnalyticsCommandRegister, ServersCommandRegister, WhereIsCommandRegister} from './servers/register';
 import { RollCommandRegister } from './roll/register';
 import { logger } from '../logger';
 import { RemoteService } from '../services';
@@ -20,11 +20,13 @@ import { NekoCommandRegister } from './neko/register';
 import { WebsiteCommandRegister } from './website/register';
 import { TDollCommandRegister } from './tdoll/register';
 import { QACommandRegister, QADefineCommandRegister, QADeleteCommandRegister } from './qa/register';
+import { VersionCommandRegister} from "./version/register";
 
 const allCommands: IRegister[] = [
     FuckCommandRegister,
     ServersCommandRegister,
     WhereIsCommandRegister,
+    AnalyticsCommandRegister,
     RollCommandRegister,
     SetuCommandRegister,
     TouhouCommandRegister,
@@ -35,8 +37,15 @@ const allCommands: IRegister[] = [
     TDollCommandRegister,
     QACommandRegister,
     QADefineCommandRegister,
-    QADeleteCommandRegister
+    QADeleteCommandRegister,
+    VersionCommandRegister
 ];
+
+export const initCommands = (env: GlobalEnv) => {
+    allCommands.forEach(cmd => {
+        cmd.init?.(env);
+    });
+}
 
 const quickReply = async (event: MessageEvent, text: string) => {
     if (event.group_id) {
