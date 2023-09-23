@@ -3,8 +3,11 @@ import * as fs from 'fs';
 import * as gm from 'gm';
 import { Spec } from 'vega';
 import * as path from 'path';
+import { cloneDeep } from 'lodash';
+import { IAnalysisData } from './types';
+import { logger } from '../../logger';
 
-const spec: Spec = {
+const spec = {
     $schema: 'https://vega.github.io/schema/vega/v5.json',
     description: 'A basic line chart example.',
     width: 500,
@@ -139,12 +142,6 @@ const OUTPUT_FOLDER = 'out';
 const OUTPUT_FILENAME = 'analysis.png';
 const DATA_FILENAME = 'analysis.json';
 
-const view = new vega.View(vega.parse(spec), {
-    renderer: 'none',
-});
-
-const readData = () => {};
-
 const igm = gm.subClass({
     imageMagick: '7+',
 });
@@ -155,27 +152,45 @@ const transformSvg2Png = async (svg: string) => {
             .density(1000, 1000)
             .resize(1000, 1000)
             .background('#fff')
-            .write(path.join(process.cwd(), OUTPUT_FOLDER, `./${OUTPUT_FILENAME}`), function (err) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(OUTPUT_FILENAME);
+            .write(
+                path.join(process.cwd(), OUTPUT_FOLDER, `./${OUTPUT_FILENAME}`),
+                function (err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(OUTPUT_FILENAME);
+                    }
                 }
-            });
+            );
+    });
+};
+
+const readData = () => {
+    const fileContent = fs.readFileSync(
+        path.join(process.cwd(), OUTPUT_FOLDER, DATA_FILENAME),
+        'utf-8'
+    );
+
+    const typedValues = JSON.parse(fileContent) as IAnalysisData[];
+
+    return typedValues.map((v) => {
+        return {
+            date: v.date,
+            count: v.count,
+            c: 0,
+        };
     });
 };
 
 export const printChartPng = async () => {
+    const newSpec = cloneDeep(spec);
+    newSpec.data[0].values = readData();
+    const view = new vega.View(vega.parse(newSpec as Spec), {
+        renderer: 'none',
+    });
     const svg = await view.toSVG();
-
-    // DEBUG
-    // fs.writeFileSync('analysis.svg', svg, 'utf-8');
 
     await transformSvg2Png(svg);
 
     return OUTPUT_FILENAME;
-};
-
-export const updateData = () => {
-    //
 };
