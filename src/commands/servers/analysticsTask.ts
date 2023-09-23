@@ -17,7 +17,7 @@ export class AnalysticsTask {
         const writeTarget = path.join(
             process.cwd(),
             OUTPUT_FOLDER,
-            ANALYSIS_DATA_FILE
+            `./${ANALYSIS_DATA_FILE}`
         );
         if (!fs.existsSync(writeTarget)) {
             fs.writeFileSync(writeTarget, JSON.stringify([data]), 'utf-8');
@@ -25,7 +25,7 @@ export class AnalysticsTask {
         }
         const recordValue = JSON.parse(
             fs.readFileSync(
-                path.join(process.cwd(), OUTPUT_FOLDER, ANALYSIS_DATA_FILE),
+                writeTarget,
                 'utf-8'
             )
         ) as IAnalysisData[];
