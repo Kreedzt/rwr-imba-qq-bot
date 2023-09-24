@@ -44,12 +44,7 @@ RUN apk add --no-cache --virtual .build-deps \
         cairo \
 	jpeg \
 	pango \
-	giflib \
-    # gm deps
-    file
-
-# gm deps
-RUN apk --update add imagemagick
+	giflib
 
 COPY ./consola.ttf /app/
 
