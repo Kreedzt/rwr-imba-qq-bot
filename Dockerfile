@@ -1,6 +1,9 @@
 # build
 FROM node:18.16.0-alpine as builder
 
+ARG DOCKER_TAG
+ENV APP_VERSION=$DOCKER_TAG
+
 WORKDIR /app
 
 COPY package.json ./
