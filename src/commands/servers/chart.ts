@@ -34,7 +34,7 @@ export const printChartPng = async () => {
     chart.setOption({
         backgroundColor: '#fff',
         title: {
-            text: '玩家在线数历史统计图',
+            text: '玩家每日在线数峰值统计图',
             textAlign: 'center',
             left: '50%',
         },
