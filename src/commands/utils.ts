@@ -1,20 +1,27 @@
-import { logger } from "../logger";
-import { GlobalEnv, IRegister, MessageEvent } from "../types";
+import { logger } from '../logger';
+import { GlobalEnv, IRegister, MessageEvent } from '../types';
 
 interface UserCommandRequest {
     [k: string]: {
         lastCallTime: number;
-    }
+    };
 }
 
 const userCommandRequestMap = new Map<number, UserCommandRequest>();
 
-export const checkTimeIntervalValid = (c: IRegister, event: MessageEvent): {
+export const checkTimeIntervalValid = (
+    c: IRegister,
+    event: MessageEvent
+): {
     success: boolean;
+    amount?: number;
 } => {
-    const res = {
-        success: true
-    }
+    const res: {
+        success: boolean;
+        amount?: number;
+    } = {
+        success: true,
+    };
 
     if (!c.timesInterval) {
         return res;
@@ -31,9 +38,9 @@ export const checkTimeIntervalValid = (c: IRegister, event: MessageEvent): {
     if (!requestMapRes) {
         userCommandRequestMap.set(user, {
             [c.name]: {
-                lastCallTime: currentTimestamp
-            }
-        })
+                lastCallTime: currentTimestamp,
+            },
+        });
         return res;
     }
 
@@ -41,9 +48,9 @@ export const checkTimeIntervalValid = (c: IRegister, event: MessageEvent): {
         userCommandRequestMap.set(user, {
             ...requestMapRes,
             [c.name]: {
-                lastCallTime: currentTimestamp
-            }
-        })
+                lastCallTime: currentTimestamp,
+            },
+        });
         return res;
     }
 
@@ -52,14 +59,15 @@ export const checkTimeIntervalValid = (c: IRegister, event: MessageEvent): {
     logger.info('> get timeDiff', timeDiff);
     if (timeDiff < c.timesInterval * 1000) {
         res.success = false;
+        res.amount = timeDiff;
         return res;
     }
 
     requestMapRes[commandName].lastCallTime = currentTimestamp;
 
     return res;
-}
+};
 
 export const getStaticHttpPath = (env: GlobalEnv, path: string) => {
     return `http://${env.HOSTNAME || 'localhost'}:${env.PORT}/out/${path}`;
-}
+};
