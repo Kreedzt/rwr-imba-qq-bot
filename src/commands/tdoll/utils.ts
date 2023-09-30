@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import { GlobalEnv } from '../../types';
 import { ITDollDataItem } from './types';
+import { TDOLL_URL_PREFIX } from './constants';
 
 /**
  * Read tdoll data from file
@@ -19,8 +20,10 @@ export const readTdollData = (filePath: string): ITDollDataItem[] => {
 export const formatTDollData = (tdoll: ITDollDataItem) => {
     let res = '';
 
-    res += `${tdoll.编号} ${tdoll.枪名} ${tdoll.枪种}\n`;
-    res += `${tdoll.link}\n`;
+    res += `No.${tdoll.id} ${tdoll.nameIngame}${
+        tdoll.mod === '1' ? '(mod)' : ''
+    } ${tdoll.type}\n`;
+    res += `${TDOLL_URL_PREFIX}${tdoll.url}\n`;
 
     return res;
 };
@@ -36,7 +39,7 @@ export const getTdollDataRes = (
                 .replace('-', '')
                 .replace('.', '');
 
-            const currentName = d['枪名']
+            const currentName = d.nameIngame
                 .toLowerCase()
                 .replace('-', '')
                 .replace(' ', '')
@@ -45,8 +48,8 @@ export const getTdollDataRes = (
             return currentName.includes(userInput);
         })
         .sort((a, b) => {
-            const aMatch = a['枪名'];
-            const bMatch = b['枪名'];
+            const aMatch = a.nameIngame;
+            const bMatch = b.nameIngame;
             if (aMatch.indexOf(query) !== bMatch.indexOf(query)) {
                 return aMatch.indexOf(query) - bMatch.indexOf(query);
             }
