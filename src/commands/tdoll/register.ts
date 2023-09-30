@@ -1,13 +1,13 @@
-import { IRegister } from "../../types";
-import { ITDollDataItem } from "./types";
-import { getTdollDataRes, readTdollData } from "./utils";
+import { IRegister } from '../../types';
+import { ITDollDataItem } from './types';
+import { getTdollDataRes, readTdollData } from './utils';
 
 let tdollData: ITDollDataItem[] = [];
 
 export const TDollCommandRegister: IRegister = {
-    name: "tdoll",
+    name: 'tdoll',
     alias: 'td',
-    description: "根据枪名查询数据.[10s CD]",
+    description: '根据枪名查询数据, 支持模糊匹配, 忽略大小写及符号.[10s CD]',
     timesInterval: 10,
     isAdmin: false,
     exec: async (ctx) => {
@@ -26,11 +26,10 @@ export const TDollCommandRegister: IRegister = {
             if (!query) {
                 query = inputParam;
             }
-        })
+        });
 
         const replayText = getTdollDataRes(tdollData, query);
 
-
         await ctx.reply(replayText);
-    }
-}
+    },
+};
