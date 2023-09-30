@@ -10,7 +10,7 @@
 - REMOTE_URL: go-cqhttp 的服务监听的 HTTP 地址, 类型为 `string`, eg: `http://127.0.0.1:5701`
 - START_MATCH: 机器人命令触发前缀, 类型为 `string`, eg: `#`
 - ADMIN_QQ_LIST: 管理员 QQ 列表, 类型为 `string[]`, eg: `555555`
-- LISTEN_GROUP: 监听的 QQ 群号, 类型为 `number`, eg: `[111111, 222222]`
+- LISTEN_GROUP: 监听的 QQ 群号, 类型为 `number`, eg: `111111`
 - ACTIVE_COMMANDS: 激活的命令列表, 类型为 `JSON string[]`, eg: `["fuck", "roll", "tdoll"]`
 - WELCOME_TEMPLATE: TODO
 
