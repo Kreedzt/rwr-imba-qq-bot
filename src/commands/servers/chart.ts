@@ -34,7 +34,7 @@ export const printChartPng = async () => {
     chart.setOption({
         backgroundColor: '#fff',
         title: {
-            text: '玩家每日在线数峰值统计图',
+            text: '玩家7日在线数峰值统计图',
             textAlign: 'center',
             left: '50%',
         },
@@ -70,7 +70,7 @@ export const printChartPng = async () => {
 
     const buffer = canvas.toBuffer('image/png', {
         compressionLevel: 0,
-        filters: canvas.PNG_FILTER_NONE
+        filters: canvas.PNG_FILTER_NONE,
     });
 
     const outputPath = path.join(
