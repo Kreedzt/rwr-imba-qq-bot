@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const appVersion = process.env.APP_VERSION;
+const appVersion = process.env.APP_VERSION || process.env.GITHUB_REF_NAME;
 
 console.log('postbuild: Copying package.json to info.json...');
 fs.copyFileSync('./package.json', './src/info.json');
