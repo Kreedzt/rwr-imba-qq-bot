@@ -16,7 +16,7 @@ import {
     queryAllServers,
 } from './utils';
 import { printChartPng } from './chart';
-import {AnalysticsTask} from "./analysticsTask";
+import { AnalysticsTask } from './analysticsTask';
 
 export const ServersCommandRegister: IRegister = {
     name: 'servers',
@@ -144,6 +144,8 @@ export const AnalyticsCommandRegister: IRegister = {
     isAdmin: false,
     timesInterval: 15,
     exec: async (ctx) => {
+        await ctx.reply('正在生成统计图, 过程可能需要1分钟, 请稍后...');
+
         const path = await printChartPng();
         const cqOutput = `[CQ:image,file=${getStaticHttpPath(
             ctx.env,

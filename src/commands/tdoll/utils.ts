@@ -28,6 +28,10 @@ export const formatTDollData = (tdoll: ITDollDataItem) => {
     return res;
 };
 
+export const getTDollDataEndText = () => {
+    return `\n最多展示 5 项结果`;
+};
+
 export const getTdollDataRes = (
     dataList: ITDollDataItem[],
     query: string
@@ -36,14 +40,14 @@ export const getTdollDataRes = (
         .filter((d) => {
             const userInput = query
                 .toLowerCase()
-                .replace('-', '')
-                .replace('.', '');
+                .replaceAll('-', '')
+                .replaceAll('.', '');
 
             const currentName = d.nameIngame
                 .toLowerCase()
-                .replace('-', '')
-                .replace(' ', '')
-                .replace('.', '');
+                .replaceAll('-', '')
+                .replaceAll(' ', '')
+                .replaceAll('.', '');
 
             return currentName.includes(userInput);
         })
@@ -67,7 +71,7 @@ export const getTdollDataRes = (
         .map((tdoll) => formatTDollData(tdoll))
         .join('');
 
-    const endText = `\n最多展示 5 项结果`;
+    const endText = getTDollDataEndText();
 
     return allFormattedData + endText;
 };
