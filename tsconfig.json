@@ -10,6 +10,7 @@
         "module": "ES6",
         "lib": [
             "es2020",
+            "es2021",
             "dom"
         ],
         "strict": true,
