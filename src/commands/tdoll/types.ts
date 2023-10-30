@@ -76,3 +76,9 @@ export interface ITDollDataModItem extends ITDollDataBaseItem {
 }
 
 export type ITDollDataItem = ITDollDataBaseItem | ITDollDataModItem;
+
+export type ITDollSkinDataItem = Array<{
+    index: number;
+    title: string;
+    value: string;
+}>;
