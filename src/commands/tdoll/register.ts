@@ -1,6 +1,11 @@
 import { IRegister } from '../../types';
-import { ITDollDataItem } from './types';
-import { getTdollDataRes, readTdollData } from './utils';
+import { ITDollDataItem, ITDollSkinDataItem } from './types';
+import {
+    getTdollDataRes,
+    getTDollSkinReplyText,
+    readTdollData,
+    readTdollSkinData,
+} from './utils';
 
 let tdollData: ITDollDataItem[] = [];
 
@@ -28,8 +33,40 @@ export const TDollCommandRegister: IRegister = {
             }
         });
 
-        const replayText = getTdollDataRes(tdollData, query);
+        const replyText = getTdollDataRes(tdollData, query);
 
-        await ctx.reply(replayText);
+        await ctx.reply(replyText);
+    },
+};
+
+let tdollSkinData: Record<string, ITDollSkinDataItem> = {};
+
+export const TDollSkinCommandRegister: IRegister = {
+    name: 'tdollskin',
+    alias: 'ts',
+    description: '根据枪名查询皮肤数据, 需要输入编号.[10s CD]',
+    timesInterval: 10,
+    isAdmin: false,
+    exec: async (ctx) => {
+        if (ctx.params.size !== 1) {
+            await ctx.reply('需要1个参数, 示例: #tdollskin 2');
+            return;
+        }
+
+        if (Object.keys(tdollSkinData).length === 0) {
+            tdollSkinData = readTdollSkinData(ctx.env.TDOLL_SKIN_DATA_FILE);
+        }
+
+        let query: string = '';
+
+        ctx.params.forEach((checked, inputParam) => {
+            if (!query) {
+                query = inputParam;
+            }
+        });
+
+        const replyText = getTDollSkinReplyText(query, tdollSkinData);
+
+        await ctx.reply(replyText);
     },
 };

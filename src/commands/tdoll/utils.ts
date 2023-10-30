@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { GlobalEnv } from '../../types';
-import { ITDollDataItem } from './types';
+import { ITDollDataItem, ITDollSkinDataItem } from './types';
 import { TDOLL_URL_PREFIX } from './constants';
 
 /**
@@ -23,7 +23,6 @@ export const formatTDollData = (tdoll: ITDollDataItem) => {
     res += `No.${tdoll.id} ${tdoll.nameIngame}${
         tdoll.mod === '1' ? '(mod)' : ''
     } ${tdoll.type}\n`;
-    res += `${TDOLL_URL_PREFIX}${tdoll.url}\n`;
 
     return res;
 };
@@ -74,4 +73,43 @@ export const getTdollDataRes = (
     const endText = getTDollDataEndText();
 
     return allFormattedData + endText;
+};
+
+export const formatTDollSkinData = (
+    query: string,
+    skin: ITDollSkinDataItem
+): string => {
+    let res = 'No.' + query + '\n';
+
+    skin.forEach((item) => {
+        res += `${item.index + 1}. ${item.title} ID:${item.value}\n`;
+        res += '\n';
+    });
+
+    return res;
+};
+
+/**
+ * Read tdoll skin data from file
+ * @param filePath tdoll data file path
+ * @returns tdoll data list
+ */
+export const readTdollSkinData = (
+    filePath: string
+): Record<string, ITDollSkinDataItem> => {
+    const jsonData = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(jsonData) as Record<string, ITDollSkinDataItem>;
+};
+
+export const getTDollSkinReplyText = (
+    query: string,
+    record: Record<string, ITDollSkinDataItem>
+) => {
+    if (!(query in record)) {
+        return '未找到指定人形编号的皮肤, 请检查输入是否有误!';
+    }
+
+    const skin = record[query];
+
+    return formatTDollSkinData(query, skin);
 };

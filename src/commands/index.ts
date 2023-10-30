@@ -22,7 +22,7 @@ import { WaifuCommandRegister } from './waifu/registers';
 import { OnePtCommandRegister } from './1pt/register';
 import { NekoCommandRegister } from './neko/register';
 import { WebsiteCommandRegister } from './website/register';
-import { TDollCommandRegister } from './tdoll/register';
+import {TDollCommandRegister, TDollSkinCommandRegister} from './tdoll/register';
 import {
     QACommandRegister,
     QADefineCommandRegister,
@@ -43,6 +43,7 @@ const allCommands: IRegister[] = [
     NekoCommandRegister,
     WebsiteCommandRegister,
     TDollCommandRegister,
+    TDollSkinCommandRegister,
     QACommandRegister,
     QADefineCommandRegister,
     QADeleteCommandRegister,
@@ -156,7 +157,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
                 const diffMs = timeIntervalRes.amount! % 1000;
                 await quickReply(
                     event,
-                    `请求命令频繁, 请稍后再试, CD 剩余${diffs}.${diffMs}s`
+                    `账号被风控或请求命令频繁, 请稍后再试, CD 剩余${diffs}.${diffMs}s`
                 );
                 return;
             }
