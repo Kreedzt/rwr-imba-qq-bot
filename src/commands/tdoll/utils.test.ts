@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { ITDollDataItem, ITDollSkinDataItem } from './types';
 import {
-    formatTDollData, formatTDollSkinData,
+    formatTDollData,
+    formatTDollSkinData,
     getTDollDataEndText,
     getTdollDataRes,
     getTDollSkinReplyText,
@@ -135,7 +136,7 @@ describe('tdoll: getTdollDataRes', () => {
 
         const res = getTdollDataRes(MOCK_DATA, query);
 
-        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n\n最多展示 5 项结果`);
+        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n\n最多展示 10 项结果`);
     });
 
     it.concurrent('query found 1 result, ignore case', () => {
@@ -143,7 +144,7 @@ describe('tdoll: getTdollDataRes', () => {
 
         const res = getTdollDataRes(MOCK_DATA, query);
 
-        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n\n最多展示 5 项结果`);
+        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n\n最多展示 10 项结果`);
     });
 
     it.concurrent('query found 1 result, ignore "-"', () => {
@@ -151,7 +152,7 @@ describe('tdoll: getTdollDataRes', () => {
 
         const res = getTdollDataRes(MOCK_DATA, query);
 
-        expect(res).toBe(`No.53 NTW-20(mod) 步枪\n\n最多展示 5 项结果`);
+        expect(res).toBe(`No.53 NTW-20(mod) 步枪\n\n最多展示 10 项结果`);
     });
 
     it.concurrent('query found 1 result, ignore "."', () => {
@@ -197,7 +198,7 @@ describe('tdoll: getTdollDataRes', () => {
         const res = getTdollDataRes(MOCK_DATA, query);
 
         expect(res).toBe(
-            `No.55 M4A1(mod) 突击步枪\nNo.54 M16A1 突击步枪\n\n最多展示 5 项结果`
+            `No.55 M4A1(mod) 突击步枪\nNo.54 M16A1 突击步枪\n\n最多展示 10 项结果`
         );
     });
 
@@ -373,7 +374,7 @@ describe('tdoll: getTdollDataRes', () => {
                 MOCK_LOCAL_DATA[3]
             )}${formatTDollData(MOCK_LOCAL_DATA[4])}${formatTDollData(
                 MOCK_LOCAL_DATA[0]
-            )}${formatTDollData(MOCK_LOCAL_DATA[2])}\n最多展示 5 项结果`
+            )}${formatTDollData(MOCK_LOCAL_DATA[2])}\n最多展示 10 项结果`
         );
     });
 });
@@ -431,7 +432,7 @@ describe('tdollskin: getTdollSkinDataRes', () => {
     it.concurrent('query not found', () => {
         const query = '8';
 
-        const res = getTDollSkinReplyText(query, MOCK_SKIN_DATA);
+        const res = getTDollSkinReplyText(query, [], MOCK_SKIN_DATA);
 
         expect(res).toBe('未找到指定人形编号的皮肤, 请检查输入是否有误!');
     });
@@ -439,8 +440,29 @@ describe('tdollskin: getTdollSkinDataRes', () => {
     it.concurrent('query found result', () => {
         const query = '2';
 
-        const res = getTDollSkinReplyText(query, MOCK_SKIN_DATA);
+        const res = getTDollSkinReplyText(query, [], MOCK_SKIN_DATA);
 
-        expect(res).toBe(formatTDollSkinData(query, MOCK_SKIN_DATA[query]));
+        expect(res).toBe(formatTDollSkinData(query, [], MOCK_SKIN_DATA[query]));
+    });
+
+    it.concurrent('query display text', () => {
+        const query = '53';
+
+        const res = getTDollSkinReplyText(query, MOCK_DATA, {
+            '53': [
+                {
+                    index: 0,
+                    title: '默认Q版',
+                    value: '0',
+                },
+                {
+                    index: 1,
+                    title: '心智升级',
+                    value: 'mod',
+                },
+            ],
+        });
+
+        expect(res).toBe(`No.53 NTW-20 \n1. 默认Q版 ID:0\n2. 心智升级 ID:mod\n`);
     });
 });

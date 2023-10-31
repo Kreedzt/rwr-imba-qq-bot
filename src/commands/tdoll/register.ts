@@ -65,7 +65,11 @@ export const TDollSkinCommandRegister: IRegister = {
             }
         });
 
-        const replyText = getTDollSkinReplyText(query, tdollSkinData);
+        const replyText = getTDollSkinReplyText(
+            query,
+            tdollData,
+            tdollSkinData
+        );
 
         await ctx.reply(replyText);
     },
