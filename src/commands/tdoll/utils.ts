@@ -28,7 +28,7 @@ export const formatTDollData = (tdoll: ITDollDataItem) => {
 };
 
 export const getTDollDataEndText = () => {
-    return `\n最多展示 5 项结果`;
+    return `\n最多展示 10 项结果`;
 };
 
 export const getTdollDataRes = (
@@ -60,7 +60,7 @@ export const getTdollDataRes = (
             return aMatch.length - bMatch.length;
         });
 
-    const slicedData = targetData.slice(0, 5);
+    const slicedData = targetData.slice(0, 10);
 
     if (slicedData.length === 0) {
         return `未找到指定枪名, 请检查输入是否有误!`;
@@ -77,13 +77,14 @@ export const getTdollDataRes = (
 
 export const formatTDollSkinData = (
     query: string,
+    dollData: ITDollDataItem[],
     skin: ITDollSkinDataItem
 ): string => {
-    let res = 'No.' + query + '\n';
+    const targetTDoll = dollData.find((d) => d.id === query);
+    let res = `No.${query} ${targetTDoll?.nameIngame || ''} \n`;
 
     skin.forEach((item) => {
         res += `${item.index + 1}. ${item.title} ID:${item.value}\n`;
-        res += '\n';
     });
 
     return res;
@@ -103,6 +104,7 @@ export const readTdollSkinData = (
 
 export const getTDollSkinReplyText = (
     query: string,
+    tdollData: ITDollDataItem[],
     record: Record<string, ITDollSkinDataItem>
 ) => {
     if (!(query in record)) {
@@ -111,5 +113,5 @@ export const getTDollSkinReplyText = (
 
     const skin = record[query];
 
-    return formatTDollSkinData(query, skin);
+    return formatTDollSkinData(query, tdollData, skin);
 };
