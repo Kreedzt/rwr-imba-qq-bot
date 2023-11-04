@@ -48,11 +48,6 @@ export class AnalysticsTask {
         try {
             fs.writeFileSync(writeTarget, JSON.stringify(recordValue), 'utf-8');
         } catch (e: any) {
-            // FIXME: temp fix
-            if (e?.code === 'ENOENT') {
-                fs.writeFileSync(writeTarget, JSON.stringify([data]), 'utf-8');
-                return;
-            }
             logger.error('AnalysticsTask write error', e);
         }
     }
