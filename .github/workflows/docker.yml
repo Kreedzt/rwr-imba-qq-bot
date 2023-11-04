@@ -27,6 +27,8 @@ jobs:
         with:
           push: true
           tags: zhaozisong0/rwr-imba-qq-bot:latest, zhaozisong0/rwr-imba-qq-bot:${{ github.ref_name }}
+          build-args: |
+            "TAG_NAME=${{ github.ref_name }}"
   # publish-crate:
   #   name: Publish to crates.io
   #   if: startsWith(github.ref, 'refs/tags/')

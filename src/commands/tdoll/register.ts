@@ -44,7 +44,7 @@ let tdollSkinData: Record<string, ITDollSkinDataItem> = {};
 export const TDollSkinCommandRegister: IRegister = {
     name: 'tdollskin',
     alias: 'ts',
-    description: '根据枪名查询皮肤数据, 需要输入编号.[10s CD]',
+    description: '根据武器编号查询皮肤数据, 需要输入一个编号参数.[10s CD]',
     timesInterval: 10,
     isAdmin: false,
     exec: async (ctx) => {
