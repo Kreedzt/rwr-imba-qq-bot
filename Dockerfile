@@ -51,7 +51,7 @@ RUN apk add --no-cache --virtual .build-deps \
 
 COPY ./consola.ttf /app/
 
-RUN apk add wqy-zenhei --update-cache --repository https://nl.alpinelinux.org/alpine/edge/testing && fc-cache -fv
+RUN apk add wqy-zenhei --update-cache --repository https://nl.alpinelinux.org/alpine/edge/community && fc-cache -fv
 
 RUN npx pnpm i --production
 
