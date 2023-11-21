@@ -51,7 +51,12 @@ RUN apk add --no-cache --virtual .build-deps \
 
 COPY ./consola.ttf /app/
 
+# font deps
 RUN apk add wqy-zenhei --update-cache --repository https://nl.alpinelinux.org/alpine/edge/community && fc-cache -fv
+
+# tz
+RUN apk add --no-cache tzdata
+ENV TZ Asia/Shanghai
 
 RUN npx pnpm i --production
 
