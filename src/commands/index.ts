@@ -5,7 +5,11 @@ import {
     MessageEvent,
     ParamsType,
 } from '../types';
-import {AnalyticsCommandRegister, ServersCommandRegister, WhereIsCommandRegister} from './servers/register';
+import {
+    AnalyticsCommandRegister,
+    ServersCommandRegister,
+    WhereIsCommandRegister,
+} from './servers/register';
 import { RollCommandRegister } from './roll/register';
 import { logger } from '../logger';
 import { RemoteService } from '../services';
@@ -18,9 +22,13 @@ import { WaifuCommandRegister } from './waifu/registers';
 import { OnePtCommandRegister } from './1pt/register';
 import { NekoCommandRegister } from './neko/register';
 import { WebsiteCommandRegister } from './website/register';
-import { TDollCommandRegister } from './tdoll/register';
-import { QACommandRegister, QADefineCommandRegister, QADeleteCommandRegister } from './qa/register';
-import { VersionCommandRegister} from "./version/register";
+import {TDollCommandRegister, TDollSkinCommandRegister} from './tdoll/register';
+import {
+    QACommandRegister,
+    QADefineCommandRegister,
+    QADeleteCommandRegister,
+} from './qa/register';
+import { VersionCommandRegister } from './version/register';
 
 const allCommands: IRegister[] = [
     FuckCommandRegister,
@@ -35,17 +43,18 @@ const allCommands: IRegister[] = [
     NekoCommandRegister,
     WebsiteCommandRegister,
     TDollCommandRegister,
+    TDollSkinCommandRegister,
     QACommandRegister,
     QADefineCommandRegister,
     QADeleteCommandRegister,
-    VersionCommandRegister
+    VersionCommandRegister,
 ];
 
 export const initCommands = (env: GlobalEnv) => {
-    allCommands.forEach(cmd => {
+    allCommands.forEach((cmd) => {
         cmd.init?.(env);
     });
-}
+};
 
 const quickReply = async (event: MessageEvent, text: string) => {
     if (event.group_id) {
@@ -59,7 +68,7 @@ const quickReply = async (event: MessageEvent, text: string) => {
             message: text,
         });
     }
-}
+};
 
 const handlingRequestSet = new Set<number>();
 const activeCommandSet = new Set<string>();
@@ -83,37 +92,51 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
     /**
      * Generate activeCommandSet
      */
-    env.ACTIVE_COMMANDS.forEach(c => {
+    env.ACTIVE_COMMANDS.forEach((c) => {
         activeCommandSet.add(c);
     });
 
-    const avaliableCommands = allCommands.filter(c => activeCommandSet.has(c.name));
+    const avaliableCommands = allCommands.filter((c) =>
+        activeCommandSet.has(c.name)
+    );
 
     // help:
     if (firstCommand === 'help') {
         let helpText = '帮助列表: \n';
 
-        avaliableCommands.filter(c => {
-            if (c.isAdmin && !env.ADMIN_QQ_LIST.some(qq => event.user_id === qq)) {
-                return false;
-            }
+        avaliableCommands
+            .filter((c) => {
+                if (
+                    c.isAdmin &&
+                    !env.ADMIN_QQ_LIST.some((qq) => event.user_id === qq)
+                ) {
+                    return false;
+                }
 
-            return true;
-        }).forEach((c) => {
-            helpText += `#${c.name}${c.alias ? `(${c.alias})` : ''}: ${c.description}\n\n`;
-        });
+                return true;
+            })
+            .forEach((c) => {
+                helpText += `#${c.name}${c.alias ? `(${c.alias})` : ''}: ${
+                    c.description
+                }\n\n`;
+            });
 
         await quickReply(event, helpText);
         return;
     }
 
-    const hitCommand = avaliableCommands.find((c) => c.name === firstCommand || c.alias === firstCommand);
+    const hitCommand = avaliableCommands.find(
+        (c) => c.name === firstCommand || c.alias === firstCommand
+    );
 
     if (!hitCommand) {
         return;
     }
 
-    if (hitCommand.isAdmin && !env.ADMIN_QQ_LIST.some(qq => event.user_id === qq)) {
+    if (
+        hitCommand.isAdmin &&
+        !env.ADMIN_QQ_LIST.some((qq) => event.user_id === qq)
+    ) {
         return;
     }
 
@@ -126,20 +149,30 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
         try {
             handlingRequestSet.add(event.message_id);
 
-            if (!hitCommand.isAdmin && !checkTimeIntervalValid(hitCommand, event).success) {
-                await quickReply(event, '请求命令频繁, 请稍后再试');
+            const timeIntervalRes = checkTimeIntervalValid(hitCommand, event);
+            if (!hitCommand.isAdmin && !timeIntervalRes.success) {
+                // seconds
+                const diffs = timeIntervalRes.amount! / 1000;
+                // ms
+                const diffMs = timeIntervalRes.amount! % 1000;
+                await quickReply(
+                    event,
+                    `账号被风控或请求命令频繁, 请稍后再试, CD 剩余${diffs}.${diffMs}s`
+                );
                 return;
             }
             const params = getCommandParams(msg, hitCommand.defaultParams);
 
             const ctx: MsgExecCtx = {
                 msg,
-                params: hitCommand.parseParams ? hitCommand.parseParams(msg) : params as ParamsType,
+                params: hitCommand.parseParams
+                    ? hitCommand.parseParams(msg)
+                    : (params as ParamsType),
                 env,
                 event,
                 reply: async (msg: string) => {
                     await quickReply(event, msg);
-                }
+                },
             };
 
             await hitCommand.exec(ctx);

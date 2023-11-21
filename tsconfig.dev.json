@@ -8,7 +8,7 @@
     "resolveJsonModule": true,
     "target": "esnext",
     "module": "commonjs",
-    "lib": ["es2020", "dom"],
+    "lib": ["es2020", "es2021", "dom"],
     "strict": true,
     "rootDir": "./src"
   },

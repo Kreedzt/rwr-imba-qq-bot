@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import { GlobalEnv } from '../../types';
-import { ITDollDataItem } from './types';
+import { ITDollDataItem, ITDollSkinDataItem } from './types';
+import { TDOLL_URL_PREFIX } from './constants';
 
 /**
  * Read tdoll data from file
@@ -19,10 +20,15 @@ export const readTdollData = (filePath: string): ITDollDataItem[] => {
 export const formatTDollData = (tdoll: ITDollDataItem) => {
     let res = '';
 
-    res += `${tdoll.编号} ${tdoll.枪名} ${tdoll.枪种}\n`;
-    res += `${tdoll.link}\n`;
+    res += `No.${tdoll.id} ${tdoll.nameIngame}${
+        tdoll.mod === '1' ? '(mod)' : ''
+    } ${tdoll.type}\n`;
 
     return res;
+};
+
+export const getTDollDataEndText = () => {
+    return `\n最多展示 10 项结果`;
 };
 
 export const getTdollDataRes = (
@@ -33,20 +39,20 @@ export const getTdollDataRes = (
         .filter((d) => {
             const userInput = query
                 .toLowerCase()
-                .replace('-', '')
-                .replace('.', '');
+                .replaceAll('-', '')
+                .replaceAll('.', '');
 
-            const currentName = d['枪名']
+            const currentName = d.nameIngame
                 .toLowerCase()
-                .replace('-', '')
-                .replace(' ', '')
-                .replace('.', '');
+                .replaceAll('-', '')
+                .replaceAll(' ', '')
+                .replaceAll('.', '');
 
             return currentName.includes(userInput);
         })
         .sort((a, b) => {
-            const aMatch = a['枪名'];
-            const bMatch = b['枪名'];
+            const aMatch = a.nameIngame;
+            const bMatch = b.nameIngame;
             if (aMatch.indexOf(query) !== bMatch.indexOf(query)) {
                 return aMatch.indexOf(query) - bMatch.indexOf(query);
             }
@@ -54,7 +60,7 @@ export const getTdollDataRes = (
             return aMatch.length - bMatch.length;
         });
 
-    const slicedData = targetData.slice(0, 5);
+    const slicedData = targetData.slice(0, 10);
 
     if (slicedData.length === 0) {
         return `未找到指定枪名, 请检查输入是否有误!`;
@@ -64,7 +70,48 @@ export const getTdollDataRes = (
         .map((tdoll) => formatTDollData(tdoll))
         .join('');
 
-    const endText = `\n最多展示 5 项结果`;
+    const endText = getTDollDataEndText();
 
     return allFormattedData + endText;
+};
+
+export const formatTDollSkinData = (
+    query: string,
+    dollData: ITDollDataItem[],
+    skin: ITDollSkinDataItem
+): string => {
+    const targetTDoll = dollData.find((d) => d.id === query);
+    let res = `No.${query} ${targetTDoll?.nameIngame || ''} \n`;
+
+    skin.forEach((item) => {
+        res += `${item.index + 1}. ${item.title} ID:${item.value}\n`;
+    });
+
+    return res;
+};
+
+/**
+ * Read tdoll skin data from file
+ * @param filePath tdoll data file path
+ * @returns tdoll data list
+ */
+export const readTdollSkinData = (
+    filePath: string
+): Record<string, ITDollSkinDataItem> => {
+    const jsonData = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(jsonData) as Record<string, ITDollSkinDataItem>;
+};
+
+export const getTDollSkinReplyText = (
+    query: string,
+    tdollData: ITDollDataItem[],
+    record: Record<string, ITDollSkinDataItem>
+) => {
+    if (!(query in record)) {
+        return '未找到指定人形编号的皮肤, 请检查输入是否有误!';
+    }
+
+    const skin = record[query];
+
+    return formatTDollSkinData(query, tdollData, skin);
 };

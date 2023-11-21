@@ -166,6 +166,8 @@ export const AnalyticsCommandRegister: IRegister = {
             }
         }
 
+        await ctx.reply('正在生成统计图, 过程可能需要1分钟, 请稍后...');
+
         const cqOutput = `[CQ:image,file=${getStaticHttpPath(
             ctx.env,
             path
