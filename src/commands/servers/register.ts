@@ -15,8 +15,9 @@ import {
     getUserInServerListDisplay,
     queryAllServers,
 } from './utils';
-import { printChartPng } from './chart';
-import {AnalysticsTask} from "./analysticsTask";
+import { printChartPng, printHoursChartPng } from './chart';
+import { AnalysticsTask } from './analysticsTask';
+import { AnalysticsHoursTask } from './analyticsHoursTask';
 
 export const ServersCommandRegister: IRegister = {
     name: 'servers',
@@ -140,11 +141,31 @@ export const WhereIsCommandRegister: IRegister = {
 export const AnalyticsCommandRegister: IRegister = {
     name: 'analytics',
     alias: 'a',
-    description: '查询服务器统计信息.[15s CD]',
+    description:
+        '查询服务器统计信息(参数 h 表明查询最近 24 小时的数据, 参数 d 表明查询最近 7 天的数据).[15s CD]',
     isAdmin: false,
     timesInterval: 15,
     exec: async (ctx) => {
-        const path = await printChartPng();
+        let queryParam = 'd';
+
+        ctx.params.forEach((checked, inputParam) => {
+            queryParam = inputParam;
+        });
+
+        let path = '';
+        switch (queryParam) {
+            // 按小时查询
+            case 'h': {
+                path = await printHoursChartPng();
+                break;
+            }
+            // 按 7 天查询
+            case 'd':
+            default: {
+                path = await printChartPng();
+            }
+        }
+
         const cqOutput = `[CQ:image,file=${getStaticHttpPath(
             ctx.env,
             path
@@ -155,5 +176,6 @@ export const AnalyticsCommandRegister: IRegister = {
     init: (env: GlobalEnv) => {
         logger.info('AnalysticsCommandRegister::init()');
         AnalysticsTask.start(env);
+        AnalysticsHoursTask.start(env);
     },
 };
