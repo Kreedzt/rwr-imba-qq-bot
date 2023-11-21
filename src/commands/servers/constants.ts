@@ -7,3 +7,7 @@ export const WHEREIS_OUTPUT_FILE = 'whereis.png';
 export const ANALYSIS_OUTPUT_FILE = 'analysis.png';
 
 export const ANALYSIS_DATA_FILE = 'analysis.json';
+
+export const ANALYSIS_HOURS_OUTPUT_FILE = 'analysis_hours.png';
+
+export const ANALYSIS_HOURS_DATA_FILE = 'analysis_hours.json';;

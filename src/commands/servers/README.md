@@ -42,5 +42,7 @@
 
 ### 注册的指令
 
-- analytics: 根据 SERVERS_MATCH_REGEX 筛选服务器, 查询服务器玩家统计信息并生成图片输出
-- a: analytics 的别名
+-   analytics: 根据 SERVERS_MATCH_REGEX 筛选服务器, 查询服务器玩家统计信息并生成图片输出, 支持多种参数
+    -   参数 d: 查询近 7 天的数据
+    -   参数 h: 查询近 24 小时的数据
+-   a: analytics 的别名
