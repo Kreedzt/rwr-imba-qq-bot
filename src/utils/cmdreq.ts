@@ -1,4 +1,4 @@
-import { logger } from '../logger';
+import { logger } from './logger';
 import { GlobalEnv, IRegister, MessageEvent } from '../types';
 
 interface UserCommandRequest {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { IRegister, MessageEvent } from '../types';
-import { checkTimeIntervalValid } from './utils';
+import { checkTimeIntervalValid } from './cmdreq';
 
 const registerTemplate: IRegister = {
     name: 'test',

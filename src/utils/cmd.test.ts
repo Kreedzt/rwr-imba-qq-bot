@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getCommandParams, getFirstCommand } from './utils';
+import { getCommandParams, getFirstCommand } from './cmd';
 
 describe('global utils', () => {
     describe.concurrent('getFirstCommand', () => {

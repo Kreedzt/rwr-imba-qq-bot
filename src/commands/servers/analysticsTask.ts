@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { GlobalEnv } from '../../types';
 import { countTotalPlayers, queryAllServers } from './utils';
-import { logger } from '../../logger';
+import { logger } from '../../utils/logger';
 import { IAnalysisData } from './types';
 import { ANALYSIS_DATA_FILE, OUTPUT_FOLDER } from './constants';
 

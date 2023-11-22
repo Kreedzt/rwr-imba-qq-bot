@@ -2,7 +2,7 @@ import * as express from 'express';
 import * as dotenv from 'dotenv';
 import * as bodyParser from 'body-parser';
 import { BaseEvent, GlobalEnv, MessageEvent, NoticeEvent } from './types';
-import { logger } from './logger';
+import { logger } from './utils/logger';
 import { RemoteService } from './services';
 import { msgHandler, initCommands } from './commands';
 import { noticeHandler } from './notices';

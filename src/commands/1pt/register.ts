@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { logger } from "../../logger";
+import { logger } from "../../utils/logger";
 import { IRegister } from "../../types";
 import { getShortInfo, getShortUrl } from './utils';
 
@@ -21,7 +21,7 @@ export const OnePtCommandRegister: IRegister = {
                 url = inputParam;
             }
         })
-        
+
         const res = await getShortInfo(url);
 
         const shortUrl = getShortUrl(res.short);
