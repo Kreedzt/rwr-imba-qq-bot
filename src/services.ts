@@ -1,6 +1,6 @@
 import axios from 'axios';
 import type { AxiosInstance } from 'axios';
-import { logger } from './logger';
+import { logger } from './utils/logger';
 // import axios, { Axios, AxiosInstance } from 'axios';
 
 export class RemoteService {

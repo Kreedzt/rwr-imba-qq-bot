@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { logger } from "../../logger";
+import { logger } from "../../utils/logger";
 import { IRegister } from "../../types";
 import { getImgInfo } from './utils';
 
@@ -8,7 +8,7 @@ export const SetuCommandRegister: IRegister = {
     description: '获取随机涩图[30s CD]',
     timesInterval: 30,
     isAdmin: false,
-    exec: async (ctx) => {        
+    exec: async (ctx) => {
         const res = await getImgInfo();
 
         const firstData = res.data[0];
@@ -17,7 +17,7 @@ export const SetuCommandRegister: IRegister = {
             await ctx.reply('未找到图片');
             return;
         }
-        
+
         logger.info('> setu res:', firstData);
 
 

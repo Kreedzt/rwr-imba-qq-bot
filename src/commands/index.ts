@@ -11,10 +11,10 @@ import {
     WhereIsCommandRegister,
 } from './servers/register';
 import { RollCommandRegister } from './roll/register';
-import { logger } from '../logger';
+import { logger } from '../utils/logger';
 import { RemoteService } from '../services';
-import { getCommandParams, getFirstCommand } from '../utils';
-import { checkTimeIntervalValid } from './utils';
+import { getCommandParams, getFirstCommand } from '../utils/cmd';
+import { checkTimeIntervalValid } from '../utils/cmdreq';
 import { FuckCommandRegister } from './fuck/register';
 import { SetuCommandRegister } from './setu/register';
 import { TouhouCommandRegister } from './touhou/register';
@@ -22,7 +22,10 @@ import { WaifuCommandRegister } from './waifu/registers';
 import { OnePtCommandRegister } from './1pt/register';
 import { NekoCommandRegister } from './neko/register';
 import { WebsiteCommandRegister } from './website/register';
-import {TDollCommandRegister, TDollSkinCommandRegister} from './tdoll/register';
+import {
+    TDollCommandRegister,
+    TDollSkinCommandRegister,
+} from './tdoll/register';
 import {
     QACommandRegister,
     QADefineCommandRegister,

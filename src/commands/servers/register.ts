@@ -1,6 +1,6 @@
-import { logger } from '../../logger';
+import { logger } from '../../utils/logger';
 import { GlobalEnv, IRegister } from '../../types';
-import { getStaticHttpPath } from '../utils';
+import { getStaticHttpPath } from '../../utils/cmdreq';
 import { printPng } from './canvas';
 import {
     QUERY_USER_IN_SERVERS_LIMIT,

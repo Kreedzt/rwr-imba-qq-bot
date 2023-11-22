@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
 import type { Nullable } from '../../types';
-import { logger } from '../../logger';
+import { logger } from '../../utils/logger';
 import type { Res, ResServerItem, OnlineServerItem } from './types';
 import { QUERY_USER_IN_SERVERS_LIMIT } from './constants';
 

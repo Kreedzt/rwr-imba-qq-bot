@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { logger } from "../../logger";
+import { logger } from "../../utils/logger";
 import { IRegister } from "../../types";
 import { getImgInfo } from './utils';
 
@@ -10,7 +10,7 @@ export const WaifuCommandRegister: IRegister = {
     description: '获取 Waifu 来源的随机图片[30s CD]',
     timesInterval: 30,
     isAdmin: false,
-    exec: async (ctx) => {        
+    exec: async (ctx) => {
         const res = await getImgInfo();
 
         logger.info(`> ${COMMAND_NAME} res:`, res);
