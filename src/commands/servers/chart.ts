@@ -138,6 +138,7 @@ export const printHoursChartPng = async () => {
                     show: true,
                 },
                 type: 'line',
+                smooth: true
             },
         ],
     });

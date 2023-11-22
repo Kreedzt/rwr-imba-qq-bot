@@ -47,7 +47,8 @@ RUN apk add --no-cache --virtual .build-deps \
         cairo \
 	jpeg \
 	pango \
-	giflib
+	giflib \
+    tzdata
 
 COPY ./consola.ttf /app/
 
@@ -55,7 +56,6 @@ COPY ./consola.ttf /app/
 RUN apk add wqy-zenhei --update-cache --repository https://nl.alpinelinux.org/alpine/edge/community && fc-cache -fv
 
 # tz
-RUN apk add --no-cache tzdata
 ENV TZ Asia/Shanghai
 
 RUN npx pnpm i --production
