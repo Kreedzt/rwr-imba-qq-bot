@@ -32,9 +32,10 @@ export class AnalysticsHoursTask {
         ) as IAnalysisData[];
 
         let newRecordValue = recordValue;
+        const lastValue = recordValue[recordValue.length - 1];
 
-        // 最后一项为当前时间, 则更新
-        if (recordValue[recordValue.length - 1].date === data.date) {
+        // 最后一项为当前时间, 且统计 < 当前统计, 则更新
+        if (lastValue.date === data.date && lastValue.count < data.count) {
             newRecordValue = [...recordValue.slice(0, -1), data];
         } else if (recordValue.length === 24) {
             newRecordValue = [...recordValue.slice(1), data];
