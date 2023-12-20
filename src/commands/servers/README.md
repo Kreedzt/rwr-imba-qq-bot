@@ -24,6 +24,7 @@
 ### 环境变量
 
 -   SERVERS_MATCH_REGEX: 用于匹配服务器的正则表达式，用于 `whereis` 命令的过滤
+-   SERVERS_FALLBACK_URL: 用于当 SERVERS_MATCH_REGEX 无法匹配到服务器时, 呈现的备用 URL
 
 ### 注册的指令
 

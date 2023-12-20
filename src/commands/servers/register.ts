@@ -46,10 +46,14 @@ export const ServersCommandRegister: IRegister = {
             SERVERS_OUTPUT_FILE
         );
 
-        const cqOutput = `[CQ:image,file=${getStaticHttpPath(
+        let cqOutput = `[CQ:image,file=${getStaticHttpPath(
             ctx.env,
             SERVERS_OUTPUT_FILE
         )},cache=0,c=8]`;
+
+        if (serverList.length === 0 && ctx.env.SERVERS_FALLBACK_URL) {
+            cqOutput += `\n检测到当前服务器列表为空, 请尝试使用备用查询地址: ${ctx.env.SERVERS_FALLBACK_URL}`;
+        }
 
         //const headerText = `在线服务器数: ${serverList.length}, 在线玩家数: ${playersCount}\n`;
         // const totalText = headerText + '当前在线的服务器列表:\n' + text;
@@ -129,10 +133,14 @@ export const WhereIsCommandRegister: IRegister = {
 
         const path = printPng(titleText, totalText, WHEREIS_OUTPUT_FILE);
 
-        const cqOutput = `[CQ:image,file=${getStaticHttpPath(
+        let cqOutput = `[CQ:image,file=${getStaticHttpPath(
             ctx.env,
             WHEREIS_OUTPUT_FILE
         )},cache=0,c=8]`;
+
+        if (serverList.length === 0 && ctx.env.SERVERS_FALLBACK_URL) {
+            cqOutput += `\n检测到当前服务器列表为空, 请尝试使用备用查询地址: ${ctx.env.SERVERS_FALLBACK_URL}`;
+        }
 
         await ctx.reply(cqOutput);
     },
