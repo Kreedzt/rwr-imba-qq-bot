@@ -104,7 +104,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
     );
 
     // help:
-    if (firstCommand === 'help') {
+    if (firstCommand === 'help' || firstCommand === 'h') {
         let helpText = '帮助列表: \n';
 
         avaliableCommands
