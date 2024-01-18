@@ -80,11 +80,11 @@ devDependencies:
     specifier: ^4.8.4
     version: registry.npmmirror.com/typescript@4.8.4
   vite:
-    specifier: ^4.4.7
-    version: 4.4.7(@types/node@18.8.4)
+    specifier: ^4.4.12
+    version: 4.4.12(@types/node@18.8.4)
   vite-plugin-node:
     specifier: ^3.0.2
-    version: 3.0.2(vite@4.4.7)
+    version: 3.0.2(vite@4.4.12)
   vitest:
     specifier: ^0.33.0
     version: 0.33.0(@vitest/ui@0.33.0)
@@ -3295,8 +3295,8 @@ packages:
       glob: 7.2.3
     dev: false
 
-  /rollup@3.26.3:
-    resolution: {integrity: sha512-7Tin0C8l86TkpcMtXvQu6saWH93nhG3dGQ1/+l5V2TDMceTxO7kDiK6GzbfLWNNxqJXm591PcEZUozZm51ogwQ==}
+  /rollup@3.29.4:
+    resolution: {integrity: sha512-oWzmBZwvYrU0iJHtDmhsm662rC15FRXmcjCk1xD771dFDx5jJ02ufAQQTn0etB2emNk4J9EZg/yWKpsn9BWGRw==}
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
     hasBin: true
     optionalDependencies:
@@ -3641,7 +3641,7 @@ packages:
       mlly: 1.4.0
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 4.4.7(@types/node@18.8.4)
+      vite: 4.4.12(@types/node@18.8.4)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -3653,7 +3653,7 @@ packages:
       - terser
     dev: true
 
-  /vite-plugin-node@3.0.2(vite@4.4.7):
+  /vite-plugin-node@3.0.2(vite@4.4.12):
     resolution: {integrity: sha512-pA/QZDe4VRFUSChTrR64EfdsnwHbTnkXKx1Be8MP2oW43TPeQgtIfqiGOuXTPUKjwINtyEl8JMzRN0+dYyfTow==}
     peerDependencies:
       '@swc/core': ^1.2.153
@@ -3665,13 +3665,13 @@ packages:
       '@rollup/pluginutils': 4.2.1
       chalk: 4.1.2
       debug: 4.3.4
-      vite: 4.4.7(@types/node@18.8.4)
+      vite: 4.4.12(@types/node@18.8.4)
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /vite@4.4.7(@types/node@18.8.4):
-    resolution: {integrity: sha512-6pYf9QJ1mHylfVh39HpuSfMPojPSKVxZvnclX1K1FyZ1PXDOcLBibdq5t1qxJSnL63ca8Wf4zts6mD8u8oc9Fw==}
+  /vite@4.4.12(@types/node@18.8.4):
+    resolution: {integrity: sha512-KtPlUbWfxzGVul8Nut8Gw2Qe8sBzWY+8QVc5SL8iRFnpnrcoCaNlzO40c1R6hPmcdTwIPEDkq0Y9+27a5tVbdQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
@@ -3701,7 +3701,7 @@ packages:
       '@types/node': registry.npmmirror.com/@types/node@18.8.4
       esbuild: 0.18.17
       postcss: 8.4.31
-      rollup: 3.26.3
+      rollup: 3.29.4
     optionalDependencies:
       fsevents: 2.3.2
     dev: true
@@ -3759,7 +3759,7 @@ packages:
       strip-literal: 1.0.1
       tinybench: 2.5.0
       tinypool: 0.6.0
-      vite: 4.4.7(@types/node@18.8.4)
+      vite: 4.4.12(@types/node@18.8.4)
       vite-node: 0.33.0(@types/node@18.8.4)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
