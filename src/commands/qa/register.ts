@@ -6,7 +6,7 @@ import {
     getDeleteQADataRes,
     getInsertQADataRes,
     getQAListRes,
-    getQAMatchRes,
+    getQAMatchRes, getSmartQAMatchRes,
     insertQAData,
     readQAData,
     writeQAData,
@@ -38,7 +38,7 @@ export const QACommandRegister: IRegister = {
             }
         });
 
-        const replayText = getQAMatchRes(qaData, query);
+        const replayText = await getSmartQAMatchRes(qaData, query, ctx);
 
         await ctx.reply(replayText);
     },

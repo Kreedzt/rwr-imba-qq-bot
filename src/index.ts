@@ -40,7 +40,8 @@ logger.info('Env initialized:', {
     WEBSITE_DATA_FILE: env.WEBSITE_DATA_FILE,
     TDOLL_DATA_FILE: env.TDOLL_DATA_FILE,
     TDOLL_SKIN_DATA_FILE: env.TDOLL_SKIN_DATA_FILE,
-    QA_DATA_FILE: env.QA_DATA_FILE
+    QA_DATA_FILE: env.QA_DATA_FILE,
+    GLM_API_KEY: env.GLM_APIKEY
 });
 
 app.post('/in', async (req, res) => {
