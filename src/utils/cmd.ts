@@ -1,5 +1,5 @@
 export const getFirstCommand = (msg: string) => {
-    const fixedMsg = msg.replace('#', '');
+    const fixedMsg = msg.trim().toLowerCase().replace('#', '');
     return fixedMsg.split(' ')[0];
 };
 
