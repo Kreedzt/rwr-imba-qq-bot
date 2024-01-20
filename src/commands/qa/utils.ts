@@ -142,7 +142,7 @@ export const getQAAIRes = async (
     return res.data.choices[0].message.content;
 };
 
-export const getQAMatchRes = async (qaData: IQADataItem[], query: string) => {
+export const getQAMatchRes = (qaData: IQADataItem[], query: string) => {
     const matchedList = qaData.filter((qa) => qa.q === query);
 
     if (matchedList.length === 0) {

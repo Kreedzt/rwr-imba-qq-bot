@@ -6,18 +6,21 @@ import {
     getDeleteQADataRes,
     getInsertQADataRes,
     getQAListRes,
-    getQAMatchRes, getSmartQAMatchRes,
+    getQAMatchRes,
+    getSmartQAMatchRes,
     insertQAData,
     readQAData,
     writeQAData,
 } from './utils';
+import * as repl from 'repl';
 
 let qaData: IQADataItem[] = [];
 
 export const QACommandRegister: IRegister = {
     name: 'qa',
     alias: 'q',
-    description: '根据定义好的问答列表问题查询答案, 需要一个参数, 支持模糊匹配, 支持拼音缩写及全拼.[10s CD]',
+    description:
+        '根据定义好的问答列表问题查询答案, 需要一个参数, 支持模糊匹配, 支持拼音缩写及全拼.[10s CD]',
     timesInterval: 10,
     isAdmin: false,
     exec: async (ctx) => {
@@ -38,9 +41,14 @@ export const QACommandRegister: IRegister = {
             }
         });
 
-        const replayText = await getSmartQAMatchRes(qaData, query, ctx);
+        let replyText = '';
+        if (!ctx.env.GLM_APIKEY) {
+            replyText = getQAMatchRes(qaData, query);
+        } else {
+            replyText = await getSmartQAMatchRes(qaData, query, ctx);
+        }
 
-        await ctx.reply(replayText);
+        await ctx.reply(replyText);
     },
 };
 
