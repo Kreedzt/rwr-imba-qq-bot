@@ -137,21 +137,26 @@ export const getQAAIRes = async (
 
     logger.info('queryParams:', queryParams);
 
-    const res = (await axios.post(
-        'https://open.bigmodel.cn/api/paas/v4/chat/completions',
-        queryParams,
-        {
-            headers: {
-                Authorization: jwt,
-            },
-        }
-    )) as AxiosResponse<IGLMResponse>;
+    try {
+        const res = (await axios.post(
+            'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+            queryParams,
+            {
+                headers: {
+                    Authorization: jwt,
+                },
+            }
+        )) as AxiosResponse<IGLMResponse>;
 
-    logger.info('GLM res choices:', res.data.choices);
+        logger.info('GLM res choices:', res.data?.choices);
 
-    logger.info('GLM tokens cost:', res.data.usage.total_tokens);
+        logger.info('GLM tokens cost:', res.data?.usage?.total_tokens);
 
-    return res.data.choices[0].message.content;
+        return res.data.choices[0]?.message?.content ?? 'GLM 服务端响应失败';
+    } catch (e) {
+        logger.error('call glm error', e);
+        return 'GLM 服务端响应失败';
+    }
 };
 
 export const getQAMatchRes = (qaData: IQADataItem[], query: string) => {

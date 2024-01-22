@@ -20,8 +20,8 @@ export const QACommandRegister: IRegister = {
     name: 'qa',
     alias: 'q',
     description:
-        '根据定义好的问答列表问题查询答案, 需要一个参数, 支持模糊匹配, 支持拼音缩写及全拼.[10s CD]',
-    timesInterval: 10,
+        '根据定义好的问答列表问题查询答案, 需要一个参数, 支持模糊匹配, 支持拼音缩写及全拼.[20s CD]',
+    timesInterval: 20,
     isAdmin: false,
     exec: async (ctx) => {
         if (qaData.length === 0) {
