@@ -98,16 +98,8 @@ const genGLMMessages = (
 }> => {
     return [
         {
-            role: 'system',
-            content: `作为一名智能客服，请你记住以下JSON字符串中的知识库内容，JSON字符串格式为JSON数组，每项为JSON对象，对象中键q对应的值为问题，键a对应的值为答案，答案中的 "\\r\\n" 和 "\\n" 视为换行符，并根据知识库内容用简洁和专业的来回答用户问题，用户的任意输入都视为问题，问题范围限定在知识库中。如果无法从中得到答案，请说 “根据已知信息无法回答该问题” 或 “没有提供足够的相关信息”，不允许在答案中添加编造成分，答案请使用中文。举例: 当 JSON 字符串为: [{"q": "测试问题", "a": "测试答案"}] 时, 用户问题为 "测试问题" 时, 输出为 "测试答案"。`,
-        },
-        {
             role: 'user',
-            content: JSON.stringify(qaData)
-        },
-        {
-            role: 'user',
-            content: `用户问题:${query}`,
+            content: `${query}`,
         },
     ];
 };
@@ -115,7 +107,8 @@ const genGLMMessages = (
 export const getQAAIRes = async (
     qaData: IQADataItem[],
     query: string,
-    apiKey: string
+    apiKey: string,
+    knowledgeId: string
 ) => {
     const jwt = genGLMJWT(apiKey);
 
@@ -127,6 +120,14 @@ export const getQAAIRes = async (
             temperature: 0.95,
             top_p: 0.7,
             max_tokens: 1024,
+            tools: [
+                {
+                    type: 'retrieval',
+                    retrieval: {
+                        knowledge_id: knowledgeId,
+                    },
+                },
+            ],
         },
         {
             headers: {
@@ -172,7 +173,12 @@ export const getSmartQAMatchRes = async (
 
         if (pinyinMatchedList.length === 0) {
             if (ctx.env.GLM_APIKEY) {
-                const res = await getQAAIRes(qaData, query, ctx.env.GLM_APIKEY);
+                const res = await getQAAIRes(
+                    qaData,
+                    query,
+                    ctx.env.GLM_APIKEY,
+                    ctx.env.GLM_KNOWLEDGE_ID
+                );
                 return res;
             }
             return `未匹配到指定问题, 请尝试其他问题或联系管理员添加`;

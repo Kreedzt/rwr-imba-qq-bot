@@ -23,7 +23,7 @@ const env = {
     ..._env,
     ADMIN_QQ_LIST: JSON.parse(_env.ADMIN_QQ_LIST),
     PORT: parseInt(_env.PORT),
-    ACTIVE_COMMANDS: JSON.parse(_env.ACTIVE_COMMANDS)
+    ACTIVE_COMMANDS: JSON.parse(_env.ACTIVE_COMMANDS),
 } as GlobalEnv;
 
 RemoteService.init(env.REMOTE_URL);
@@ -41,7 +41,8 @@ logger.info('Env initialized:', {
     TDOLL_DATA_FILE: env.TDOLL_DATA_FILE,
     TDOLL_SKIN_DATA_FILE: env.TDOLL_SKIN_DATA_FILE,
     QA_DATA_FILE: env.QA_DATA_FILE,
-    GLM_API_KEY: env.GLM_APIKEY
+    GLM_API_KEY: env.GLM_APIKEY,
+    GLM_KNOWLEDGE_ID: env.GLM_KNOWLEDGE_ID,
 });
 
 app.post('/in', async (req, res) => {

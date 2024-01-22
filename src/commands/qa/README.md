@@ -8,6 +8,7 @@
 
 - QADATA_FILE: 定义问答数据文件路径
 - GLM_APIKEY: 智谱 AI API KEY, 用于通常问答没有答案时的智能回答
+- GLM_KNOWLEDGE_ID: 智谱 AI 知识库 ID, 用于提供智能回答的知识库 ID
 
 ### 数据源格式
 
