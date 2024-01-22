@@ -16,6 +16,7 @@ export interface GlobalEnv {
     TDOLL_SKIN_DATA_FILE: string;
     QA_DATA_FILE: string;
     GLM_APIKEY: string;
+    GLM_KNOWLEDGE_ID: string;
 }
 
 export interface BaseEvent {
