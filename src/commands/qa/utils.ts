@@ -5,6 +5,7 @@ import { GlobalEnv, MsgExecCtx } from '../../types';
 import { IGLMResponse, IQADataItem } from './types';
 import { JwtHeader } from 'jsonwebtoken';
 import axios, { AxiosResponse } from 'axios';
+import { logger } from '../../utils/logger';
 
 /**
  * Read tdoll data from file
@@ -98,6 +99,11 @@ const genGLMMessages = (
 }> => {
     return [
         {
+            role: 'system',
+            content:
+                '作为一名智能客服, 你需要根据知识库内容用简洁和专业的来回答用户问题。如果无法从中得到答案，请说 “根据已知信息无法回答该问题” 或 “没有提供足够的相关信息”，不允许在答案中添加编造成分，答案请使用中文。 ',
+        },
+        {
             role: 'user',
             content: `${query}`,
         },
@@ -112,23 +118,28 @@ export const getQAAIRes = async (
 ) => {
     const jwt = genGLMJWT(apiKey);
 
+    const queryParams = {
+        model: 'glm-4',
+        messages: genGLMMessages(qaData, query),
+        temperature: 0.95,
+        top_p: 0.7,
+        max_tokens: 1024,
+        tools: [
+            {
+                type: 'retrieval',
+                retrieval: {
+                    knowledge_id: knowledgeId,
+                },
+            },
+        ],
+        stream: false,
+    };
+
+    logger.info('queryParams:', queryParams);
+
     const res = (await axios.post(
         'https://open.bigmodel.cn/api/paas/v4/chat/completions',
-        {
-            model: 'glm-3-turbo',
-            messages: genGLMMessages(qaData, query),
-            temperature: 0.95,
-            top_p: 0.7,
-            max_tokens: 1024,
-            tools: [
-                {
-                    type: 'retrieval',
-                    retrieval: {
-                        knowledge_id: knowledgeId,
-                    },
-                },
-            ],
-        },
+        queryParams,
         {
             headers: {
                 Authorization: jwt,
@@ -136,9 +147,9 @@ export const getQAAIRes = async (
         }
     )) as AxiosResponse<IGLMResponse>;
 
-    console.log('GLM res choices:', res.data.choices);
+    logger.info('GLM res choices:', res.data.choices);
 
-    console.log('GLM tokens cost:', res.data.usage.total_tokens);
+    logger.info('GLM tokens cost:', res.data.usage.total_tokens);
 
     return res.data.choices[0].message.content;
 };
