@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { CronJob } from 'cron';
 import { GlobalEnv } from '../../types';
 import { countTotalPlayers, queryAllServers } from './utils';
 import { logger } from '../../utils/logger';
@@ -8,7 +9,9 @@ import { ANALYSIS_DATA_FILE, OUTPUT_FOLDER } from './constants';
 
 export class AnalysticsTask {
     // 10 分钟更新一次
-    static readonly timesInterval = 60 * 1000;
+    // static readonly timesInterval = 60 * 1000;
+    static readonly timesInterval = '0 */10 * * * *';
+    static job: null | CronJob = null;
 
     static isRunning = false;
     static isUpdating = false;
@@ -84,9 +87,16 @@ export class AnalysticsTask {
         }
         // 立即调用一次
         AnalysticsTask.updateCount(env);
-        setInterval(() => {
-            AnalysticsTask.isRunning = true;
-            AnalysticsTask.updateCount(env);
-        }, AnalysticsTask.timesInterval);
+
+        AnalysticsTask.job = new CronJob(
+            AnalysticsTask.timesInterval,
+            () => {
+                AnalysticsTask.isRunning = true;
+                AnalysticsTask.updateCount(env);
+            },
+            null,
+            true,
+            'Asia/Shanghai'
+        );
     }
 }
