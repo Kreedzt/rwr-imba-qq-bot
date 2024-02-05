@@ -93,7 +93,7 @@ export const printPng = (
     let footerText =
         'RWR QQ Bot' +
         `(cost=${calcCost}ms, render time=${fnEndTime.format(
-            'yyyy-MM-DD hh:mm:ss'
+            'YYYY-MM-DD hh:mm:ss'
         )})`;
     context.fillText(footerText, 10, nextStartY + 20);
 
