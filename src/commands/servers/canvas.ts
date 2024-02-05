@@ -1,12 +1,16 @@
-import { createCanvas, registerFont } from "canvas";
+import { createCanvas, registerFont } from 'canvas';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as dayjs from 'dayjs';
-import { calcCanvasTextWidth } from "./utils";
+import { calcCanvasTextWidth } from './utils';
 
 const OUTPUT_FOLDER = 'out';
 
-export const printPng = (title: string, content: string[], fileName: string): string => {
+export const printPng = (
+    title: string,
+    content: string[],
+    fileName: string
+): string => {
     const fnStartTime = dayjs();
 
     if (!fs.existsSync(OUTPUT_FOLDER)) {
@@ -16,7 +20,7 @@ export const printPng = (title: string, content: string[], fileName: string): st
     const titleWidth = 11 * 28 + (title.length - 11) * 14;
 
     let maxLengthStr = '';
-    content.forEach(s => {
+    content.forEach((s) => {
         if (s.length > maxLengthStr.length) {
             maxLengthStr = s;
         }
@@ -67,7 +71,6 @@ export const printPng = (title: string, content: string[], fileName: string): st
     context.rect(10, nextStartY + 10, maxTextWidth + 20, content.length * 40);
     context.stroke();
 
-
     content.forEach((s) => {
         /**
          * Render server info text
@@ -87,12 +90,16 @@ export const printPng = (title: string, content: string[], fileName: string): st
     const fnEndTime = dayjs();
 
     const calcCost = fnEndTime.diff(fnStartTime);
-    let footerText = 'RWR QQ Bot' + `(build cost=${calcCost}ms)`;
+    let footerText =
+        'RWR QQ Bot' +
+        `(cost=${calcCost}ms, render time=${fnEndTime.format(
+            'yyyy-MM-DD hh:mm:ss'
+        )})`;
     context.fillText(footerText, 10, nextStartY + 20);
 
     const buffer = canvas.toBuffer('image/png', {
         compressionLevel: 3,
-        filters: canvas.PNG_FILTER_NONE
+        filters: canvas.PNG_FILTER_NONE,
     });
 
     const outputPath = path.join(process.cwd(), OUTPUT_FOLDER, `./${fileName}`);
@@ -100,4 +107,4 @@ export const printPng = (title: string, content: string[], fileName: string): st
     fs.writeFileSync(outputPath, buffer);
 
     return outputPath;
-}
+};
