@@ -18,6 +18,7 @@ import {
 import { printChartPng, printHoursChartPng } from './chart';
 import { AnalysticsTask } from './analysticsTask';
 import { AnalysticsHoursTask } from './analyticsHoursTask';
+import { parseIgnoreSpace } from '../../utils/cmd';
 
 export const ServersCommandRegister: IRegister = {
     name: 'servers',
@@ -69,35 +70,7 @@ export const WhereIsCommandRegister: IRegister = {
     isAdmin: false,
     timesInterval: 5,
     parseParams: (msg: string) => {
-        const step1Msg = msg.replace('#whereis', '').replace('#w', '');
-        let skipped = true;
-        let targetName = '';
-
-        const params = new Map<string, boolean>();
-
-        let hasNameStart = false;
-        step1Msg.split(' ').forEach((userInput) => {
-            if (userInput === '' && skipped) {
-                skipped = false;
-            } else if (userInput === '') {
-                if (hasNameStart) {
-                    targetName += ' ';
-                }
-            } else {
-                if (hasNameStart) {
-                    targetName += ' ' + userInput;
-                } else {
-                    targetName += userInput;
-                }
-                hasNameStart = true;
-            }
-        });
-
-        if (targetName) {
-            params.set(targetName, true);
-        }
-
-        return params;
+        return parseIgnoreSpace(['#whereis', '#w'], msg);
     },
     exec: async (ctx) => {
         if (ctx.params.size === 0) {
