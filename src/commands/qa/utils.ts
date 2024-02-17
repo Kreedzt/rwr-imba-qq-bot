@@ -6,6 +6,7 @@ import { IGLMResponse, IQADataItem } from './types';
 import { JwtHeader } from 'jsonwebtoken';
 import axios, { AxiosResponse } from 'axios';
 import { logger } from '../../utils/logger';
+import {AI_MODEL_DISPLAY_NAME, AI_MODEL_NAME} from "./constants";
 
 /**
  * Read tdoll data from file
@@ -119,7 +120,7 @@ export const getQAAIRes = async (
     const jwt = genGLMJWT(apiKey);
 
     const queryParams = {
-        model: 'glm-4',
+        model: AI_MODEL_NAME,
         messages: genGLMMessages(qaData, query),
         temperature: 0.95,
         top_p: 0.7,
@@ -148,14 +149,14 @@ export const getQAAIRes = async (
             }
         )) as AxiosResponse<IGLMResponse>;
 
-        logger.info('GLM res choices:', res.data?.choices);
+        logger.info(`${AI_MODEL_DISPLAY_NAME} res choices:`, res.data?.choices);
 
-        logger.info('GLM tokens cost:', res.data?.usage?.total_tokens);
+        logger.info(`${AI_MODEL_DISPLAY_NAME} tokens cost:`, res.data?.usage?.total_tokens);
 
-        return res.data.choices[0]?.message?.content ?? 'GLM 服务端响应失败';
+        return res.data.choices[0]?.message?.content ?? `${AI_MODEL_DISPLAY_NAME} 服务端响应失败`;
     } catch (e) {
         logger.error('call glm error', e);
-        return 'GLM 服务端响应失败';
+        return `${AI_MODEL_DISPLAY_NAME}服务端响应失败`;
     }
 };
 
@@ -189,13 +190,14 @@ export const getSmartQAMatchRes = async (
 
         if (pinyinMatchedList.length === 0) {
             if (ctx.env.GLM_APIKEY) {
+                await ctx.reply(`${AI_MODEL_DISPLAY_NAME}正在使用 AI 引擎进行查询, 请等待...`);
                 const res = await getQAAIRes(
                     qaData,
                     query,
                     ctx.env.GLM_APIKEY,
                     ctx.env.GLM_KNOWLEDGE_ID
                 );
-                return res;
+                return `${AI_MODEL_DISPLAY_NAME}${res}`;
             }
             return `未匹配到指定问题, 请尝试其他问题或联系管理员添加`;
         }
