@@ -33,7 +33,7 @@ export const TDollCommandRegister: IRegister = {
             }
         });
 
-        const replyText = getTDollDataRes(tdollData, query, ctx.env.IMGPROXY_URL);
+        const replyText = getTDollDataRes(tdollData, query);
 
         await ctx.reply(replyText);
     },
