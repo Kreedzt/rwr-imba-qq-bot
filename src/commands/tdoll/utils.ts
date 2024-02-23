@@ -25,7 +25,7 @@ export const formatTDollData = (tdoll: ITDollDataItem) => {
 
     res += `No.${tdoll.id} ${tdoll.nameIngame}${
         tdoll.mod === '1' ? '(mod)' : ''
-    } ${tdoll.type}\n[CQ:image,file=${avatarUrl}]`;
+    } ${tdoll.type}\n[CQ:image,file=${avatarUrl},cache=0]`;
 
     return res;
 };
