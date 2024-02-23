@@ -13,6 +13,7 @@
 - ADMIN_QQ_LIST: 管理员 QQ 列表, 类型为 `string[]`, eg: `555555`
 - LISTEN_GROUP: 监听的 QQ 群号, 类型为 `number`, eg: `111111`
 - ACTIVE_COMMANDS: 激活的命令列表, 类型为 `JSON string[]`, eg: `["fuck", "roll", "tdoll"]`
+- IMGPROXY_URL: imgproxy 图片代理地址, 用于图片裁剪宽高及缩放
 - WELCOME_TEMPLATE: TODO
 
 命令配置:

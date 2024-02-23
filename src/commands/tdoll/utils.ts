@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import { GlobalEnv } from '../../types';
 import { ITDollDataItem, ITDollSkinDataItem } from './types';
 import { TDOLL_URL_PREFIX } from './constants';
+import {resizeImg} from "../../utils/imgproxy";
 
 /**
  * Read tdoll data from file
@@ -20,9 +21,11 @@ export const readTdollData = (filePath: string): ITDollDataItem[] => {
 export const formatTDollData = (tdoll: ITDollDataItem) => {
     let res = '';
 
+    const avatarUrl = resizeImg(tdoll.avatar, 40, 40);
+
     res += `No.${tdoll.id} ${tdoll.nameIngame}${
         tdoll.mod === '1' ? '(mod)' : ''
-    } ${tdoll.type}\n`;
+    } ${tdoll.type}\n[CQ:image,file=${avatarUrl},cache=0]\n`;
 
     return res;
 };
@@ -31,9 +34,9 @@ export const getTDollDataEndText = () => {
     return `\n最多展示 10 项结果`;
 };
 
-export const getTdollDataRes = (
+export const getTDollDataRes = (
     dataList: ITDollDataItem[],
-    query: string
+    query: string,
 ): string => {
     const targetData = dataList
         .filter((d) => {

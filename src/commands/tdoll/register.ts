@@ -1,7 +1,7 @@
 import { IRegister } from '../../types';
 import { ITDollDataItem, ITDollSkinDataItem } from './types';
 import {
-    getTdollDataRes,
+    getTDollDataRes,
     getTDollSkinReplyText,
     readTdollData,
     readTdollSkinData,
@@ -33,7 +33,7 @@ export const TDollCommandRegister: IRegister = {
             }
         });
 
-        const replyText = getTdollDataRes(tdollData, query);
+        const replyText = getTDollDataRes(tdollData, query);
 
         await ctx.reply(replyText);
     },

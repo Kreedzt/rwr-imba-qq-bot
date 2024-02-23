@@ -17,6 +17,7 @@ export interface GlobalEnv {
     QA_DATA_FILE: string;
     GLM_APIKEY: string;
     GLM_KNOWLEDGE_ID: string;
+    IMGPROXY_URL: string;
 }
 
 export interface BaseEvent {
