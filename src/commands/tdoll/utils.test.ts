@@ -118,7 +118,7 @@ describe('tdoll: formatTdollData', () => {
     it.concurrent('test format', () => {
         const res = formatTDollData(MOCK_DATA[0]);
 
-        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n`);
+        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0]\n`);
     });
 });
 
@@ -136,7 +136,7 @@ describe('tdoll: getTdollDataRes', () => {
 
         const res = getTDollDataRes(MOCK_DATA, query);
 
-        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n\n最多展示 10 项结果`);
+        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0]\n\n最多展示 10 项结果`);
     });
 
     it.concurrent('query found 1 result, ignore case', () => {
@@ -144,7 +144,7 @@ describe('tdoll: getTdollDataRes', () => {
 
         const res = getTDollDataRes(MOCK_DATA, query);
 
-        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n\n最多展示 10 项结果`);
+        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0]\n\n最多展示 10 项结果`);
     });
 
     it.concurrent('query found 1 result, ignore "-"', () => {
@@ -152,7 +152,7 @@ describe('tdoll: getTdollDataRes', () => {
 
         const res = getTDollDataRes(MOCK_DATA, query);
 
-        expect(res).toBe(`No.53 NTW-20(mod) 步枪\n\n最多展示 10 项结果`);
+        expect(res).toBe(`No.53 NTW-20(mod) 步枪\n[CQ:image,file=https://www.gfwiki.org/images/2/2e/Icon_No.53.png,cache=0]\n\n最多展示 10 项结果`);
     });
 
     it.concurrent('query found 1 result, ignore "."', () => {
@@ -198,7 +198,7 @@ describe('tdoll: getTdollDataRes', () => {
         const res = getTDollDataRes(MOCK_DATA, query);
 
         expect(res).toBe(
-            `No.55 M4A1(mod) 突击步枪\nNo.54 M16A1 突击步枪\n\n最多展示 10 项结果`
+            `No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0]\nNo.54 M16A1 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/0/0d/Icon_No.54.png,cache=0]\n\n最多展示 10 项结果`
         );
     });
 
