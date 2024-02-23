@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { GlobalEnv } from '../../types';
 import { ITDollDataItem, ITDollSkinDataItem } from './types';
 import { TDOLL_URL_PREFIX } from './constants';
-import {resizeImg} from "../../utils/imgproxy";
+import { resizeImg } from '../../utils/imgproxy';
 
 /**
  * Read tdoll data from file
@@ -25,7 +25,12 @@ export const formatTDollData = (tdoll: ITDollDataItem) => {
 
     res += `No.${tdoll.id} ${tdoll.nameIngame}${
         tdoll.mod === '1' ? '(mod)' : ''
-    } ${tdoll.type}\n[CQ:image,file=${avatarUrl},cache=0]\n`;
+    } ${tdoll.type}\n[CQ:image,file=${avatarUrl},cache=0]`;
+
+    if (tdoll.mod === '1' && tdoll.avatarMod) {
+        const modAvatarUrl = resizeImg(tdoll.avatarMod, 40, 40);
+        res += `[CQ:image,file=${modAvatarUrl},cache=0]`;
+    }
 
     return res;
 };
@@ -36,7 +41,7 @@ export const getTDollDataEndText = () => {
 
 export const getTDollDataRes = (
     dataList: ITDollDataItem[],
-    query: string,
+    query: string
 ): string => {
     const targetData = dataList
         .filter((d) => {
@@ -71,7 +76,7 @@ export const getTDollDataRes = (
 
     const allFormattedData = slicedData
         .map((tdoll) => formatTDollData(tdoll))
-        .join('');
+        .join('\n');
 
     const endText = getTDollDataEndText();
 

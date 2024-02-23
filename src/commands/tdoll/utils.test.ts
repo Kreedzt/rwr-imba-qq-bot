@@ -118,7 +118,7 @@ describe('tdoll: formatTdollData', () => {
     it.concurrent('test format', () => {
         const res = formatTDollData(MOCK_DATA[0]);
 
-        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0]\n`);
+        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/a/a7/Icon_No.55_Mod.png,cache=0]`);
     });
 });
 
@@ -131,12 +131,20 @@ describe('tdoll: getTdollDataRes', () => {
         expect(res).toBe(`未找到指定枪名, 请检查输入是否有误!`);
     });
 
-    it.concurrent('query found 1 result', () => {
+    it.concurrent('query found 1 result, without mod', () => {
+        const query = 'M16A1';
+
+        const res = getTDollDataRes(MOCK_DATA, query);
+
+        expect(res).toBe(`No.54 M16A1 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/0/0d/Icon_No.54.png,cache=0]\n最多展示 10 项结果`);
+    });
+
+    it.concurrent('query found 1 result with mod', () => {
         const query = 'M4A1';
 
         const res = getTDollDataRes(MOCK_DATA, query);
 
-        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0]\n\n最多展示 10 项结果`);
+        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/a/a7/Icon_No.55_Mod.png,cache=0]\n最多展示 10 项结果`);
     });
 
     it.concurrent('query found 1 result, ignore case', () => {
@@ -144,7 +152,7 @@ describe('tdoll: getTdollDataRes', () => {
 
         const res = getTDollDataRes(MOCK_DATA, query);
 
-        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0]\n\n最多展示 10 项结果`);
+        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/a/a7/Icon_No.55_Mod.png,cache=0]\n最多展示 10 项结果`);
     });
 
     it.concurrent('query found 1 result, ignore "-"', () => {
@@ -152,7 +160,7 @@ describe('tdoll: getTdollDataRes', () => {
 
         const res = getTDollDataRes(MOCK_DATA, query);
 
-        expect(res).toBe(`No.53 NTW-20(mod) 步枪\n[CQ:image,file=https://www.gfwiki.org/images/2/2e/Icon_No.53.png,cache=0]\n\n最多展示 10 项结果`);
+        expect(res).toBe(`No.53 NTW-20(mod) 步枪\n[CQ:image,file=https://www.gfwiki.org/images/2/2e/Icon_No.53.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/8/80/Icon_No.53_Mod.png,cache=0]\n最多展示 10 项结果`);
     });
 
     it.concurrent('query found 1 result, ignore "."', () => {
@@ -198,7 +206,7 @@ describe('tdoll: getTdollDataRes', () => {
         const res = getTDollDataRes(MOCK_DATA, query);
 
         expect(res).toBe(
-            `No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0]\nNo.54 M16A1 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/0/0d/Icon_No.54.png,cache=0]\n\n最多展示 10 项结果`
+            `No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/a/a7/Icon_No.55_Mod.png,cache=0]\nNo.54 M16A1 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/0/0d/Icon_No.54.png,cache=0]\n最多展示 10 项结果`
         );
     });
 
@@ -370,11 +378,11 @@ describe('tdoll: getTdollDataRes', () => {
         const res = getTDollDataRes(MOCK_LOCAL_DATA, query);
 
         expect(res).toBe(
-            `${formatTDollData(MOCK_LOCAL_DATA[1])}${formatTDollData(
+            `${formatTDollData(MOCK_LOCAL_DATA[1])}\n${formatTDollData(
                 MOCK_LOCAL_DATA[3]
-            )}${formatTDollData(MOCK_LOCAL_DATA[4])}${formatTDollData(
+            )}\n${formatTDollData(MOCK_LOCAL_DATA[4])}\n${formatTDollData(
                 MOCK_LOCAL_DATA[0]
-            )}${formatTDollData(MOCK_LOCAL_DATA[2])}\n最多展示 10 项结果`
+            )}\n${formatTDollData(MOCK_LOCAL_DATA[2])}\n最多展示 10 项结果`
         );
     });
 });
