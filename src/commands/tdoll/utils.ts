@@ -21,7 +21,7 @@ export const readTdollData = (filePath: string): ITDollDataItem[] => {
 export const formatTDollData = (tdoll: ITDollDataItem) => {
     let res = '';
 
-    const avatarUrl = resizeImg(tdoll.avatar, 100, 100);
+    const avatarUrl = resizeImg(tdoll.avatar, 40, 40);
 
     res += `No.${tdoll.id} ${tdoll.nameIngame}${
         tdoll.mod === '1' ? '(mod)' : ''
