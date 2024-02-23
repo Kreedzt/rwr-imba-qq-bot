@@ -19,7 +19,7 @@ export interface ITDollDataBaseItem {
     // "73"
     baseRate: string;
     // "0"
-    mod: string;
+    mod: '0';
     // "0"
     baseArmor: string;
     // "46"
@@ -48,7 +48,8 @@ export interface ITDollDataBaseItem {
     tileEffect2Time: string;
 }
 
-export interface ITDollDataModItem extends ITDollDataBaseItem {
+export interface ITDollDataModItem extends Omit<ITDollDataBaseItem, 'mod'> {
+    mod: '1';
     // "20%"
     modtileEffect1Time: string;
     // "50"
