@@ -5,5 +5,5 @@ export const resizeImg = (url: string, width: number, height: number): string =>
         return url;
     }
 
-    return `${IMGPROXY_URL}/sig/size:${width}:${height}/resizing_type:fill/${Buffer.from(url).toString('base64')}`;
+    return `${IMGPROXY_URL}/sig/size:${width}:${height}/resizing_type:fit/${Buffer.from(url).toString('base64')}`;
 }
