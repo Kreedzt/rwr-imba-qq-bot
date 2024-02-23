@@ -9,6 +9,7 @@
 ### 环境变量
 
 -   TDOLL_DATA_FILE: 定义人形数据文件位置
+-   IMGPROXY_URL: imgproxy 图片代理地址, 用于图片裁剪宽高及缩放
 
 ### 数据源获取方式
 
