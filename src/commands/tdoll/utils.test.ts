@@ -4,7 +4,7 @@ import {
     formatTDollData,
     formatTDollSkinData,
     getTDollDataEndText,
-    getTdollDataRes,
+    getTDollDataRes,
     getTDollSkinReplyText,
 } from './utils';
 
@@ -126,7 +126,7 @@ describe('tdoll: getTdollDataRes', () => {
     it.concurrent('query not found', () => {
         const query = 'MMMM';
 
-        const res = getTdollDataRes(MOCK_DATA, query);
+        const res = getTDollDataRes(MOCK_DATA, query);
 
         expect(res).toBe(`未找到指定枪名, 请检查输入是否有误!`);
     });
@@ -134,7 +134,7 @@ describe('tdoll: getTdollDataRes', () => {
     it.concurrent('query found 1 result', () => {
         const query = 'M4A1';
 
-        const res = getTdollDataRes(MOCK_DATA, query);
+        const res = getTDollDataRes(MOCK_DATA, query);
 
         expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n\n最多展示 10 项结果`);
     });
@@ -142,7 +142,7 @@ describe('tdoll: getTdollDataRes', () => {
     it.concurrent('query found 1 result, ignore case', () => {
         const query = 'm4a1';
 
-        const res = getTdollDataRes(MOCK_DATA, query);
+        const res = getTDollDataRes(MOCK_DATA, query);
 
         expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n\n最多展示 10 项结果`);
     });
@@ -150,7 +150,7 @@ describe('tdoll: getTdollDataRes', () => {
     it.concurrent('query found 1 result, ignore "-"', () => {
         const query = 'ntw20';
 
-        const res = getTdollDataRes(MOCK_DATA, query);
+        const res = getTDollDataRes(MOCK_DATA, query);
 
         expect(res).toBe(`No.53 NTW-20(mod) 步枪\n\n最多展示 10 项结果`);
     });
@@ -187,7 +187,7 @@ describe('tdoll: getTdollDataRes', () => {
             },
         ];
 
-        const res = getTdollDataRes(mockData, query);
+        const res = getTDollDataRes(mockData, query);
 
         expect(res).toBe(formatTDollData(mockData[0]) + getTDollDataEndText());
     });
@@ -195,7 +195,7 @@ describe('tdoll: getTdollDataRes', () => {
     it.concurrent('query found 2 results', () => {
         const query = 'M';
 
-        const res = getTdollDataRes(MOCK_DATA, query);
+        const res = getTDollDataRes(MOCK_DATA, query);
 
         expect(res).toBe(
             `No.55 M4A1(mod) 突击步枪\nNo.54 M16A1 突击步枪\n\n最多展示 10 项结果`
@@ -367,7 +367,7 @@ describe('tdoll: getTdollDataRes', () => {
             },
         ];
 
-        const res = getTdollDataRes(MOCK_LOCAL_DATA, query);
+        const res = getTDollDataRes(MOCK_LOCAL_DATA, query);
 
         expect(res).toBe(
             `${formatTDollData(MOCK_LOCAL_DATA[1])}${formatTDollData(
