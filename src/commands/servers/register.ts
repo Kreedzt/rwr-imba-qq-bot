@@ -91,8 +91,8 @@ export const WhereIsCommandRegister: IRegister = {
         }
         const serverList = await queryAllServers(ctx.env.SERVERS_MATCH_REGEX);
         logger.info('> call getUserInServerListDisplay', targetName);
-        const contentText = getUserInServerListDisplay(targetName, serverList);
-        const count = contentText.length;
+        const content = getUserInServerListDisplay(targetName, serverList);
+        const count = content.total;
 
         const titleText = `查询 '${targetName}' 所在服务器结果:\n`;
         let footerText = '';
@@ -102,7 +102,7 @@ export const WhereIsCommandRegister: IRegister = {
             footerText += `共计 ${count} 位玩家结果(只展示 ${QUERY_USER_IN_SERVERS_LIMIT} 位玩家列表)`;
         }
 
-        const totalText = [...contentText, footerText];
+        const totalText = [...content.results, footerText];
 
         const path = printPng(titleText, totalText, WHEREIS_OUTPUT_FILE);
 

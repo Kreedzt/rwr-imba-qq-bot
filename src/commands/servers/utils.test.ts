@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { OnlineServerItem } from './types';
-import { isServerMatchRegex } from './utils';
+import {getUserInServerListDisplay, isServerMatchRegex} from './utils';
 
 const MOCK_CT_SERVER_ITEM: OnlineServerItem = {
     name: '[Castling][Storm-7 LV4]',
@@ -57,5 +57,28 @@ describe('isServerMatchRegex', () => {
                 MOCK_CT_SERVER_ITEM
             )
         ).toBe(true);
+    });
+});
+
+describe('getUserInServerListDisplay', () => {
+    it.concurrent('no match', () => {
+        const res = getUserInServerListDisplay('ABCDEFG', [MOCK_CT_SERVER_ITEM]);
+
+        expect(res.results.length).toBe(0);
+        expect(res.total).toBe(0);
+    });
+
+    it.concurrent('match, limited', () => {
+        const res  = getUserInServerListDisplay('AR', [MOCK_CT_SERVER_ITEM]);
+
+        expect(res.results.length).toBe(1);
+        expect(res.total).toBe(1);
+    });
+
+    it.concurrent('over limit', () => {
+        const res = getUserInServerListDisplay('A', [MOCK_CT_SERVER_ITEM]);
+
+        expect(res.results.length).toBe(5);
+        expect(res.total).toBe(8);
     });
 });
