@@ -12,7 +12,7 @@ import {
 } from './servers/register';
 import { RollCommandRegister } from './roll/register';
 import { logger } from '../utils/logger';
-import { RemoteService } from '../services';
+import { RemoteService } from '../services/remote.service';
 import { getCommandParams, getFirstCommand } from '../utils/cmd';
 import { checkTimeIntervalValid } from '../utils/cmdreq';
 import { FuckCommandRegister } from './fuck/register';

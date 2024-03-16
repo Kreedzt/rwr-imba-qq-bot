@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { RemoteService } from './services';
+import { RemoteService } from './remote.service';
 
 describe('service', () => {
     it.concurrent('singleton constructor', () => {

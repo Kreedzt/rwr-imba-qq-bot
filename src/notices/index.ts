@@ -1,5 +1,5 @@
 import { logger } from "../utils/logger";
-import { RemoteService } from "../services";
+import { RemoteService } from "../services/remote.service";
 import { BaseEvent, MsgExecCtx, GlobalEnv, NoticeEvent, NoticeExecCtx } from "../types";
 import { welcomeNewMember } from "./welcome";
 

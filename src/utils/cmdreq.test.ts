@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { IRegister, MessageEvent } from '../types';
 import { checkTimeIntervalValid } from './cmdreq';
+import {awaitTimeout} from "./time";
 
 const registerTemplate: IRegister = {
     name: 'test',
@@ -25,12 +26,6 @@ const messageTemplate: MessageEvent = {
     sub_type: '',
     message_id: 0,
 };
-
-const awaitTimeout = async (interval: number) => {
-    return new Promise((res) => {
-        setTimeout(res, interval);
-    });
-}
 
 describe('check time utils', () => {
     describe('checkTimeIntervalValid', () => {
