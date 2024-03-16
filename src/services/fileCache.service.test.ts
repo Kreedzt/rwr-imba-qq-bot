@@ -25,8 +25,9 @@ describe('fileCache', () => {
     it.concurrent('get cached data', async () => {
         const cache = new TestNumberCache();
         expect(await cache.getData()).toEqual(1);
+        cache.cacheTime = 10;
         cache.cacheData = 3;
 
-        expect(await cache.getData()).toEqual(1);
+        expect(await cache.getData()).toEqual(3);
     });
 });
