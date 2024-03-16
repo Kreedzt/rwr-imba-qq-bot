@@ -24,4 +24,5 @@ welcome.template
 website_list.json
 ecosystem.config.js
 tdoll_data.json
+tdoll_skin_data.json
 qa_data.json
