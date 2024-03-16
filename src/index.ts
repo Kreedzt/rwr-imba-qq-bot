@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 import * as bodyParser from 'body-parser';
 import { BaseEvent, GlobalEnv, MessageEvent, NoticeEvent } from './types';
 import { logger } from './utils/logger';
-import { RemoteService } from './services';
+import { RemoteService } from './services/remote.service';
 import { msgHandler, initCommands } from './commands';
 import { noticeHandler } from './notices';
 

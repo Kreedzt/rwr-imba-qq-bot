@@ -35,8 +35,8 @@ export const formatTDollData = (tdoll: ITDollDataItem) => {
     return res;
 };
 
-export const getTDollDataEndText = () => {
-    return `\n最多展示 10 项结果`;
+export const getTDollDataEndText = (count: number) => {
+    return `\n(共${count}项)最多展示 10 项结果`;
 };
 
 export const getTDollDataRes = (
@@ -78,7 +78,7 @@ export const getTDollDataRes = (
         .map((tdoll) => formatTDollData(tdoll))
         .join('\n');
 
-    const endText = getTDollDataEndText();
+    const endText = getTDollDataEndText(targetData.length);
 
     return allFormattedData + endText;
 };

@@ -1,13 +1,7 @@
 import { IRegister } from '../../types';
-import { ITDollDataItem, ITDollSkinDataItem } from './types';
-import {
-    getTDollDataRes,
-    getTDollSkinReplyText,
-    readTdollData,
-    readTdollSkinData,
-} from './utils';
-
-let tdollData: ITDollDataItem[] = [];
+import { getTDollDataRes, getTDollSkinReplyText } from './utils';
+import { TDollSvc } from './tdoll.service';
+import { TDollSkinSvc } from './tdollskin.service';
 
 export const TDollCommandRegister: IRegister = {
     name: 'tdoll',
@@ -21,9 +15,7 @@ export const TDollCommandRegister: IRegister = {
             return;
         }
 
-        if (tdollData.length === 0) {
-            tdollData = readTdollData(ctx.env.TDOLL_DATA_FILE);
-        }
+        const tdollData = await TDollSvc.getData();
 
         let query: string = '';
 
@@ -39,8 +31,6 @@ export const TDollCommandRegister: IRegister = {
     },
 };
 
-let tdollSkinData: Record<string, ITDollSkinDataItem> = {};
-
 export const TDollSkinCommandRegister: IRegister = {
     name: 'tdollskin',
     alias: 'ts',
@@ -53,9 +43,8 @@ export const TDollSkinCommandRegister: IRegister = {
             return;
         }
 
-        if (Object.keys(tdollSkinData).length === 0) {
-            tdollSkinData = readTdollSkinData(ctx.env.TDOLL_SKIN_DATA_FILE);
-        }
+        const tdollData = await TDollSvc.getData();
+        const tdollSkinData = await TDollSkinSvc.getData();
 
         let query: string = '';
 

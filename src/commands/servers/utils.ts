@@ -253,7 +253,10 @@ const getUserInfoInServerDisplayText = (
 export const getUserInServerListDisplay = (
     user: string,
     serverList: OnlineServerItem[]
-): string[] => {
+): {
+    results: string[];
+    total: number;
+} => {
     const text: string[] = [];
 
     let count = 0;
@@ -265,7 +268,7 @@ export const getUserInServerListDisplay = (
             if (player.toUpperCase().includes(user.toUpperCase())) {
                 count += 1;
 
-                if (count >= QUERY_USER_IN_SERVERS_LIMIT) {
+                if (count > QUERY_USER_IN_SERVERS_LIMIT) {
                     return;
                 }
 
@@ -274,7 +277,10 @@ export const getUserInServerListDisplay = (
         });
     });
 
-    return text;
+    return {
+        results: text,
+        total: count,
+    };
 };
 
 /**
