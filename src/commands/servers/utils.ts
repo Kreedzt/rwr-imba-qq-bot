@@ -11,7 +11,7 @@ const axiosInst = axios.create({
     timeout: 8 * 1000,
 });
 
-export const CN_REGEX = new RegExp("[\u4E00-\u9FA5]");
+export const CN_REGEX = new RegExp('[\u4E00-\u9FA5]');
 
 /**
  * Get players list string array
@@ -82,6 +82,22 @@ export const getJoinServerUrl = (server: OnlineServerItem): string => {
     return str;
 };
 
+export const getServersHeaderDisplaySectionText = (
+    serverList: OnlineServerItem[]
+) => {
+    const serversTotalSection = `在线服务器数: ${serverList.length}, `;
+    const playersTotalStaticSection = `在线玩家数: `;
+    const playersCountSection = `${countTotalPlayers(
+        serverList
+    )} / ${countServersMaxPlayers(serverList)}`;
+
+    return {
+        serversTotalSection,
+        playersTotalStaticSection,
+        playersCountSection,
+    };
+};
+
 /**
  * Get formatted server display info text
  * @param server serverItem
@@ -99,12 +115,52 @@ export const getServerInfoDisplayText = (server: OnlineServerItem): string => {
     } (${mapName})\n`;
 
     return serverText;
+};
 
-    // const serverUrl = getJoinServerUrl(server);
+/**
+ * Get formatted server display section text(server name, players, map)
+ * @param server
+ */
+export const getServerInfoDisplaySectionText = (
+    server: OnlineServerItem
+): {
+    serverSection: string;
+    playersSection: string;
+    mapSection: string;
+} => {
+    const mapId = server.map_id;
 
-    // const text = serverText + serverUrl + '\n' + '\n';
+    const mapPathArr = mapId.split('/');
 
-    // return text;
+    const mapName = mapPathArr[mapPathArr.length - 1];
+
+    const serverSection = `${server.name}:`;
+    const playersSection = `${server.current_players}/${server.max_players}`;
+    const mapSection = `(${mapName})`;
+
+    return {
+        serverSection,
+        playersSection,
+        mapSection,
+    };
+};
+
+/**
+ * Get server or players count color(100% red, 80% orange, 60% green)
+ * @param server
+ */
+export const getCountColor = (current: number, max: number): string => {
+    // 100%
+    if (current === max) {
+        return '#ef4444';
+    }
+
+    // 80%
+    if (current >= max * 0.8) {
+        return '#f97316';
+    }
+
+    return '#22c55e';
 };
 
 /**
@@ -135,26 +191,31 @@ export const countTotalPlayers = (servers: OnlineServerItem[]): number => {
     });
 
     return total;
-}
+};
 
 /**
  * Check server name match env regex
  */
-export const isServerMatchRegex = (regexStr: string, server: OnlineServerItem): boolean => {
+export const isServerMatchRegex = (
+    regexStr: string,
+    server: OnlineServerItem
+): boolean => {
     if (!regexStr) {
         return true;
     }
 
     const regex = new RegExp(regexStr);
     return regex.test(server.name);
-}
+};
 
 /**
  * Send Http request, get all server list with matchRegex filter
  * @param matchRegex server name match regex
  * @returns all server list
  */
-export const queryAllServers = async (matchRegex: string): Promise<OnlineServerItem[]> => {
+export const queryAllServers = async (
+    matchRegex: string
+): Promise<OnlineServerItem[]> => {
     let start = 0;
     const size = 100;
 
@@ -191,7 +252,7 @@ export const countServersMaxPlayers = (servers: OnlineServerItem[]): number => {
         acc += s.max_players;
         return acc;
     }, 0);
-}
+};
 
 /**
  * Get match query params server text
@@ -300,4 +361,4 @@ export const calcCanvasTextWidth = (text: string, base: number): number => {
     }
 
     return countWidth;
-}
+};

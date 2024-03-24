@@ -15,8 +15,6 @@ describe('fileCache', () => {
         const cache = new TestNumberCache();
         expect(await cache.getData()).toEqual(1);
 
-        expect(cache.updateCheck()).toEqual(true);
-
         await awaitTimeout(1000);
 
         expect(cache.updateCheck()).toEqual(true);

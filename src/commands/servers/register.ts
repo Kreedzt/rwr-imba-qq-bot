@@ -1,7 +1,7 @@
 import { logger } from '../../utils/logger';
 import { GlobalEnv, IRegister } from '../../types';
 import { getStaticHttpPath } from '../../utils/cmdreq';
-import { printPng } from './canvas';
+import { printPng, printServerListPng } from './canvas';
 import {
     QUERY_USER_IN_SERVERS_LIMIT,
     SERVERS_OUTPUT_FILE,
@@ -28,24 +28,8 @@ export const ServersCommandRegister: IRegister = {
     timesInterval: 5,
     exec: async (ctx) => {
         const serverList = await queryAllServers(ctx.env.SERVERS_MATCH_REGEX);
-        const text = getAllServerListDisplay(serverList);
-        const playersCount = countTotalPlayers(serverList);
 
-        const headerText = `在线服务器数: ${
-            serverList.length
-        }, 在线玩家数: ${playersCount} / ${countServersMaxPlayers(
-            serverList
-        )}\n`;
-
-        const serversOutputList: string[] = serverList.map((s) => {
-            return getServerInfoDisplayText(s);
-        });
-
-        const path = printPng(
-            headerText,
-            serversOutputList,
-            SERVERS_OUTPUT_FILE
-        );
+        printServerListPng(serverList, SERVERS_OUTPUT_FILE);
 
         let cqOutput = `[CQ:image,file=${getStaticHttpPath(
             ctx.env,
