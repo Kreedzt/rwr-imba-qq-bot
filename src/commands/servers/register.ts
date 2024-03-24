@@ -56,9 +56,6 @@ export const ServersCommandRegister: IRegister = {
             cqOutput += `\n检测到当前服务器列表为空, 请尝试使用备用查询地址: ${ctx.env.SERVERS_FALLBACK_URL}`;
         }
 
-        //const headerText = `在线服务器数: ${serverList.length}, 在线玩家数: ${playersCount}\n`;
-        // const totalText = headerText + '当前在线的服务器列表:\n' + text;
-
         await ctx.reply(cqOutput);
     },
 };
