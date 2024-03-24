@@ -56,7 +56,7 @@ export const printServerListPng = (
         titleData.playersTotalStaticSection +
         titleData.playersCountSection;
 
-    const titleWidth = 11 * 28 + (totalTitle.length - 11) * 14;
+    const titleWidth = calcCanvasTextWidth(totalTitle, 20) + 20;
 
     let maxLengthStr = '';
     serverList.forEach((s) => {
@@ -127,30 +127,34 @@ export const printServerListPng = (
     context.fillStyle = '#3574d4';
 
     /**
-     * Render Rect first
+     * Border start Y
      */
-    const maxTextInfo = context.measureText(maxLengthStr);
-    const maxTextWidth = maxTextInfo.width;
-    context.strokeStyle = '#f48225';
-    context.rect(
-        10,
-        nextStartY + 10,
-        maxTextWidth + 20,
-        serverList.length * 40
-    );
-    context.stroke();
+    const rectStartY = nextStartY + 10;
 
+    let maxRectWidth = 0;
     serverList.forEach((s) => {
         /**
          * Render server info text
          */
         context.fillStyle = '#fff';
         const outputSectionText = getServerInfoDisplaySectionText(s);
+        // all text, update maxRectWidth
+        const allText =
+            outputSectionText.serverSection +
+            outputSectionText.playersSection +
+            outputSectionText.mapSection;
+        const allTextWidth = context.measureText(allText).width;
+        if (allTextWidth > maxRectWidth) {
+            maxRectWidth = allTextWidth;
+        }
+
+        // server section
         context.fillText(outputSectionText.serverSection, 20, 10 + nextStartY);
         const serverSectionWidth = context.measureText(
             outputSectionText.serverSection
         ).width;
 
+        // count section
         context.fillStyle = getCountColor(s.current_players, s.max_players);
         context.fillText(
             outputSectionText.playersSection,
@@ -161,6 +165,7 @@ export const printServerListPng = (
             outputSectionText.playersSection
         ).width;
 
+        // map section
         context.fillStyle = '#fff';
         context.fillText(
             outputSectionText.mapSection,
@@ -170,6 +175,15 @@ export const printServerListPng = (
 
         nextStartY += 40;
     });
+
+    /**
+     * Render rect
+     */
+    const maxTextInfo = context.measureText(maxLengthStr);
+    const maxTextWidth = maxTextInfo.width;
+    context.strokeStyle = '#f48225';
+    context.rect(10, rectStartY, maxRectWidth + 20, serverList.length * 40);
+    context.stroke();
 
     /**
      * Footer
@@ -293,19 +307,26 @@ export const printUserInServerListPng = (
     context.fillStyle = '#3574d4';
 
     /**
-     * Render Rect first
+     * Border start Y
      */
-    const maxTextInfo = context.measureText(maxLengthStr);
-    const maxTextWidth = maxTextInfo.width;
-    context.strokeStyle = '#f48225';
-    context.rect(10, nextStartY + 10, maxTextWidth + 20, matchList.length * 40);
-    context.stroke();
+    const rectStartY = nextStartY + 10;
 
+    let maxRectWidth = 0;
     matchList.forEach((m) => {
         /**
          * Render user in server info text
          */
         const outputSectionText = getUserMatchedServerDisplaySectionText(m);
+        // all text, update maxRectWidth
+        const allText =
+            outputSectionText.userSection +
+            outputSectionText.staticSection +
+            outputSectionText.serverCount +
+            outputSectionText.mapSection;
+        const allTextWidth = context.measureText(allText).width;
+        if (allTextWidth > maxRectWidth) {
+            maxRectWidth = allTextWidth;
+        }
 
         // user section
         context.fillStyle = '#22d3ee';
@@ -349,6 +370,15 @@ export const printUserInServerListPng = (
 
         nextStartY += 40;
     });
+
+    /**
+     * Render rect
+     */
+    const maxTextInfo = context.measureText(maxLengthStr);
+    const maxTextWidth = maxTextInfo.width;
+    context.strokeStyle = '#f48225';
+    context.rect(10, rectStartY, maxRectWidth + 20, matchList.length * 40);
+    context.stroke();
 
     const footerData = getWhereisFooterSectionText(count);
     context.fillStyle = '#fff';
