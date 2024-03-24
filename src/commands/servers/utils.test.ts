@@ -78,9 +78,9 @@ describe('getServerInfoDisplaySectionText', () => {
     it.concurrent('formatted data', () => {
         const res = getServerInfoDisplaySectionText(MOCK_CT_SERVER_ITEM);
 
-        expect(res.serverSection).toBe('[Castling][Storm-7 LV4]: ');
+        expect(res.serverSection).toBe('[Castling][Storm-7 LV4]:');
         expect(res.playersSection).toBe('19/20');
-        expect(res.mapSection).toBe(' (map13_2)');
+        expect(res.mapSection).toBe('(map13_2)');
     });
 });
 
