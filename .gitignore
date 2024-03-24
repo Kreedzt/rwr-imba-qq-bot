@@ -6,6 +6,7 @@ tmp/
 dist/
 logs/
 out/
+test/
 
 *.tern-port
 node_modules/
@@ -19,10 +20,6 @@ coverage/
 
 # local test file
 src/info.json
-welcome.template
 *.sh
 website_list.json
 ecosystem.config.js
-tdoll_data.json
-tdoll_skin_data.json
-qa_data.json
