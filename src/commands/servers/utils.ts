@@ -2,7 +2,12 @@ import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
 import type { Nullable } from '../../types';
 import { logger } from '../../utils/logger';
-import type { Res, ResServerItem, OnlineServerItem } from './types';
+import type {
+    Res,
+    ResServerItem,
+    OnlineServerItem,
+    IUserMatchedServerItem,
+} from './types';
 import { QUERY_USER_IN_SERVERS_LIMIT } from './constants';
 
 const SERVER_API_URL = 'http://rwr.runningwithrifles.com/rwr_server_list';
@@ -99,25 +104,6 @@ export const getServersHeaderDisplaySectionText = (
 };
 
 /**
- * Get formatted server display info text
- * @param server serverItem
- * @returns formatted server display info text
- */
-export const getServerInfoDisplayText = (server: OnlineServerItem): string => {
-    const mapId = server.map_id;
-
-    const mapPathArr = mapId.split('/');
-
-    const mapName = mapPathArr[mapPathArr.length - 1];
-
-    const serverText = `${server.name}: ${
-        server.current_players + '/' + server.max_players
-    } (${mapName})\n`;
-
-    return serverText;
-};
-
-/**
  * Get formatted server display section text(server name, players, map)
  * @param server
  */
@@ -134,9 +120,9 @@ export const getServerInfoDisplaySectionText = (
 
     const mapName = mapPathArr[mapPathArr.length - 1];
 
-    const serverSection = `${server.name}:`;
+    const serverSection = `${server.name}: `;
     const playersSection = `${server.current_players}/${server.max_players}`;
-    const mapSection = `(${mapName})`;
+    const mapSection = ` (${mapName})`;
 
     return {
         serverSection,
@@ -161,22 +147,6 @@ export const getCountColor = (current: number, max: number): string => {
     }
 
     return '#22c55e';
-};
-
-/**
- * Get formatted all server list display text
- * @param servers all server list
- * @returns formatted server display text
- */
-export const getAllServerListDisplay = (
-    servers: OnlineServerItem[]
-): string => {
-    let text = '';
-    servers.forEach((s) => {
-        text += getServerInfoDisplayText(s);
-    });
-
-    return text;
 };
 
 /**
@@ -279,6 +249,16 @@ export const getQueryFilterServerList = (
 };
 
 /**
+ * Get map last path as name
+ * @param mapId map path
+ */
+export const getMapShortName = (mapId: string): string => {
+    const mapPathArr = mapId.split('/');
+
+    return mapPathArr[mapPathArr.length - 1];
+};
+
+/**
  * Get formatted combined user & server info to display text
  * @param user user name
  * @param server server info
@@ -288,39 +268,51 @@ const getUserInfoInServerDisplayText = (
     user: string,
     server: OnlineServerItem
 ): string => {
-    const mapId = server.map_id;
+    const mapName = getMapShortName(server.map_id);
 
-    const mapPathArr = mapId.split('/');
-
-    const mapName = mapPathArr[mapPathArr.length - 1];
-
-    // const serverUrl = getJoinServerUrl(server);
-
-    const infoText = `\`${user}\` 正在游玩 ${server.name}: ${
+    const infoText = `${user} 正在游玩 ${server.name}: ${
         server.current_players + '/' + server.max_players
     } (${mapName})\n`;
-
-    // const text = infoText + serverUrl + '\n\n';
 
     return infoText;
 };
 
 /**
- * Get formatted user in server combined text
- * @param user user name in rwr
- * @param serverList all server list
- * @returns formatted user in server combined text
+ * Get formatted user in server display section text(user + server)
+ * @param data
  */
-export const getUserInServerListDisplay = (
+export const getUserMatchedServerDisplaySectionText = (
+    data: IUserMatchedServerItem
+) => {
+    const userSection = data.user;
+    const staticSection = ` 正在游玩 ${data.server.name}: `;
+    const serverCount = `${data.server.current_players}/${data.server.max_players}`;
+    const mapSection = ` (${getMapShortName(data.server.map_id)})\n`;
+
+    return {
+        userSection,
+        staticSection,
+        serverCount,
+        mapSection,
+    };
+};
+
+/**
+ * Get user matched list(matched server)
+ * @param user user name
+ * @param serverList all server list
+ * @returns user matched server list
+ */
+export const getUserMatchedList = (
     user: string,
     serverList: OnlineServerItem[]
 ): {
-    results: string[];
+    results: IUserMatchedServerItem[];
     total: number;
 } => {
-    const text: string[] = [];
-
     let count = 0;
+
+    const results: IUserMatchedServerItem[] = [];
 
     serverList.forEach((s) => {
         const playersList = getCorrectPlayersList(s);
@@ -328,18 +320,19 @@ export const getUserInServerListDisplay = (
         playersList.forEach((player) => {
             if (player.toUpperCase().includes(user.toUpperCase())) {
                 count += 1;
-
                 if (count > QUERY_USER_IN_SERVERS_LIMIT) {
                     return;
                 }
-
-                text.push(getUserInfoInServerDisplayText(player, s));
+                results.push({
+                    user: player,
+                    server: s,
+                });
             }
         });
     });
 
     return {
-        results: text,
+        results,
         total: count,
     };
 };
@@ -361,4 +354,34 @@ export const calcCanvasTextWidth = (text: string, base: number): number => {
     }
 
     return countWidth;
+};
+
+/**
+ * Get #whereis cmd canvas render header section text
+ * @param user query user
+ */
+export const getWhereisHeaderSectionText = (
+    user: string,
+): {
+    staticSection: string;
+    userSection: string;
+    staticSection2: string;
+} => {
+    const staticSection = `查询 `;
+    const userSection = user;
+    const staticSection2 = ` 所在服务器结果:\n`;
+
+    return {
+        staticSection,
+        userSection,
+        staticSection2,
+    };
+};
+
+export const getWhereisFooterSectionText = (count: number) => {
+    if (count === 0) {
+        return `未查询到结果`;
+    }
+
+    return `共计 ${count} 位玩家结果(只展示 ${QUERY_USER_IN_SERVERS_LIMIT} 位玩家列表)`;
 };

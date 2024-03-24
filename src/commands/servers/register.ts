@@ -1,20 +1,9 @@
 import { logger } from '../../utils/logger';
 import { GlobalEnv, IRegister } from '../../types';
 import { getStaticHttpPath } from '../../utils/cmdreq';
-import { printPng, printServerListPng } from './canvas';
-import {
-    QUERY_USER_IN_SERVERS_LIMIT,
-    SERVERS_OUTPUT_FILE,
-    WHEREIS_OUTPUT_FILE,
-} from './constants';
-import {
-    countServersMaxPlayers,
-    countTotalPlayers,
-    getAllServerListDisplay,
-    getServerInfoDisplayText,
-    getUserInServerListDisplay,
-    queryAllServers,
-} from './utils';
+import { printServerListPng, printUserInServerListPng } from './canvas';
+import { SERVERS_OUTPUT_FILE, WHEREIS_OUTPUT_FILE } from './constants';
+import { getUserMatchedList, queryAllServers } from './utils';
 import { printChartPng, printHoursChartPng } from './chart';
 import { AnalysticsTask } from './analysticsTask';
 import { AnalysticsHoursTask } from './analyticsHoursTask';
@@ -72,20 +61,29 @@ export const WhereIsCommandRegister: IRegister = {
         }
         const serverList = await queryAllServers(ctx.env.SERVERS_MATCH_REGEX);
         logger.info('> call getUserInServerListDisplay', targetName);
-        const content = getUserInServerListDisplay(targetName, serverList);
-        const count = content.total;
+        // const content = getUserInServerListDisplay(targetName, serverList);
+        // const count = content.total;
+        //
+        // const titleText = `查询 '${targetName}' 所在服务器结果:\n`;
+        // let footerText = '';
+        // if (count === 0) {
+        //     footerText = '未找到玩家';
+        // } else {
+        //     footerText += `共计 ${count} 位玩家结果(只展示 ${QUERY_USER_IN_SERVERS_LIMIT} 位玩家列表)`;
+        // }
+        //
+        // const totalText = [...content.results, footerText];
 
-        const titleText = `查询 '${targetName}' 所在服务器结果:\n`;
-        let footerText = '';
-        if (count === 0) {
-            footerText = '未找到玩家';
-        } else {
-            footerText += `共计 ${count} 位玩家结果(只展示 ${QUERY_USER_IN_SERVERS_LIMIT} 位玩家列表)`;
-        }
+        // printPng(titleText, totalText, WHEREIS_OUTPUT_FILE);
 
-        const totalText = [...content.results, footerText];
+        const userResults = getUserMatchedList(targetName, serverList);
 
-        const path = printPng(titleText, totalText, WHEREIS_OUTPUT_FILE);
+        printUserInServerListPng(
+            userResults.results,
+            targetName,
+            userResults.total,
+            WHEREIS_OUTPUT_FILE
+        );
 
         let cqOutput = `[CQ:image,file=${getStaticHttpPath(
             ctx.env,
@@ -104,7 +102,7 @@ export const AnalyticsCommandRegister: IRegister = {
     name: 'analytics',
     alias: 'a',
     description:
-        '查询服务器统计信息(参数 h 表明查询最近 24 小时的数据, 参数 d 表明查询最近 7 天的数据).[15s CD]',
+        '查询服务器统计信息(参数 h 表明查询最近 24 小时的数据, d 表明查询最近 7 天的数据).[15s CD]',
     isAdmin: false,
     timesInterval: 15,
     exec: async (ctx) => {

@@ -1,131 +1,45 @@
-import { createCanvas, registerFont } from 'canvas';
+import { Canvas, createCanvas } from 'canvas';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as dayjs from 'dayjs';
 import {
     calcCanvasTextWidth,
-    getServerInfoDisplaySectionText,
-    getServerInfoDisplayText,
     getCountColor,
+    getServerInfoDisplaySectionText,
     getServersHeaderDisplaySectionText,
+    getUserMatchedServerDisplaySectionText,
+    getWhereisFooterSectionText,
+    getWhereisHeaderSectionText,
 } from './utils';
-import { OnlineServerItem } from './types';
+import { IUserMatchedServerItem, OnlineServerItem } from './types';
 
 const OUTPUT_FOLDER = 'out';
 
 const getFooterText = (cost: number, endTime: dayjs.Dayjs) => {
-    const text =
+    return (
         'RWR QQ Bot' +
-        `(cost=${cost}ms, render time=${endTime.format(
-            'YYYY-MM-DD HH:mm:ss'
-        )})`;
-
-    return text;
+        `(cost=${cost}ms, render time=${endTime.format('YYYY-MM-DD HH:mm:ss')})`
+    );
 };
 
-export const printPng = (
-    title: string,
-    content: string[],
-    fileName: string
-): string => {
-    const fnStartTime = dayjs();
-
-    if (!fs.existsSync(OUTPUT_FOLDER)) {
-        fs.mkdirSync(OUTPUT_FOLDER);
-    }
-
-    const titleWidth = 11 * 28 + (title.length - 11) * 14;
-
-    let maxLengthStr = '';
-    content.forEach((s) => {
-        if (s.length > maxLengthStr.length) {
-            maxLengthStr = s;
-        }
-    });
-
-    const contentOutputWidth = calcCanvasTextWidth(maxLengthStr, 14) + 20;
-
-    const width = Math.max(titleWidth, contentOutputWidth);
-    const height = 120 + content.length * 40;
-
-    const canvas = createCanvas(width, height);
-
-    const context = canvas.getContext('2d');
-
-    /**
-     * Layout
-     */
-    context.fillStyle = '#451a03';
-    context.fillRect(0, 0, width, height);
-
-    /**
-     * Header
-     */
-    context.font = 'bold 20pt Consolas';
-    context.textAlign = 'left';
-    context.textBaseline = 'top';
-    context.fillStyle = '#3574d4';
-
-    context.fillStyle = '#fff';
-    context.fillText(title, 10, 10);
-
-    /**
-     * Content
-     */
-    let nextStartY = 10 + 40 + 10;
-
-    context.font = 'bold 20pt Consolas';
-    context.textAlign = 'left';
-    context.textBaseline = 'top';
-    context.fillStyle = '#3574d4';
-
-    /**
-     * Render Rect first
-     */
-    const maxTextInfo = context.measureText(maxLengthStr);
-    const maxTextWidth = maxTextInfo.width;
-    context.strokeStyle = '#f48225';
-    context.rect(10, nextStartY + 10, maxTextWidth + 20, content.length * 40);
-    context.stroke();
-
-    content.forEach((s) => {
-        /**
-         * Render server info text
-         */
-        context.fillStyle = '#fff';
-        context.fillText(s, 20, 10 + nextStartY);
-
-        nextStartY += 40;
-    });
-
-    /**
-     * Footer
-     */
-    context.fillStyle = '#fff';
-    context.font = 'bold 10pt Consolas';
-    context.textAlign = 'left';
-    const fnEndTime = dayjs();
-
-    const calcCost = fnEndTime.diff(fnStartTime);
-    let footerText =
-        'RWR QQ Bot' +
-        `(cost=${calcCost}ms, render time=${fnEndTime.format(
-            'YYYY-MM-DD HH:mm:ss'
-        )})`;
-    context.fillText(footerText, 10, nextStartY + 20);
-
+const getCanvasOutput = (canvas: Canvas, outPath: string) => {
     const buffer = canvas.toBuffer('image/png', {
         compressionLevel: 3,
         filters: canvas.PNG_FILTER_NONE,
     });
 
-    const outputPath = path.join(process.cwd(), OUTPUT_FOLDER, `./${fileName}`);
+    const outputPath = path.join(process.cwd(), OUTPUT_FOLDER, `./${outPath}`);
 
     fs.writeFileSync(outputPath, buffer);
 
     return outputPath;
 };
 
+/**
+ * Print servers output png
+ * @param serverList server list
+ * @param fileName output file name
+ */
 export const printServerListPng = (
     serverList: OnlineServerItem[],
     fileName: string
@@ -146,7 +60,9 @@ export const printServerListPng = (
 
     let maxLengthStr = '';
     serverList.forEach((s) => {
-        const outputText = getServerInfoDisplayText(s);
+        const sectionData = getServerInfoDisplaySectionText(s);
+        const outputText =
+            sectionData.serverSection + sectionData.playersSection;
         if (outputText.length > maxLengthStr.length) {
             maxLengthStr = outputText;
         }
@@ -176,8 +92,14 @@ export const printServerListPng = (
     context.fillStyle = '#3574d4';
 
     context.fillStyle = '#fff';
-    context.fillText(titleData.serversTotalSection + titleData.playersTotalStaticSection, 10, 10);
-    const titleStaticSectionWidth = context.measureText(titleData.serversTotalSection + titleData.playersTotalStaticSection).width;
+    context.fillText(
+        titleData.serversTotalSection + titleData.playersTotalStaticSection,
+        10,
+        10
+    );
+    const titleStaticSectionWidth = context.measureText(
+        titleData.serversTotalSection + titleData.playersTotalStaticSection
+    ).width;
     // count
     const allServersCapacity = serverList.reduce(
         (acc, cur) => acc + cur.max_players,
@@ -187,11 +109,12 @@ export const printServerListPng = (
         (acc, cur) => acc + cur.current_players,
         0
     );
-    context.fillStyle = getCountColor(
-        allPlayersCount,
-        allServersCapacity
+    context.fillStyle = getCountColor(allPlayersCount, allServersCapacity);
+    context.fillText(
+        titleData.playersCountSection,
+        10 + titleStaticSectionWidth,
+        10
     );
-    context.fillText(titleData.playersCountSection, 10 + titleStaticSectionWidth, 10);
 
     /**
      * Content
@@ -270,4 +193,181 @@ export const printServerListPng = (
     fs.writeFileSync(outputPath, buffer);
 
     return outputPath;
+};
+
+/**
+ * Print whereis output png
+ * @param matchList user in server list(matched)
+ * @param query query user name
+ * @param count total matched count
+ * @param fileName output file name
+ */
+export const printUserInServerListPng = (
+    matchList: IUserMatchedServerItem[],
+    query: string,
+    count: number,
+    fileName: string
+): string => {
+    const fnStartTime = dayjs();
+
+    if (!fs.existsSync(OUTPUT_FOLDER)) {
+        fs.mkdirSync(OUTPUT_FOLDER);
+    }
+
+    const titleData = getWhereisHeaderSectionText(query);
+    const totalTitle =
+        titleData.staticSection +
+        titleData.userSection +
+        titleData.staticSection2;
+
+    const titleWidth = 11 * 28 + (totalTitle.length - 11) * 14;
+
+    let maxLengthStr = '';
+    matchList.forEach((m) => {
+        const section = getUserMatchedServerDisplaySectionText(m);
+        const outputText =
+            section.userSection +
+            section.staticSection +
+            section.serverCount +
+            section.mapSection;
+        if (outputText.length > maxLengthStr.length) {
+            maxLengthStr = outputText;
+        }
+    });
+
+    const contentOutputWidth = calcCanvasTextWidth(maxLengthStr, 14) + 20;
+
+    const width = Math.max(titleWidth, contentOutputWidth);
+    /**
+     * 40: whereis footer height
+     */
+    const height = 120 + 40 + matchList.length * 40;
+
+    const canvas = createCanvas(width, height);
+
+    const context = canvas.getContext('2d');
+
+    /**
+     * Layout
+     */
+    context.fillStyle = '#451a03';
+    context.fillRect(0, 0, width, height);
+
+    /**
+     * Header
+     */
+    context.font = 'bold 20pt Consolas';
+    context.textAlign = 'left';
+    context.textBaseline = 'top';
+
+    // static section
+    context.fillStyle = '#fff';
+    context.fillText(titleData.staticSection, 10, 10);
+    const titleStaticSectionWidth = context.measureText(
+        titleData.staticSection
+    ).width;
+
+    // user section
+    context.fillStyle = '#22d3ee';
+    context.fillText(titleData.userSection, 10 + titleStaticSectionWidth, 10);
+    const titleUserSectionWidth = context.measureText(
+        titleData.userSection
+    ).width;
+
+    // static section 2
+    context.fillStyle = '#fff';
+    context.fillText(
+        titleData.staticSection2,
+        10 + titleStaticSectionWidth + titleUserSectionWidth,
+        10
+    );
+
+    /**
+     * Content
+     */
+    let nextStartY = 10 + 40 + 10;
+
+    context.font = 'bold 20pt Consolas';
+    context.textAlign = 'left';
+    context.textBaseline = 'top';
+    context.fillStyle = '#3574d4';
+
+    /**
+     * Render Rect first
+     */
+    const maxTextInfo = context.measureText(maxLengthStr);
+    const maxTextWidth = maxTextInfo.width;
+    context.strokeStyle = '#f48225';
+    context.rect(10, nextStartY + 10, maxTextWidth + 20, matchList.length * 40);
+    context.stroke();
+
+    matchList.forEach((m) => {
+        /**
+         * Render user in server info text
+         */
+        const outputSectionText = getUserMatchedServerDisplaySectionText(m);
+
+        // user section
+        context.fillStyle = '#22d3ee';
+        context.fillText(outputSectionText.userSection, 20, 10 + nextStartY);
+        const userSectionWidth = context.measureText(
+            outputSectionText.userSection
+        ).width;
+
+        // user + server static section(xxx is playing server1)
+        context.fillStyle = '#fff';
+        context.fillText(
+            outputSectionText.staticSection,
+            20 + userSectionWidth,
+            10 + nextStartY
+        );
+        const staticSectionWidth = context.measureText(
+            outputSectionText.staticSection
+        ).width;
+
+        // server capacity count section
+        context.fillStyle = getCountColor(
+            m.server.current_players,
+            m.server.max_players
+        );
+        context.fillText(
+            outputSectionText.serverCount,
+            20 + userSectionWidth + staticSectionWidth,
+            10 + nextStartY
+        );
+        const serverCountWidth = context.measureText(
+            outputSectionText.serverCount
+        ).width;
+
+        // server map section
+        context.fillStyle = '#fff';
+        context.fillText(
+            outputSectionText.mapSection,
+            20 + userSectionWidth + staticSectionWidth + serverCountWidth,
+            10 + nextStartY
+        );
+
+        nextStartY += 40;
+    });
+
+    const footerData = getWhereisFooterSectionText(count);
+    context.fillStyle = '#fff';
+    context.font = 'bold 10pt Consolas';
+    context.textAlign = 'left';
+    context.fillText(footerData, 10, nextStartY + 20);
+    nextStartY += 40;
+
+    /**
+     * Footer
+     */
+    context.fillStyle = '#fff';
+    context.font = 'bold 10pt Consolas';
+    context.textAlign = 'left';
+    const fnEndTime = dayjs();
+
+    const calcCost = fnEndTime.diff(fnStartTime);
+    const footerText = getFooterText(calcCost, fnEndTime);
+    context.fillText(footerText, 10, nextStartY + 20);
+
+    return getCanvasOutput(canvas, fileName);
 };
