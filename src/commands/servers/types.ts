@@ -39,3 +39,8 @@ export interface IAnalysisConfig {
     lastUpdateTime: number;
     data: IAnalysisData[];
 }
+
+export interface IUserMatchedServerItem {
+    user: string;
+    server: OnlineServerItem;
+}
