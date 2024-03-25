@@ -133,17 +133,23 @@ export const getServerInfoDisplaySectionText = (
 
 /**
  * Get server or players count color(100% red, 80% orange, 60% green)
- * @param server
+ * @param current filled
+ * @param max capacity
  */
 export const getCountColor = (current: number, max: number): string => {
-    // 100%
-    if (current === max) {
+    // 100% or -N
+    if (current === max || current < 0) {
         return '#ef4444';
     }
 
     // 80%
     if (current >= max * 0.8) {
         return '#f97316';
+    }
+
+    // 0%
+    if (current === 0) {
+        return '#6b7280';
     }
 
     return '#22c55e';
