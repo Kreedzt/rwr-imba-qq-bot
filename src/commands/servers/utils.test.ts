@@ -92,7 +92,11 @@ describe('getServerPlayersCountColor', () => {
     });
 
     it.concurrent('0%', () => {
-        expect(getCountColor(0, 20)).toBe('#22c55e');
+        expect(getCountColor(0, 20)).toBe('#6b7280');
+    });
+
+    it.concurrent('-1', () => {
+        expect(getCountColor(-1, 20)).toBe('#ef4444');
     });
 });
 
