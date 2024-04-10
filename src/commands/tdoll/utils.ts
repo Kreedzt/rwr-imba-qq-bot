@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { GlobalEnv } from '../../types';
 import { ITDollDataItem, ITDollSkinDataItem } from './types';
-import { TDOLL_URL_PREFIX } from './constants';
+import { TDOLL_RANDOM_KEY, TDOLL_URL_PREFIX } from './constants';
 import { resizeImg } from '../../utils/imgproxy';
 
 /**
@@ -39,10 +39,19 @@ export const getTDollDataEndText = (count: number) => {
     return `\n(共${count}项)最多展示 10 项结果`;
 };
 
+export const getRandomTDollData = (dataList: ITDollDataItem[]): string => {
+    const randomIndex = Math.floor(Math.random() * dataList.length);
+    const randomData = dataList[randomIndex];
+    return formatTDollData(randomData);
+};
+
 export const getTDollDataRes = (
     dataList: ITDollDataItem[],
     query: string
 ): string => {
+    if (query.toLowerCase() === TDOLL_RANDOM_KEY) {
+        return getRandomTDollData(dataList);
+    }
     const targetData = dataList
         .filter((d) => {
             const userInput = query

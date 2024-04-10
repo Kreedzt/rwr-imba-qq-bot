@@ -11,7 +11,7 @@ export const TDollCommandRegister: IRegister = {
     isAdmin: false,
     exec: async (ctx) => {
         if (ctx.params.size !== 1) {
-            await ctx.reply('需要一个参数, 示例: #tdoll M4A1');
+            await ctx.reply('需要一个参数, 示例: #tdoll M4A1, #tdoll random(random 为随机返回)');
             return;
         }
 
