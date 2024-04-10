@@ -6,6 +6,7 @@ import {
     getTDollDataEndText,
     getTDollDataRes,
     getTDollSkinReplyText,
+    getRandomTDollData,
 } from './utils';
 
 const MOCK_DATA: ITDollDataItem[] = [
@@ -118,7 +119,9 @@ describe('tdoll: formatTdollData', () => {
     it.concurrent('test format', () => {
         const res = formatTDollData(MOCK_DATA[0]);
 
-        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/a/a7/Icon_No.55_Mod.png,cache=0]`);
+        expect(res).toBe(
+            `No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/a/a7/Icon_No.55_Mod.png,cache=0]`
+        );
     });
 });
 
@@ -136,7 +139,9 @@ describe('tdoll: getTdollDataRes', () => {
 
         const res = getTDollDataRes(MOCK_DATA, query);
 
-        expect(res).toBe(`No.54 M16A1 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/0/0d/Icon_No.54.png,cache=0]\n(共1项)最多展示 10 项结果`);
+        expect(res).toBe(
+            `No.54 M16A1 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/0/0d/Icon_No.54.png,cache=0]\n(共1项)最多展示 10 项结果`
+        );
     });
 
     it.concurrent('query found 1 result with mod', () => {
@@ -144,7 +149,9 @@ describe('tdoll: getTdollDataRes', () => {
 
         const res = getTDollDataRes(MOCK_DATA, query);
 
-        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/a/a7/Icon_No.55_Mod.png,cache=0]\n(共1项)最多展示 10 项结果`);
+        expect(res).toBe(
+            `No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/a/a7/Icon_No.55_Mod.png,cache=0]\n(共1项)最多展示 10 项结果`
+        );
     });
 
     it.concurrent('query found 1 result, ignore case', () => {
@@ -152,7 +159,9 @@ describe('tdoll: getTdollDataRes', () => {
 
         const res = getTDollDataRes(MOCK_DATA, query);
 
-        expect(res).toBe(`No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/a/a7/Icon_No.55_Mod.png,cache=0]\n(共1项)最多展示 10 项结果`);
+        expect(res).toBe(
+            `No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/a/a7/Icon_No.55_Mod.png,cache=0]\n(共1项)最多展示 10 项结果`
+        );
     });
 
     it.concurrent('query found 1 result, ignore "-"', () => {
@@ -160,7 +169,9 @@ describe('tdoll: getTdollDataRes', () => {
 
         const res = getTDollDataRes(MOCK_DATA, query);
 
-        expect(res).toBe(`No.53 NTW-20(mod) 步枪\n[CQ:image,file=https://www.gfwiki.org/images/2/2e/Icon_No.53.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/8/80/Icon_No.53_Mod.png,cache=0]\n(共1项)最多展示 10 项结果`);
+        expect(res).toBe(
+            `No.53 NTW-20(mod) 步枪\n[CQ:image,file=https://www.gfwiki.org/images/2/2e/Icon_No.53.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/8/80/Icon_No.53_Mod.png,cache=0]\n(共1项)最多展示 10 项结果`
+        );
     });
 
     it.concurrent('query found 1 result, ignore "."', () => {
@@ -382,8 +393,18 @@ describe('tdoll: getTdollDataRes', () => {
                 MOCK_LOCAL_DATA[3]
             )}\n${formatTDollData(MOCK_LOCAL_DATA[4])}\n${formatTDollData(
                 MOCK_LOCAL_DATA[0]
-            )}\n${formatTDollData(MOCK_LOCAL_DATA[2])}\n(共5项)最多展示 10 项结果`
+            )}\n${formatTDollData(
+                MOCK_LOCAL_DATA[2]
+            )}\n(共5项)最多展示 10 项结果`
         );
+    });
+});
+
+describe('tdoll: getRandomTDollData', () => {
+    it.concurrent('random result', () => {
+        const res = getRandomTDollData(MOCK_DATA);
+
+        expect(MOCK_DATA.map(formatTDollData)).toContainEqual(res);
     });
 });
 
@@ -471,6 +492,8 @@ describe('tdollskin: getTdollSkinDataRes', () => {
             ],
         });
 
-        expect(res).toBe(`No.53 NTW-20 \n1. 默认Q版 ID:0\n2. 心智升级 ID:mod\n`);
+        expect(res).toBe(
+            `No.53 NTW-20 \n1. 默认Q版 ID:0\n2. 心智升级 ID:mod\n`
+        );
     });
 });
