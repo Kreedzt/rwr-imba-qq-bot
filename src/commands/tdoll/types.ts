@@ -1,3 +1,5 @@
+import { TDollCategoryEnum } from './enums';
+
 export interface ITDollDataBaseItem {
     // "10%"
     tileEffect1Time: string;
@@ -7,7 +9,7 @@ export interface ITDollDataBaseItem {
     // "47"
     baseEva: string;
     // "AR"
-    tdollClass: string;
+    tdollClass: TDollCategoryEnum;
     // "1690243200"
     timeStamp: string;
     // "03:46:00"

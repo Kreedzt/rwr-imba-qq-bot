@@ -1,8 +1,15 @@
 import * as fs from 'fs';
 import { GlobalEnv } from '../../types';
 import { ITDollDataItem, ITDollSkinDataItem } from './types';
-import { TDOLL_RANDOM_KEY, TDOLL_URL_PREFIX } from './constants';
+import {
+    TDOLL_CATEGORY_CN_MAPPER,
+    TDOLL_CATEGORY_EN_MAPPER,
+    TDOLL_RANDOM_KEY,
+    TDOLL_URL_PREFIX,
+
+} from './constants';
 import { resizeImg } from '../../utils/imgproxy';
+import {TDollCategoryEnum} from "./enums";
 
 /**
  * Read tdoll data from file
@@ -45,6 +52,11 @@ export const getRandomTDollData = (dataList: ITDollDataItem[]): string => {
     return formatTDollData(randomData);
 };
 
+/**
+ * Get tdoll data response with 1 query param
+ * @param dataList
+ * @param query
+ */
 export const getTDollDataRes = (
     dataList: ITDollDataItem[],
     query: string
@@ -90,6 +102,45 @@ export const getTDollDataRes = (
     const endText = getTDollDataEndText(targetData.length);
 
     return allFormattedData + endText;
+};
+
+const findCategoryByQuery = (q: string): TDollCategoryEnum | undefined => {
+    if (q.toLowerCase() in TDOLL_CATEGORY_EN_MAPPER) {
+        return TDOLL_CATEGORY_EN_MAPPER[q.toLowerCase()];
+    }
+
+    if (q in TDOLL_CATEGORY_CN_MAPPER) {
+        return TDOLL_CATEGORY_CN_MAPPER[q];
+    }
+
+    return undefined;
+};
+
+/**
+ * Get tdoll data response with 2 query params
+ * @param dataList
+ * @param query
+ */
+export const getTDollDataWithCategoryRes = (
+    dataList: ITDollDataItem[],
+    query: string,
+    query2: string
+): string => {
+    let new_query = query2;
+    let category = findCategoryByQuery(query);
+
+    if (!category) {
+        category = findCategoryByQuery(query2);
+        new_query = query;
+    }
+
+    if (!category) {
+        return '未找到指定枪种分类, 请检查输入是否有误!';
+    }
+
+    const targetData = dataList.filter((d) => d.tdollClass === category);
+
+    return getTDollDataRes(targetData, new_query);
 };
 
 export const formatTDollSkinData = (

@@ -3,11 +3,13 @@ import { ITDollDataItem, ITDollSkinDataItem } from './types';
 import {
     formatTDollData,
     formatTDollSkinData,
+    getRandomTDollData,
     getTDollDataEndText,
     getTDollDataRes,
+    getTDollDataWithCategoryRes,
     getTDollSkinReplyText,
-    getRandomTDollData,
 } from './utils';
+import { TDollCategoryEnum } from './enums';
 
 const MOCK_DATA: ITDollDataItem[] = [
     {
@@ -15,7 +17,7 @@ const MOCK_DATA: ITDollDataItem[] = [
         skill1: '',
         tileEffect1: '伤害',
         baseEva: '48',
-        tdollClass: 'AR',
+        tdollClass: TDollCategoryEnum.AR,
         timeStamp: '1463702400',
         productionTime: '03:35:00',
         nameIngame: 'M4A1',
@@ -53,7 +55,7 @@ const MOCK_DATA: ITDollDataItem[] = [
         skill1: '',
         tileEffect1: '伤害',
         baseEva: '44',
-        tdollClass: 'AR',
+        tdollClass: TDollCategoryEnum.AR,
         timeStamp: '1463702400',
         productionTime: '03:35:00',
         nameIngame: 'M16A1',
@@ -79,7 +81,7 @@ const MOCK_DATA: ITDollDataItem[] = [
         skill1: '',
         tileEffect1: '技能冷却速度',
         baseEva: '29',
-        tdollClass: 'RF',
+        tdollClass: TDollCategoryEnum.RF,
         timeStamp: '1463702400',
         productionTime: '04:45:00',
         nameIngame: 'NTW-20',
@@ -183,7 +185,7 @@ describe('tdoll: getTdollDataRes', () => {
                 skill1: '',
                 tileEffect1: '伤害',
                 baseEva: '12',
-                tdollClass: 'SG',
+                tdollClass: TDollCategoryEnum.SG,
                 timeStamp: '1505952000',
                 productionTime: '08:10:00',
                 nameIngame: 'S.A.T.8',
@@ -230,7 +232,7 @@ describe('tdoll: getTdollDataRes', () => {
                 skill1: '',
                 tileEffect1: '技能冷却速度',
                 baseEva: '29',
-                tdollClass: 'RF',
+                tdollClass: TDollCategoryEnum.RF,
                 timeStamp: '1592697600',
                 productionTime: '04:20:00',
                 nameIngame: 'C14',
@@ -257,7 +259,7 @@ describe('tdoll: getTdollDataRes', () => {
                 skill1: '',
                 tileEffect1: '伤害',
                 baseEva: '56',
-                tdollClass: 'SMG',
+                tdollClass: TDollCategoryEnum.SMG,
                 timeStamp: '1579564800',
                 productionTime: '02:05:00',
                 nameIngame: '43M',
@@ -284,7 +286,7 @@ describe('tdoll: getTdollDataRes', () => {
                 skill1: '',
                 tileEffect1: '命中',
                 baseEva: '34',
-                tdollClass: 'MG',
+                tdollClass: TDollCategoryEnum.MG,
                 timeStamp: '1472601600',
                 productionTime: '06:40:00',
                 nameIngame: 'MG4',
@@ -323,7 +325,7 @@ describe('tdoll: getTdollDataRes', () => {
                 skill1: '',
                 tileEffect1: '射速',
                 baseEva: '65',
-                tdollClass: 'SMG',
+                tdollClass: TDollCategoryEnum.SMG,
                 timeStamp: '1463702400',
                 productionTime: '01:25:00',
                 nameIngame: '64式',
@@ -362,7 +364,7 @@ describe('tdoll: getTdollDataRes', () => {
                 skill1: '',
                 tileEffect1: '命中',
                 baseEva: '40',
-                tdollClass: 'AR',
+                tdollClass: TDollCategoryEnum.AR,
                 timeStamp: '1463702400',
                 productionTime: '04:05:00',
                 nameIngame: 'G41',
@@ -405,6 +407,60 @@ describe('tdoll: getRandomTDollData', () => {
         const res = getRandomTDollData(MOCK_DATA);
 
         expect(MOCK_DATA.map(formatTDollData)).toContainEqual(res);
+    });
+});
+
+describe('tdoll: getTDollDataWithCategoryRes', () => {
+    it.concurrent('query found 1 result', () => {
+        const res = getTDollDataWithCategoryRes(MOCK_DATA, 'AR', 'm4');
+
+        expect(res).toBe(
+            `No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/a/a7/Icon_No.55_Mod.png,cache=0]\n(共1项)最多展示 10 项结果`
+        );
+    });
+
+    it.concurrent('query found 1 result, ignore case', () => {
+        const res = getTDollDataWithCategoryRes(MOCK_DATA, 'ar', 'm4');
+
+        expect(res).toBe(
+            `No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/a/a7/Icon_No.55_Mod.png,cache=0]\n(共1项)最多展示 10 项结果`
+        );
+    });
+
+    it.concurrent('query found 1 result, switch param index', () => {
+        const res = getTDollDataWithCategoryRes(MOCK_DATA, 'm4', 'AR');
+
+        expect(res).toBe(
+            `No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/a/a7/Icon_No.55_Mod.png,cache=0]\n(共1项)最多展示 10 项结果`
+        );
+    });
+
+    it.concurrent('query found 1 result by chinese category', () => {
+        const res = getTDollDataWithCategoryRes(MOCK_DATA, '突击步枪', 'm4');
+
+        expect(res).toBe(
+            `No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/a/a7/Icon_No.55_Mod.png,cache=0]\n(共1项)最多展示 10 项结果`
+        );
+    });
+
+    it.concurrent('error category', () => {
+        const res = getTDollDataWithCategoryRes(MOCK_DATA, 'AX', 'm4');
+
+        expect(res).toBe('未找到指定枪种分类, 请检查输入是否有误!');
+    });
+
+    it.concurrent('query found 0 result', () => {
+        const res = getTDollDataWithCategoryRes(MOCK_DATA, 'AR', 'm11111');
+
+        expect(res).toBe('未找到指定枪名, 请检查输入是否有误!');
+    });
+
+    it.concurrent('query found 2 results', () => {
+        const res = getTDollDataWithCategoryRes(MOCK_DATA, 'AR', 'M');
+
+        expect(res).toBe(
+            `No.55 M4A1(mod) 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/3/38/Icon_No.55.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/a/a7/Icon_No.55_Mod.png,cache=0]\nNo.54 M16A1 突击步枪\n[CQ:image,file=https://www.gfwiki.org/images/0/0d/Icon_No.54.png,cache=0]\n(共2项)最多展示 10 项结果`
+        );
     });
 });
 
