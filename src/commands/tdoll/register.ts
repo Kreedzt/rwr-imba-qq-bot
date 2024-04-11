@@ -1,5 +1,9 @@
 import { IRegister } from '../../types';
-import { getTDollDataRes, getTDollSkinReplyText } from './utils';
+import {
+    getTDollDataRes,
+    getTDollDataWithCategoryRes,
+    getTDollSkinReplyText,
+} from './utils';
 import { TDollSvc } from './tdoll.service';
 import { TDollSkinSvc } from './tdollskin.service';
 
@@ -10,24 +14,49 @@ export const TDollCommandRegister: IRegister = {
     timesInterval: 10,
     isAdmin: false,
     exec: async (ctx) => {
-        if (ctx.params.size !== 1) {
-            await ctx.reply('需要一个参数, 示例: #tdoll M4A1, #tdoll random(random 为随机返回)');
+        if (ctx.params.size < 1 || ctx.params.size > 2) {
+            await ctx.reply(
+                '参数不正确, 示例: #tdoll M4A1, #tdoll random(random 为随机返回), #tdoll m4 ar(查询突击步枪)'
+            );
             return;
         }
 
         const tdollData = await TDollSvc.getData();
+        if (ctx.params.size === 1) {
+            let query: string = '';
 
-        let query: string = '';
+            ctx.params.forEach((checked, inputParam) => {
+                if (!query) {
+                    query = inputParam;
+                }
+            });
 
-        ctx.params.forEach((checked, inputParam) => {
-            if (!query) {
-                query = inputParam;
-            }
-        });
+            const replyText = getTDollDataRes(tdollData, query);
 
-        const replyText = getTDollDataRes(tdollData, query);
+            await ctx.reply(replyText);
+            return;
+        }
 
-        await ctx.reply(replyText);
+        if (ctx.params.size === 2) {
+            let query: string = '';
+            let query2: string = '';
+
+            ctx.params.forEach((checked, inputParam) => {
+                if (!query) {
+                    query = inputParam;
+                } else {
+                    query2 = inputParam;
+                }
+            });
+
+            const replyText = getTDollDataWithCategoryRes(
+                tdollData,
+                query,
+                query2
+            );
+
+            await ctx.reply(replyText);
+        }
     },
 };
 
