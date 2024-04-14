@@ -4,7 +4,7 @@ import { ITDollDataItem, ITDollSkinDataItem } from './types';
 import {
     TDOLL_CATEGORY_CN_MAPPER,
     TDOLL_CATEGORY_EN_MAPPER,
-    TDOLL_RANDOM_KEY,
+    TDOLL_RANDOM_KEY, TDOLL_SKIN_NOT_FOUND,
     TDOLL_URL_PREFIX,
 
 } from './constants';
@@ -149,7 +149,19 @@ export const formatTDollSkinData = (
     skin: ITDollSkinDataItem
 ): string => {
     const targetTDoll = dollData.find((d) => d.id === query);
-    let res = `No.${query} ${targetTDoll?.nameIngame || ''} \n`;
+    if (!targetTDoll) {
+        return TDOLL_SKIN_NOT_FOUND;
+    }
+
+    let imageMsg = '';
+    const avatarUrl = resizeImg(targetTDoll.avatar, 40, 40);
+    imageMsg += `[CQ:image,file=${avatarUrl},cache=0]`;
+
+    if (targetTDoll.mod === '1' && targetTDoll.avatarMod) {
+        imageMsg += `[CQ:image,file=${resizeImg(targetTDoll.avatarMod, 40, 40)},cache=0]`;
+    }
+
+    let res = `No.${query} ${targetTDoll.nameIngame || ''} \n${imageMsg}\n`;
 
     skin.forEach((item) => {
         res += `${item.index + 1}. ${item.title} ID:${item.value}\n`;
