@@ -549,7 +549,7 @@ describe('tdollskin: getTdollSkinDataRes', () => {
         });
 
         expect(res).toBe(
-            `No.53 NTW-20 \n1. 默认Q版 ID:0\n2. 心智升级 ID:mod\n`
+            `No.53 NTW-20 \n[CQ:image,file=https://www.gfwiki.org/images/2/2e/Icon_No.53.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/8/80/Icon_No.53_Mod.png,cache=0]\n1. 默认Q版 ID:0\n2. 心智升级 ID:mod\n`
         );
     });
 });

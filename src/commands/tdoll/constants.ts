@@ -4,6 +4,8 @@ export const TDOLL_RANDOM_KEY = 'random';
 
 export const TDOLL_URL_PREFIX = 'http://www.gfwiki.org';
 
+export const TDOLL_SKIN_NOT_FOUND = '未找到指定人形编号的皮肤, 请检查输入是否有误!';
+
 export const TDOLL_CATEGORY_EN_MAPPER: Record<string, TDollCategoryEnum> = {
     ar: TDollCategoryEnum.AR,
     smg: TDollCategoryEnum.SMG,
