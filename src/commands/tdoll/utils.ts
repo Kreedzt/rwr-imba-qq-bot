@@ -161,9 +161,9 @@ export const formatTDollSkinData = (
 
     skin.forEach((item) => {
         res += `${item.index + 1}. ${item.title} ID:${item.value}\n`;
-        if (item.images.length > 0) {
+        if (item.image) {
             res += `[CQ:image,file=${resizeImg(
-                item.images[0].pic,
+                item.image.pic,
                 150,
                 150
             )},cache=0]\n`;
