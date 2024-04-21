@@ -15,15 +15,18 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v4
-            - name: Setup Nodejs
-              uses: actions/setup-node@v4
-              with:
-                  node-version: '18.15.0'
             - uses: pnpm/action-setup@v3
               name: Install pnpm
               with:
                 version: '9.0.4'
-                run_install: true
+                run_install: false
+            - name: Setup Nodejs
+              uses: actions/setup-node@v4
+              with:
+                node-version: '18.15.0'
+                cache: 'pnpm'
+            - name: Install dependencies
+              run: pnpm install
             - name: test coverage
               run: pnpm run coverage
             - name: Upload coverage reports to Codecov
