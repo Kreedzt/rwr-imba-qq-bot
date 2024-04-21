@@ -25,6 +25,7 @@ jobs:
               with:
                 node-version: '18.15.0'
                 cache: 'pnpm'
+            - name: Install dependencies
               run: pnpm install
             - name: test coverage
               run: pnpm run coverage
