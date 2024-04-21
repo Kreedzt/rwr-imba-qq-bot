@@ -20,7 +20,7 @@ jobs:
               with:
                   node-version: '18.15.0'
             - name: Install
-              run: npm i -g pnpm && pnpm i
+              run: npm i -g pnpm && pnpm i --frozen-lockfile
             - name: test coverage
               run: pnpm run coverage
             - name: Upload coverage reports to Codecov
