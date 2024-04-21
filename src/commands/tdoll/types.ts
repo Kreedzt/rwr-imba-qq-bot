@@ -97,5 +97,5 @@ export type ITDollSkinDataItem = Array<{
     index: number;
     title: string;
     value: string;
-    images: ITDollSkinImage[];
+    image?: ITDollSkinImage;
 }>;
