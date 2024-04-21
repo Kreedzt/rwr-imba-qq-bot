@@ -4,12 +4,12 @@ import { ITDollDataItem, ITDollSkinDataItem } from './types';
 import {
     TDOLL_CATEGORY_CN_MAPPER,
     TDOLL_CATEGORY_EN_MAPPER,
-    TDOLL_RANDOM_KEY, TDOLL_SKIN_NOT_FOUND,
+    TDOLL_RANDOM_KEY,
+    TDOLL_SKIN_NOT_FOUND,
     TDOLL_URL_PREFIX,
-
 } from './constants';
 import { resizeImg } from '../../utils/imgproxy';
-import {TDollCategoryEnum} from "./enums";
+import { TDollCategoryEnum } from './enums';
 
 /**
  * Read tdoll data from file
@@ -157,14 +157,17 @@ export const formatTDollSkinData = (
     const avatarUrl = resizeImg(targetTDoll.avatar, 40, 40);
     imageMsg += `[CQ:image,file=${avatarUrl},cache=0]`;
 
-    if (targetTDoll.mod === '1' && targetTDoll.avatarMod) {
-        imageMsg += `[CQ:image,file=${resizeImg(targetTDoll.avatarMod, 40, 40)},cache=0]`;
-    }
-
     let res = `No.${query} ${targetTDoll.nameIngame || ''} \n${imageMsg}\n`;
 
     skin.forEach((item) => {
         res += `${item.index + 1}. ${item.title} ID:${item.value}\n`;
+        if (item.images.length > 0) {
+            res += `[CQ:image,file=${resizeImg(
+                item.images[0].pic,
+                150,
+                150
+            )},cache=0]\n`;
+        }
     });
 
     return res;
