@@ -467,49 +467,299 @@ describe('tdoll: getTDollDataWithCategoryRes', () => {
 const MOCK_SKIN_DATA: Record<string, ITDollSkinDataItem> = {
     '1': [
         {
-            index: 0,
-            title: '默认Q版',
-            value: '0',
+            "index": 0,
+            "title": "默认Q版",
+            "value": "0",
+            "images": [
+                {
+                    "anime": "0",
+                    "line": "指挥官，是您在叫我嘛？您这里有可乐吗！有很多很多的可乐么！",
+                    "name": "默认立绘",
+                    "pic": "https://www.gfwiki.org/images/7/7f/Pic_M1873_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/3/3b/Pic_M1873_D_HD.png",
+                    "pic_d_h": "",
+                    "pic_h": ""
+                },
+                {
+                    "anime": "0",
+                    "line": "指挥官，是您在叫我嘛？您这里有可乐吗！有很多很多的可乐么！",
+                    "name": "心智升级",
+                    "pic": "https://www.gfwiki.org/images/6/62/Pic_M1873Mod_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/d/d5/Pic_M1873Mod_D_HD.png",
+                    "pic_d_h": "",
+                    "pic_h": ""
+                },
+                {
+                    "anime": "0",
+                    "line": "圣诞快乐！圣诞树真是漂亮啊！",
+                    "name": "直达星星的愿望",
+                    "pic": "https://www.gfwiki.org/images/e/e5/Pic_M1873_301_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/c/c1/Pic_M1873_301_D_HD.png",
+                    "pic_d_h": "https://www.gfwiki.org/images/1/14/Pic_M1873_301_D_HX_HD.png",
+                    "pic_h": "https://www.gfwiki.org/images/f/f0/Pic_M1873_301_HX_HD.png"
+                },
+                {
+                    "anime": "0",
+                    "line": "大家！举起你们手中的可乐！为今晚降临的奇迹干杯吧！",
+                    "name": "奇迹女王",
+                    "pic": "https://www.gfwiki.org/images/1/10/Pic_M1873_2105_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/d/d9/Pic_M1873_2105_D_HD.png",
+                    "pic_d_h": "",
+                    "pic_h": ""
+                }
+            ]
         },
         {
-            index: 1,
-            title: '心智升级',
-            value: 'mod',
+            "index": 1,
+            "title": "心智升级",
+            "value": "mod",
+            "images": [
+                {
+                    "anime": "0",
+                    "line": "指挥官，是您在叫我嘛？您这里有可乐吗！有很多很多的可乐么！",
+                    "name": "默认立绘",
+                    "pic": "https://www.gfwiki.org/images/7/7f/Pic_M1873_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/3/3b/Pic_M1873_D_HD.png",
+                    "pic_d_h": "",
+                    "pic_h": ""
+                },
+                {
+                    "anime": "0",
+                    "line": "指挥官，是您在叫我嘛？您这里有可乐吗！有很多很多的可乐么！",
+                    "name": "心智升级",
+                    "pic": "https://www.gfwiki.org/images/6/62/Pic_M1873Mod_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/d/d5/Pic_M1873Mod_D_HD.png",
+                    "pic_d_h": "",
+                    "pic_h": ""
+                },
+                {
+                    "anime": "0",
+                    "line": "圣诞快乐！圣诞树真是漂亮啊！",
+                    "name": "直达星星的愿望",
+                    "pic": "https://www.gfwiki.org/images/e/e5/Pic_M1873_301_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/c/c1/Pic_M1873_301_D_HD.png",
+                    "pic_d_h": "https://www.gfwiki.org/images/1/14/Pic_M1873_301_D_HX_HD.png",
+                    "pic_h": "https://www.gfwiki.org/images/f/f0/Pic_M1873_301_HX_HD.png"
+                },
+                {
+                    "anime": "0",
+                    "line": "大家！举起你们手中的可乐！为今晚降临的奇迹干杯吧！",
+                    "name": "奇迹女王",
+                    "pic": "https://www.gfwiki.org/images/1/10/Pic_M1873_2105_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/d/d9/Pic_M1873_2105_D_HD.png",
+                    "pic_d_h": "",
+                    "pic_h": ""
+                }
+            ]
         },
         {
-            index: 2,
-            title: '直达星星的愿望',
-            value: '301',
+            "index": 2,
+            "title": "直达星星的愿望",
+            "value": "301",
+            "images": [
+                {
+                    "anime": "0",
+                    "line": "指挥官，是您在叫我嘛？您这里有可乐吗！有很多很多的可乐么！",
+                    "name": "默认立绘",
+                    "pic": "https://www.gfwiki.org/images/7/7f/Pic_M1873_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/3/3b/Pic_M1873_D_HD.png",
+                    "pic_d_h": "",
+                    "pic_h": ""
+                },
+                {
+                    "anime": "0",
+                    "line": "指挥官，是您在叫我嘛？您这里有可乐吗！有很多很多的可乐么！",
+                    "name": "心智升级",
+                    "pic": "https://www.gfwiki.org/images/6/62/Pic_M1873Mod_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/d/d5/Pic_M1873Mod_D_HD.png",
+                    "pic_d_h": "",
+                    "pic_h": ""
+                },
+                {
+                    "anime": "0",
+                    "line": "圣诞快乐！圣诞树真是漂亮啊！",
+                    "name": "直达星星的愿望",
+                    "pic": "https://www.gfwiki.org/images/e/e5/Pic_M1873_301_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/c/c1/Pic_M1873_301_D_HD.png",
+                    "pic_d_h": "https://www.gfwiki.org/images/1/14/Pic_M1873_301_D_HX_HD.png",
+                    "pic_h": "https://www.gfwiki.org/images/f/f0/Pic_M1873_301_HX_HD.png"
+                },
+                {
+                    "anime": "0",
+                    "line": "大家！举起你们手中的可乐！为今晚降临的奇迹干杯吧！",
+                    "name": "奇迹女王",
+                    "pic": "https://www.gfwiki.org/images/1/10/Pic_M1873_2105_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/d/d9/Pic_M1873_2105_D_HD.png",
+                    "pic_d_h": "",
+                    "pic_h": ""
+                }
+            ]
         },
         {
-            index: 3,
-            title: '奇迹女王',
-            value: '2105',
-        },
+            "index": 3,
+            "title": "奇迹女王",
+            "value": "2105",
+            "images": [
+                {
+                    "anime": "0",
+                    "line": "指挥官，是您在叫我嘛？您这里有可乐吗！有很多很多的可乐么！",
+                    "name": "默认立绘",
+                    "pic": "https://www.gfwiki.org/images/7/7f/Pic_M1873_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/3/3b/Pic_M1873_D_HD.png",
+                    "pic_d_h": "",
+                    "pic_h": ""
+                },
+                {
+                    "anime": "0",
+                    "line": "指挥官，是您在叫我嘛？您这里有可乐吗！有很多很多的可乐么！",
+                    "name": "心智升级",
+                    "pic": "https://www.gfwiki.org/images/6/62/Pic_M1873Mod_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/d/d5/Pic_M1873Mod_D_HD.png",
+                    "pic_d_h": "",
+                    "pic_h": ""
+                },
+                {
+                    "anime": "0",
+                    "line": "圣诞快乐！圣诞树真是漂亮啊！",
+                    "name": "直达星星的愿望",
+                    "pic": "https://www.gfwiki.org/images/e/e5/Pic_M1873_301_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/c/c1/Pic_M1873_301_D_HD.png",
+                    "pic_d_h": "https://www.gfwiki.org/images/1/14/Pic_M1873_301_D_HX_HD.png",
+                    "pic_h": "https://www.gfwiki.org/images/f/f0/Pic_M1873_301_HX_HD.png"
+                },
+                {
+                    "anime": "0",
+                    "line": "大家！举起你们手中的可乐！为今晚降临的奇迹干杯吧！",
+                    "name": "奇迹女王",
+                    "pic": "https://www.gfwiki.org/images/1/10/Pic_M1873_2105_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/d/d9/Pic_M1873_2105_D_HD.png",
+                    "pic_d_h": "",
+                    "pic_h": ""
+                }
+            ]
+        }
     ],
-    '2': [
+    "2": [
         {
-            index: 0,
-            title: '默认Q版',
-            value: '0',
+            "index": 0,
+            "title": "默认Q版",
+            "value": "0",
+            "images": [
+                {
+                    "anime": "0",
+                    "line": "真是宿命的邂逅呢，指挥官，没想到会在这里遇到您。",
+                    "name": "默认立绘",
+                    "pic": "https://www.gfwiki.org/images/a/a6/Pic_M1911_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/c/cf/Pic_M1911_D_HD.png",
+                    "pic_d_h": "https://www.gfwiki.org/images/c/c4/Pic_M1911_D_HX_HD.png",
+                    "pic_h": "https://www.gfwiki.org/images/9/92/Pic_M1911_HX_HD.png"
+                },
+                {
+                    "anime": "0",
+                    "line": "真是宿命的邂逅呢，指挥官，没想到会在这里遇到您。",
+                    "name": "心智升级",
+                    "pic": "https://www.gfwiki.org/images/2/2b/Pic_M1911Mod_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/b/be/Pic_M1911Mod_D_HD.png",
+                    "pic_d_h": "https://www.gfwiki.org/images/d/da/Pic_M1911Mod_D_HX_HD.png",
+                    "pic_h": "https://www.gfwiki.org/images/1/12/Pic_M1911Mod_HX_HD.png"
+                },
+                {
+                    "anime": "0",
+                    "line": "人形不会哭泣，那是上天赐予人类的礼物。若人形有爱的话，就让我击破天空，下一场雨送给你吧。",
+                    "name": "天空的击破者",
+                    "pic": "https://www.gfwiki.org/images/1/11/Pic_M1911_4514_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/9/9c/Pic_M1911_4514_D_HD.png",
+                    "pic_d_h": "https://www.gfwiki.org/images/2/2f/Pic_M1911_4514_D_HX_HD.png",
+                    "pic_h": "https://www.gfwiki.org/images/a/a6/Pic_M1911_4514_HX_HD.png"
+                }
+            ]
         },
         {
-            index: 1,
-            title: '心智升级',
-            value: 'mod',
+            "index": 1,
+            "title": "心智升级",
+            "value": "mod",
+            "images": [
+                {
+                    "anime": "0",
+                    "line": "真是宿命的邂逅呢，指挥官，没想到会在这里遇到您。",
+                    "name": "默认立绘",
+                    "pic": "https://www.gfwiki.org/images/a/a6/Pic_M1911_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/c/cf/Pic_M1911_D_HD.png",
+                    "pic_d_h": "https://www.gfwiki.org/images/c/c4/Pic_M1911_D_HX_HD.png",
+                    "pic_h": "https://www.gfwiki.org/images/9/92/Pic_M1911_HX_HD.png"
+                },
+                {
+                    "anime": "0",
+                    "line": "真是宿命的邂逅呢，指挥官，没想到会在这里遇到您。",
+                    "name": "心智升级",
+                    "pic": "https://www.gfwiki.org/images/2/2b/Pic_M1911Mod_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/b/be/Pic_M1911Mod_D_HD.png",
+                    "pic_d_h": "https://www.gfwiki.org/images/d/da/Pic_M1911Mod_D_HX_HD.png",
+                    "pic_h": "https://www.gfwiki.org/images/1/12/Pic_M1911Mod_HX_HD.png"
+                },
+                {
+                    "anime": "0",
+                    "line": "人形不会哭泣，那是上天赐予人类的礼物。若人形有爱的话，就让我击破天空，下一场雨送给你吧。",
+                    "name": "天空的击破者",
+                    "pic": "https://www.gfwiki.org/images/1/11/Pic_M1911_4514_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/9/9c/Pic_M1911_4514_D_HD.png",
+                    "pic_d_h": "https://www.gfwiki.org/images/2/2f/Pic_M1911_4514_D_HX_HD.png",
+                    "pic_h": "https://www.gfwiki.org/images/a/a6/Pic_M1911_4514_HX_HD.png"
+                }
+            ]
         },
         {
-            index: 2,
-            title: '天空的击破者',
-            value: '4514',
-        },
+            "index": 2,
+            "title": "天空的击破者",
+            "value": "4514",
+            "images": [
+                {
+                    "anime": "0",
+                    "line": "真是宿命的邂逅呢，指挥官，没想到会在这里遇到您。",
+                    "name": "默认立绘",
+                    "pic": "https://www.gfwiki.org/images/a/a6/Pic_M1911_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/c/cf/Pic_M1911_D_HD.png",
+                    "pic_d_h": "https://www.gfwiki.org/images/c/c4/Pic_M1911_D_HX_HD.png",
+                    "pic_h": "https://www.gfwiki.org/images/9/92/Pic_M1911_HX_HD.png"
+                },
+                {
+                    "anime": "0",
+                    "line": "真是宿命的邂逅呢，指挥官，没想到会在这里遇到您。",
+                    "name": "心智升级",
+                    "pic": "https://www.gfwiki.org/images/2/2b/Pic_M1911Mod_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/b/be/Pic_M1911Mod_D_HD.png",
+                    "pic_d_h": "https://www.gfwiki.org/images/d/da/Pic_M1911Mod_D_HX_HD.png",
+                    "pic_h": "https://www.gfwiki.org/images/1/12/Pic_M1911Mod_HX_HD.png"
+                },
+                {
+                    "anime": "0",
+                    "line": "人形不会哭泣，那是上天赐予人类的礼物。若人形有爱的话，就让我击破天空，下一场雨送给你吧。",
+                    "name": "天空的击破者",
+                    "pic": "https://www.gfwiki.org/images/1/11/Pic_M1911_4514_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/9/9c/Pic_M1911_4514_D_HD.png",
+                    "pic_d_h": "https://www.gfwiki.org/images/2/2f/Pic_M1911_4514_D_HX_HD.png",
+                    "pic_h": "https://www.gfwiki.org/images/a/a6/Pic_M1911_4514_HX_HD.png"
+                }
+            ]
+        }
     ],
-    '3': [
+    "3": [
         {
-            index: 0,
-            title: '默认Q版',
-            value: '0',
-        },
+            "index": 0,
+            "title": "默认Q版",
+            "value": "0",
+            "images": [
+                {
+                    "anime": "0",
+                    "line": "M9手枪！我可是很有人气的，请记住我吧！",
+                    "name": "默认立绘",
+                    "pic": "https://www.gfwiki.org/images/f/f7/Pic_M9_HD.png",
+                    "pic_d": "https://www.gfwiki.org/images/4/45/Pic_M9_D_HD.png",
+                    "pic_d_h": "",
+                    "pic_h": ""
+                }
+            ]
+        }
     ],
 };
 
@@ -536,20 +786,132 @@ describe('tdollskin: getTdollSkinDataRes', () => {
         const res = getTDollSkinReplyText(query, MOCK_DATA, {
             '53': [
                 {
-                    index: 0,
-                    title: '默认Q版',
-                    value: '0',
+                    "index": 0,
+                    "title": "默认Q版",
+                    "value": "0",
+                    "images": [
+                        {
+                            "anime": "0",
+                            "line": "NTW-20狙击步枪，就算是钢铁，我也会贯穿给你看！",
+                            "name": "默认立绘",
+                            "pic": "https://www.gfwiki.org/images/1/1d/Pic_NTW20_HD.png",
+                            "pic_d": "https://www.gfwiki.org/images/3/34/Pic_NTW20_D_HD.png",
+                            "pic_d_h": "",
+                            "pic_h": ""
+                        },
+                        {
+                            "anime": "0",
+                            "line": "NTW-20狙击步枪，就算是钢铁，我也会贯穿给你看！",
+                            "name": "心智升级",
+                            "pic": "https://www.gfwiki.org/images/7/76/Pic_NTW20Mod_HD.png",
+                            "pic_d": "https://www.gfwiki.org/images/7/79/Pic_NTW20Mod_D_HD.png",
+                            "pic_d_h": "",
+                            "pic_h": ""
+                        },
+                        {
+                            "anime": "0",
+                            "line": "圣诞那天会下雪吗？从没见过下雪，真想看看啊……",
+                            "name": "圣诞鹿",
+                            "pic": "https://www.gfwiki.org/images/6/68/Pic_NTW20_307_HD.png",
+                            "pic_d": "https://www.gfwiki.org/images/6/68/Pic_NTW20_307_D_HD.png",
+                            "pic_d_h": "",
+                            "pic_h": ""
+                        },
+                        {
+                            "anime": "0",
+                            "line": "海风里吹来的杀气，就交给我来解决吧。",
+                            "name": "骄阳任务",
+                            "pic": "https://www.gfwiki.org/images/b/be/Pic_NTW20_1101_HD.png",
+                            "pic_d": "https://www.gfwiki.org/images/0/0f/Pic_NTW20_1101_D_HD.png",
+                            "pic_d_h": "https://www.gfwiki.org/images/6/6c/Pic_NTW20_1101_D_HX_HD.png",
+                            "pic_h": "https://www.gfwiki.org/images/2/29/Pic_NTW20_1101_HX_HD.png"
+                        },
+                        {
+                            "anime": "1",
+                            "line": "唔……味太甜了吗？再苦一点会更好吧，主人的口味是倾向哪一种呢？",
+                            "name": "贵族体验馆",
+                            "pic": "https://www.gfwiki.org/images/8/89/Pic_NTW20_2301_HD.png",
+                            "pic_d": "https://www.gfwiki.org/images/1/17/Pic_NTW20_2301_D_HD.png",
+                            "pic_d_h": "",
+                            "pic_h": ""
+                        },
+                        {
+                            "anime": "2",
+                            "line": "对方有多少人都没用。它们没有突破的可能，因为我在这里。",
+                            "name": "黑铁之心",
+                            "pic": "https://www.gfwiki.org/images/9/91/Pic_NTW20_4801_HD.png",
+                            "pic_d": "https://www.gfwiki.org/images/a/ab/Pic_NTW20_4801_D_HD.png",
+                            "pic_d_h": "",
+                            "pic_h": ""
+                        }
+                    ]
                 },
                 {
-                    index: 1,
-                    title: '心智升级',
-                    value: 'mod',
+                    "index": 1,
+                    "title": "心智升级",
+                    "value": "mod",
+                    "images": [
+                        {
+                            "anime": "0",
+                            "line": "NTW-20狙击步枪，就算是钢铁，我也会贯穿给你看！",
+                            "name": "默认立绘",
+                            "pic": "https://www.gfwiki.org/images/1/1d/Pic_NTW20_HD.png",
+                            "pic_d": "https://www.gfwiki.org/images/3/34/Pic_NTW20_D_HD.png",
+                            "pic_d_h": "",
+                            "pic_h": ""
+                        },
+                        {
+                            "anime": "0",
+                            "line": "NTW-20狙击步枪，就算是钢铁，我也会贯穿给你看！",
+                            "name": "心智升级",
+                            "pic": "https://www.gfwiki.org/images/7/76/Pic_NTW20Mod_HD.png",
+                            "pic_d": "https://www.gfwiki.org/images/7/79/Pic_NTW20Mod_D_HD.png",
+                            "pic_d_h": "",
+                            "pic_h": ""
+                        },
+                        {
+                            "anime": "0",
+                            "line": "圣诞那天会下雪吗？从没见过下雪，真想看看啊……",
+                            "name": "圣诞鹿",
+                            "pic": "https://www.gfwiki.org/images/6/68/Pic_NTW20_307_HD.png",
+                            "pic_d": "https://www.gfwiki.org/images/6/68/Pic_NTW20_307_D_HD.png",
+                            "pic_d_h": "",
+                            "pic_h": ""
+                        },
+                        {
+                            "anime": "0",
+                            "line": "海风里吹来的杀气，就交给我来解决吧。",
+                            "name": "骄阳任务",
+                            "pic": "https://www.gfwiki.org/images/b/be/Pic_NTW20_1101_HD.png",
+                            "pic_d": "https://www.gfwiki.org/images/0/0f/Pic_NTW20_1101_D_HD.png",
+                            "pic_d_h": "https://www.gfwiki.org/images/6/6c/Pic_NTW20_1101_D_HX_HD.png",
+                            "pic_h": "https://www.gfwiki.org/images/2/29/Pic_NTW20_1101_HX_HD.png"
+                        },
+                        {
+                            "anime": "1",
+                            "line": "唔……味太甜了吗？再苦一点会更好吧，主人的口味是倾向哪一种呢？",
+                            "name": "贵族体验馆",
+                            "pic": "https://www.gfwiki.org/images/8/89/Pic_NTW20_2301_HD.png",
+                            "pic_d": "https://www.gfwiki.org/images/1/17/Pic_NTW20_2301_D_HD.png",
+                            "pic_d_h": "",
+                            "pic_h": ""
+                        },
+                        {
+                            "anime": "2",
+                            "line": "对方有多少人都没用。它们没有突破的可能，因为我在这里。",
+                            "name": "黑铁之心",
+                            "pic": "https://www.gfwiki.org/images/9/91/Pic_NTW20_4801_HD.png",
+                            "pic_d": "https://www.gfwiki.org/images/a/ab/Pic_NTW20_4801_D_HD.png",
+                            "pic_d_h": "",
+                            "pic_h": ""
+                        }
+                    ]
                 },
             ],
         });
 
         expect(res).toBe(
-            `No.53 NTW-20 \n[CQ:image,file=https://www.gfwiki.org/images/2/2e/Icon_No.53.png,cache=0][CQ:image,file=https://www.gfwiki.org/images/8/80/Icon_No.53_Mod.png,cache=0]\n1. 默认Q版 ID:0\n2. 心智升级 ID:mod\n`
+            `No.53 NTW-20 \n[CQ:image,file=https://www.gfwiki.org/images/2/2e/Icon_No.53.png,cache=0]\n1. 默认Q版 ID:0\n[CQ:image,file=https://www.gfwiki.org/images/1/1d/Pic_NTW20_HD.png,cache=0]\n2. 心智升级 ID:mod\n[CQ:image,file=https://www.gfwiki.org/images/1/1d/Pic_NTW20_HD.png,cache=0]\n`
         );
     });
 });

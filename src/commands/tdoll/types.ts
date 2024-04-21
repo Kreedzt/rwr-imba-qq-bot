@@ -80,8 +80,22 @@ export interface ITDollDataModItem extends Omit<ITDollDataBaseItem, 'mod'> {
 
 export type ITDollDataItem = ITDollDataBaseItem | ITDollDataModItem;
 
+export interface ITDollSkinImage {
+    anime: string;
+    line: string;
+    name: string;
+    pic: string;
+    // destroyed
+    pic_d: string;
+    // destroyed, hd
+    pic_d_h: string;
+    // hd
+    pic_h: string;
+}
+
 export type ITDollSkinDataItem = Array<{
     index: number;
     title: string;
     value: string;
+    images: ITDollSkinImage[];
 }>;
