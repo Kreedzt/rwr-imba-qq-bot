@@ -162,8 +162,9 @@ export const formatTDollSkinData = (
     skin.forEach((item) => {
         res += `${item.index + 1}. ${item.title} ID:${item.value}\n`;
         if (item.image) {
+            const imageUrl = item.image.pic.includes(TDOLL_URL_PREFIX) ? item.image.pic : `${TDOLL_URL_PREFIX}${item.image.pic}`;
             res += `[CQ:image,file=${resizeImg(
-                item.image.pic,
+                imageUrl,
                 150,
                 150
             )},cache=0]\n`;
