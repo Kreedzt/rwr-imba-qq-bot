@@ -2,7 +2,7 @@ import { TDollCategoryEnum } from './enums';
 
 export const TDOLL_RANDOM_KEY = 'random';
 
-export const TDOLL_URL_PREFIX = 'http://www.gfwiki.org';
+export const TDOLL_URL_PREFIX = 'https://www.gfwiki.org';
 
 export const TDOLL_SKIN_NOT_FOUND = '未找到指定人形编号的皮肤, 请检查输入是否有误!';
 
