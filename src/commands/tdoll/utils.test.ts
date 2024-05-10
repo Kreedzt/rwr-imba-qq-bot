@@ -10,6 +10,7 @@ import {
     getTDollSkinReplyText,
 } from './utils';
 import { TDollCategoryEnum } from './enums';
+import { TDOLL_SKIN_NOT_FOUND_MSG } from './constants';
 
 const MOCK_DATA: ITDollDataItem[] = [
     {
@@ -595,7 +596,7 @@ describe('tdollskin: getTdollSkinDataRes', () => {
 
         const res = getTDollSkinReplyText(query, [], MOCK_SKIN_DATA);
 
-        expect(res).toBe('未找到指定人形编号的皮肤, 请检查输入是否有误!');
+        expect(res).toBe(TDOLL_SKIN_NOT_FOUND_MSG);
     });
 
     it.concurrent('query found result', () => {

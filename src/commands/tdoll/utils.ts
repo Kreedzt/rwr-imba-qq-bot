@@ -5,7 +5,7 @@ import {
     TDOLL_CATEGORY_CN_MAPPER,
     TDOLL_CATEGORY_EN_MAPPER,
     TDOLL_RANDOM_KEY,
-    TDOLL_SKIN_NOT_FOUND,
+    TDOLL_SKIN_NOT_FOUND, TDOLL_SKIN_NOT_FOUND_MSG,
     TDOLL_URL_PREFIX,
 } from './constants';
 import { resizeImg } from '../../utils/imgproxy';
@@ -192,7 +192,7 @@ export const getTDollSkinReplyText = (
     record: Record<string, ITDollSkinDataItem>
 ) => {
     if (!(query in record)) {
-        return '未找到指定人形编号的皮肤, 请检查输入是否有误!';
+        return TDOLL_SKIN_NOT_FOUND_MSG;
     }
 
     const skin = record[query];
