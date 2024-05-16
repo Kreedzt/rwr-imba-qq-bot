@@ -15,6 +15,7 @@ app.use('/out', express.static('out'));
 
 // ENV
 dotenv.config();
+
 const _env = process.env as Record<string, string>;
 
 logger.info('_env: ACTIVE_COMMANDS', _env.ACTIVE_COMMANDS);
