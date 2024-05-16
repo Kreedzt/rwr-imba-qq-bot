@@ -6,6 +6,8 @@
         "experimentalDecorators": true,
         "moduleResolution": "node",
         "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
         "target": "esnext",
         "module": "ES6",
         "lib": [

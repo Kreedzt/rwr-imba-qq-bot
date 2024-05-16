@@ -1,6 +1,6 @@
-import * as express from 'express';
-import * as dotenv from 'dotenv';
-import * as bodyParser from 'body-parser';
+import express from 'express';
+import dotenv from 'dotenv';
+import bodyParser from 'body-parser';
 import { BaseEvent, GlobalEnv, MessageEvent, NoticeEvent } from './types';
 import { logger } from './utils/logger';
 import { RemoteService } from './services/remote.service';
@@ -59,6 +59,10 @@ app.post('/in', async (req, res) => {
             break;
     }
     res.send('OK');
+});
+
+app.get('/ping', (req, res) => {
+   res.end('pong!');
 });
 
 app.listen(env.PORT, () => {
