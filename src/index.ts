@@ -6,16 +6,38 @@ import { logger } from './utils/logger';
 import { RemoteService } from './services/remote.service';
 import { msgHandler, initCommands } from './commands';
 import { noticeHandler } from './notices';
+import { ClickHouseService } from './services/clickHouse.service';
+import { table } from 'table';
 
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use('/out', express.static('out'));
+app.use((req, res, next) => {
+    const start = Date.now();
+    const logData = {
+        method: req.method,
+        url: req.url,
+        params: req.params,
+        body: req.body,
+        hostname: req.hostname,
+        ip: req.ip,
+    };
+    next();
+    const end = Date.now();
+    const elapsed = end - start;
+    console.log(
+        JSON.stringify({
+            type: 'access',
+            ...logData,
+            elapse: elapsed,
+        })
+    );
+});
 
 // ENV
 dotenv.config();
-
 const _env = process.env as Record<string, string>;
 
 logger.info('_env: ACTIVE_COMMANDS', _env.ACTIVE_COMMANDS);
@@ -62,9 +84,42 @@ app.post('/in', async (req, res) => {
     res.send('OK');
 });
 
-app.get('/ping', (req, res) => {
-   res.end('pong!');
+app.get('/ping', async (req, res) => {
+    res.end('pong!');
 });
+
+if (process.env.CLICKHOUSE_DB) {
+    app.get('/query_cmd', async (req, res) => {
+        const data = await ClickHouseService.getInst().queryCmd();
+
+        const columns = [
+            'cmd',
+            'params',
+            'user_id',
+            'group_id',
+            'received_time',
+            'response_time',
+            'elapse_time',
+        ];
+        const rowData: string[][] = [];
+
+        data.forEach((d) => {
+            rowData.push([
+                d.cmd,
+                d.params,
+                d.user_id.toString(),
+                d.group_id.toString(),
+                d.received_time,
+                d.response_time,
+                d.elapse_time.toString(),
+            ]);
+        });
+
+        const output = table([columns, ...rowData]);
+
+        res.json(output);
+    });
+}
 
 app.listen(env.PORT, () => {
     logger.info(`App listening on port ${env.PORT}`);
