@@ -37,10 +37,10 @@ export class ClickHouseService {
         });
     }
 
-    async queryCmd() {
-        logger.info('queryCmd');
+    async queryCmd(sql?: string) {
+        logger.info('queryCmd', sql);
         const queryRes = await this.client.query({
-            query: QUERY_CMD_ACCESS,
+            query: sql || QUERY_CMD_ACCESS,
             format: 'JSONEachRow',
         });
 
