@@ -8,6 +8,7 @@ import { msgHandler, initCommands } from './commands';
 import { noticeHandler } from './notices';
 import { ClickHouseService } from './services/clickHouse.service';
 import { table } from 'table';
+import { an } from 'vitest/dist/types-198fd1d9';
 
 const app = express();
 
@@ -90,28 +91,17 @@ app.get('/ping', async (req, res) => {
 
 if (process.env.CLICKHOUSE_DB) {
     app.get('/query_cmd', async (req, res) => {
-        const data = await ClickHouseService.getInst().queryCmd();
+        const data = await ClickHouseService.getInst().queryCmd(
+            'SELECT cmd, count(*) as count FROM cmd_access_table GROUP BY cmd ORDER BY count DESC LIMIT 10'
+        );
 
-        const columns = [
-            'cmd',
-            'params',
-            'user_id',
-            'group_id',
-            'received_time',
-            'response_time',
-            'elapse_time',
-        ];
+        const columns = ['cmd', 'count'];
         const rowData: string[][] = [];
 
         data.forEach((d) => {
             rowData.push([
-                d.cmd,
-                d.params,
-                d.user_id.toString(),
-                d.group_id.toString(),
-                d.received_time,
-                d.response_time,
-                d.elapse_time.toString(),
+                ClickHouseService.getInst().ignoreNullChar(d.cmd),
+                d.count,
             ]);
         });
 

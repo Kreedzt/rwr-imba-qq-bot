@@ -5,17 +5,6 @@ const CMD_ACCESS_TABLE = 'cmd_access_table';
 
 const QUERY_CMD_ACCESS = `SELECT * FROM ${CMD_ACCESS_TABLE}`;
 
-interface ICmdAccess {
-    cmd: string;
-    params: string;
-    user_id: number;
-    group_id: number;
-    received_time: string;
-    response_time: string;
-    elapse_time: number;
-    create_time: string;
-}
-
 export class ClickHouseService {
     static inst: ClickHouseService;
 
@@ -44,17 +33,11 @@ export class ClickHouseService {
             format: 'JSONEachRow',
         });
 
-        const jsonData = await queryRes.json<ICmdAccess>();
-        const res = jsonData.map((j) => {
-            return {
-                ...j,
-                cmd: this.ignoreNullChar(j.cmd),
-            };
-        });
+        const jsonData = await queryRes.json<any>();
 
-        logger.info('queryCmd OK', res);
+        logger.info('queryCmd OK', jsonData);
 
-        return res;
+        return jsonData;
     }
 
     insertCmdData(data: {
