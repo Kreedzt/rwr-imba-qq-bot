@@ -4,6 +4,7 @@
 [![codecov](https://codecov.io/gh/Kreedzt/rwr-imba-qq-bot/branch/master/graph/badge.svg?token=MWGXZH7GO9)](https://codecov.io/gh/Kreedzt/rwr-imba-qq-bot)
 ![build status](https://github.com/Kreedzt/rwr-imba-qq-bot/actions/workflows/ci.yml/badge.svg?branch=master)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FKreedzt%2Frwr-imba-qq-bot.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FKreedzt%2Frwr-imba-qq-bot?ref=badge_shield)
+[![Docker Image Size](https://badgen.net/docker/size/zhaozisong0/rwr-imba-qq-bot?icon=docker&label=image%20size)](https://hub.docker.com/r/zhaozisong0/rwr-imba-qq-bot/)
 
 ## 环境变量
 
@@ -16,6 +17,7 @@
 - ACTIVE_COMMANDS: 激活的命令列表, 类型为 `JSON string[]`, eg: `["fuck", "roll", "tdoll"]`
 - IMGPROXY_URL: imgproxy 图片代理地址, 用于图片裁剪宽高及缩放
 - WELCOME_TEMPLATE: TODO
+- 
 
 命令配置:
 - SERVERS_MATCH_REGEX: RWR 服务器筛选正则表达式, 类型为 `string`
