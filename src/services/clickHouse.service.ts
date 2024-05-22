@@ -29,7 +29,7 @@ export class ClickHouseService {
     async queryCmd(sql?: string) {
         logger.info('queryCmd', sql);
         const queryRes = await this.client.query({
-            query: sql || QUERY_CMD_ACCESS,
+            query: sql ?? QUERY_CMD_ACCESS,
             format: 'JSONEachRow',
         });
 

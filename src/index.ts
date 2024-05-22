@@ -8,8 +8,6 @@ import { msgHandler, initCommands } from './commands';
 import { noticeHandler } from './notices';
 import { ClickHouseService } from './services/clickHouse.service';
 import { table } from 'table';
-import { an } from 'vitest/dist/types-198fd1d9';
-import { ignoreNullChar } from './utils/db';
 
 const app = express();
 
