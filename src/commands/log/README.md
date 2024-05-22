@@ -4,6 +4,10 @@
 
 查询并统计命令执行相关信息
 
+## 环境准备
+
+使用根目录下的 `init.sql` 初始化 ClickHouse 数据库
+
 ## 环境变量
 
 -   CLICKHOUSE_HOST: ClickHouse 地址
