@@ -14,11 +14,33 @@ describe('transformSqlData2Table', () => {
         expect(transformSqlData2Table(data)).toBe('');
     });
 
-    it.concurrent('2 columns', () => {
+    it.concurrent('2 columns, non string data type', () => {
         const data = [
             {
                 cmd: 'tdollskin',
                 params: 53,
+            },
+            {
+                cmd: 'tdoll',
+                params: 'm4',
+            },
+        ];
+
+        expect(transformSqlData2Table(data)).toBe(`╔═══════════╤════════╗
+║ cmd       │ params ║
+╟───────────┼────────╢
+║ tdollskin │ 53     ║
+╟───────────┼────────╢
+║ tdoll     │ m4     ║
+╚═══════════╧════════╝
+`);
+    });
+
+    it.concurrent('2 columns', () => {
+        const data = [
+            {
+                cmd: 'tdollskin',
+                params: '53',
             },
             {
                 cmd: 'tdoll',

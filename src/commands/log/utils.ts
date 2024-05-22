@@ -1,23 +1,5 @@
-import { ClickHouseService } from '../../services/clickHouse.service';
 import { table } from 'table';
-
-export const getAllCmdLog = async () => {
-    // count cmd times(limit 10)
-    const res = await ClickHouseService.getInst().queryCmd(
-        `SELECT cmd, count(*) as count FROM cmd_access_table GROUP BY cmd ORDER BY count DESC LIMIT 10`
-    );
-
-    return res;
-};
-
-export const getLogByCmd = async (cmd: string) => {
-    // count params times by cmd(limit 10)
-    const res = await ClickHouseService.getInst().queryCmd(
-        `SELECT params, count(*) as count FROM cmd_access_table WHERE cmd = '${cmd}' GROUP_BY params ORDER BY count DESC LIMIT 10`
-    );
-
-    return res;
-};
+import { ignoreNullChar } from '../../utils/db';
 
 const sortColumns = [
     'cmd',
@@ -53,7 +35,7 @@ export const transformSqlData2Table = (data: any[]) => {
     data.forEach((d) => {
         const row: string[] = [];
         realColumns.forEach((k) => {
-            row.push(ClickHouseService.getInst().ignoreNullChar(d[k]));
+            row.push(ignoreNullChar(d[k].toString()));
         });
         rowData.push(row);
     });

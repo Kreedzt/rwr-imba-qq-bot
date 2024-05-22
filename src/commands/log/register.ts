@@ -1,5 +1,6 @@
 import { IRegister } from '../../types';
-import { getAllCmdLog, getLogByCmd, transformSqlData2Table } from './utils';
+import { transformSqlData2Table } from './utils';
+import { getAllCmdLog, getLogByCmd } from './db';
 
 export const LogCommandRegister: IRegister = {
     name: 'log',
