@@ -1,17 +1,5 @@
 CREATE DATABASE IF NOT EXISTS rwr_imba_bot_db;
 
--- log
-CREATE TABLE IF NOT EXISTS rwr_imba_bot_db.log_table (
-  message String COMMENT '日志消息',
-  create_time DateTime64 DEFAULT now() COMMENT '创建时间戳',
-  type FixedString(255) COMMENT '日志类型'
-)
-ENGINE = MergeTree()
-PARTITION BY toYYYYMM(create_time)
-ORDER BY (type, create_time)
-PRIMARY KEY (type, create_time)
-COMMENT '日志表';
-
 -- cmd
 CREATE TABLE IF NOT EXISTS rwr_imba_bot_db.cmd_access_table (
   cmd FixedString(255) COMMENT '命令全称',

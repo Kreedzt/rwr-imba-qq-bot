@@ -1,4 +1,3 @@
-import { table } from 'table';
 import { ignoreNullChar } from '../../utils/db';
 
 const sortColumns = [
@@ -12,7 +11,7 @@ const sortColumns = [
     'count',
 ];
 
-export const transformSqlData2Table = (data: any[]) => {
+export const formatOutput = (data: any[]) => {
     if (!data.length) {
         return '';
     }
@@ -40,5 +39,13 @@ export const transformSqlData2Table = (data: any[]) => {
         rowData.push(row);
     });
 
-    return table([realColumns, ...rowData]);
+    let output = realColumns.join('    ') + '\n';
+
+    output += '\n';
+
+    rowData.forEach((r) => {
+        output += r.join('    ') + '\n';
+    });
+
+    return output;
 };

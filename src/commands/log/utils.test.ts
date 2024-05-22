@@ -1,17 +1,17 @@
-import { transformSqlData2Table } from './utils';
+import { formatOutput } from './utils';
 import { describe, expect, it } from 'vitest';
 
 describe('transformSqlData2Table', () => {
     it.concurrent('empty array', () => {
         const data: any[] = [];
 
-        expect(transformSqlData2Table(data)).toBe('');
+        expect(formatOutput(data)).toBe('');
     });
 
     it.concurrent('emtpy data', () => {
         const data = [{}];
 
-        expect(transformSqlData2Table(data)).toBe('');
+        expect(formatOutput(data)).toBe('');
     });
 
     it.concurrent('2 columns, non string data type', () => {
@@ -26,13 +26,10 @@ describe('transformSqlData2Table', () => {
             },
         ];
 
-        expect(transformSqlData2Table(data)).toBe(`╔═══════════╤════════╗
-║ cmd       │ params ║
-╟───────────┼────────╢
-║ tdollskin │ 53     ║
-╟───────────┼────────╢
-║ tdoll     │ m4     ║
-╚═══════════╧════════╝
+        expect(formatOutput(data)).toBe(`cmd    params
+
+tdollskin    53
+tdoll    m4
 `);
     });
 
@@ -48,13 +45,10 @@ describe('transformSqlData2Table', () => {
             },
         ];
 
-        expect(transformSqlData2Table(data)).toBe(`╔═══════════╤════════╗
-║ cmd       │ params ║
-╟───────────┼────────╢
-║ tdollskin │ 53     ║
-╟───────────┼────────╢
-║ tdoll     │ m4     ║
-╚═══════════╧════════╝
+        expect(formatOutput(data)).toBe(`cmd    params
+
+tdollskin    53
+tdoll    m4
 `);
     });
 
@@ -80,14 +74,11 @@ describe('transformSqlData2Table', () => {
             },
         ];
 
-        expect(transformSqlData2Table(data)).toBe(
-            `╔═══════════╤════════╤═══════════╤══════════╤═════════════════════════╤═════════════════════════╤═════════════╗
-║ cmd       │ params │ user_id   │ group_id │ received_time           │ response_time           │ elapse_time ║
-╟───────────┼────────┼───────────┼──────────┼─────────────────────────┼─────────────────────────┼─────────────╢
-║ tdollskin │ 53     │ 523145043 │ 555555   │ 2024-05-21 21:30:19.661 │ 2024-05-21 21:30:19.665 │ 4           ║
-╟───────────┼────────┼───────────┼──────────┼─────────────────────────┼─────────────────────────┼─────────────╢
-║ tdoll     │ m4     │ 523145043 │ 555555   │ 2024-05-21 21:30:57.768 │ 2024-05-21 21:30:57.772 │ 4           ║
-╚═══════════╧════════╧═══════════╧══════════╧═════════════════════════╧═════════════════════════╧═════════════╝
+        expect(formatOutput(data)).toBe(
+            `cmd    params    user_id    group_id    received_time    response_time    elapse_time
+
+tdollskin    53    523145043    555555    2024-05-21 21:30:19.661    2024-05-21 21:30:19.665    4
+tdoll    m4    523145043    555555    2024-05-21 21:30:57.768    2024-05-21 21:30:57.772    4
 `
         );
     });

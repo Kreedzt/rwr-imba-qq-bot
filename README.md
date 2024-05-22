@@ -17,13 +17,16 @@
 - ACTIVE_COMMANDS: 激活的命令列表, 类型为 `JSON string[]`, eg: `["fuck", "roll", "tdoll"]`
 - IMGPROXY_URL: imgproxy 图片代理地址, 用于图片裁剪宽高及缩放
 - WELCOME_TEMPLATE: TODO
-- 
 
 命令配置:
 - SERVERS_MATCH_REGEX: RWR 服务器筛选正则表达式, 类型为 `string`
 - WEBSITE_DATA_FILE: 指定的网站文件路径
 - TDOLL_DATA_FILE: 战术人形数据文件路径
 - QA_DATA_FILE: 自助问答数据文件路径
+- CLICKHOUSE_HOST: ClickHouse 数据库Host地址, 用于统计命令数据
+- CLICKHOUSE_DB: ClickHouse 数据库, 用于统计命令数据
+- CLICKHOUSE_USER: ClickHouse 用户名, 用于统计命令数据
+- CLICKHOUSE_PASSWORD: ClickHouse 密码, 用于统计命令数据
 
 ## 部署
 
