@@ -7,7 +7,6 @@ import { RemoteService } from './services/remote.service';
 import { msgHandler, initCommands } from './commands';
 import { noticeHandler } from './notices';
 import { ClickHouseService } from './services/clickHouse.service';
-import { table } from 'table';
 
 const app = express();
 
@@ -112,9 +111,9 @@ if (process.env.CLICKHOUSE_DB) {
             rowData.push(dataRow);
         });
 
-        const output = table([columns, ...rowData]);
+        const resData = [columns, ...rowData];
 
-        res.json(output);
+        res.json(resData);
     });
 }
 
