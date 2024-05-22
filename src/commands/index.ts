@@ -32,6 +32,8 @@ import {
     QADeleteCommandRegister,
 } from './qa/register';
 import { VersionCommandRegister } from './version/register';
+import { LogCommandRegister } from './log/register';
+import { ClickHouseService } from '../services/clickHouse.service';
 
 const allCommands: IRegister[] = [
     FuckCommandRegister,
@@ -51,6 +53,7 @@ const allCommands: IRegister[] = [
     QADefineCommandRegister,
     QADeleteCommandRegister,
     VersionCommandRegister,
+    LogCommandRegister,
 ];
 
 export const initCommands = (env: GlobalEnv) => {
@@ -164,6 +167,8 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
                 );
                 return;
             }
+            const start = Date.now();
+            const startDate = new Date();
             const params = getCommandParams(msg, hitCommand.defaultParams);
 
             const ctx: MsgExecCtx = {
@@ -179,6 +184,28 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
             };
 
             await hitCommand.exec(ctx);
+            const end = Date.now();
+            const endDate = new Date();
+            const diff = end - start;
+
+            const paramsList: string[] = [];
+            ctx.params.forEach((v, k) => {
+                paramsList.push(k);
+            });
+
+            const stringParams = paramsList.join(' ');
+
+            if (process.env.CLICKHOUSE_HOST) {
+                await ClickHouseService.getInst().insertCmdData({
+                    cmd: hitCommand.name,
+                    params: stringParams,
+                    user_id: event.user_id,
+                    group_id: event.group_id,
+                    received_time: startDate,
+                    response_time: endDate,
+                    elapse_time: diff,
+                });
+            }
         } catch (e) {
             await quickReply(event, '命令执行失败, 请检查日志');
             logger.error(e);

@@ -1,7 +1,7 @@
 import { Canvas, createCanvas } from 'canvas';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import {
     calcCanvasTextWidth,
     getCountColor,

@@ -13,8 +13,7 @@ export const logger = tracer.dailyfile({
             if (data.title === 'error') {
                 logData.line = data.line;
                 logData.path = data.path;
-                logData.method = data.method,
-                logData.stack = data.stack;
+                (logData.method = data.method), (logData.stack = data.stack);
             }
             console.log(JSON.stringify(logData));
         },
