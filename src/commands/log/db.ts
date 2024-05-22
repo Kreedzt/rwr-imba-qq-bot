@@ -11,7 +11,7 @@ export const getAllCmdLog = async () => {
 export const getLogByCmd = async (cmd: string) => {
     // count params times by cmd(limit 10)
     const res = await ClickHouseService.getInst().queryCmd(
-        `SELECT params, count(*) as count FROM cmd_access_table WHERE cmd = '${cmd}' GROUP_BY params ORDER BY count DESC LIMIT 10`
+        `SELECT params, count(*) as count FROM cmd_access_table WHERE cmd = '${cmd}' GROUP BY params ORDER BY count DESC LIMIT 10`
     );
 
     return res;

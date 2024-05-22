@@ -17,7 +17,6 @@
 - ACTIVE_COMMANDS: 激活的命令列表, 类型为 `JSON string[]`, eg: `["fuck", "roll", "tdoll"]`
 - IMGPROXY_URL: imgproxy 图片代理地址, 用于图片裁剪宽高及缩放
 - WELCOME_TEMPLATE: TODO
-- 
 
 命令配置:
 - SERVERS_MATCH_REGEX: RWR 服务器筛选正则表达式, 类型为 `string`

@@ -43,7 +43,6 @@
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "pinyin-match": "^1.2.4",
-    "table": "^6.8.2",
     "tracer": "^1.1.6"
   },
   "devDependencies": {

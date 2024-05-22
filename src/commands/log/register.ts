@@ -1,5 +1,5 @@
 import { IRegister } from '../../types';
-import { transformSqlData2Table } from './utils';
+import { formatOutput } from './utils';
 import { getAllCmdLog, getLogByCmd } from './db';
 
 export const LogCommandRegister: IRegister = {
@@ -22,11 +22,11 @@ export const LogCommandRegister: IRegister = {
 
         if (command === 'all') {
             const allCmdLog = await getAllCmdLog();
-            const output = transformSqlData2Table(allCmdLog);
+            const output = formatOutput(allCmdLog);
             await ctx.reply(output);
         } else {
             const logData = await getLogByCmd(command);
-            const output = transformSqlData2Table(logData);
+            const output = formatOutput(logData);
             await ctx.reply(output);
         }
     },
