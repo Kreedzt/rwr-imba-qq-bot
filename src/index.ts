@@ -111,7 +111,9 @@ if (process.env.CLICKHOUSE_DB) {
             rowData.push(dataRow);
         });
 
-        res.json(data);
+        const resData = [columns, ...rowData];
+
+        res.json(resData);
     });
 }
 
