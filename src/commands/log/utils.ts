@@ -11,40 +11,19 @@ const sortColumns = [
     'count',
 ];
 
-export const formatOutput = (data: any[]) => {
+export const formatOutput = (data: any[], key: string, title: string) => {
+    let output = title + '\n';
     if (!data.length) {
-        return '';
-    }
-    const realColumns: string[] = [];
-
-    Object.keys(data[0])
-        .sort((a, b) => {
-            return sortColumns.indexOf(a) - sortColumns.indexOf(b);
-        })
-        .forEach((k) => {
-            realColumns.push(k);
-        });
-
-    if (!realColumns.length) {
-        return '';
+        output += '无数据';
+        return output;
     }
 
-    const rowData: string[][] = [];
-
-    data.forEach((d) => {
-        const row: string[] = [];
-        realColumns.forEach((k) => {
-            row.push(ignoreNullChar(d[k].toString()));
-        });
-        rowData.push(row);
-    });
-
-    let output = realColumns.join('    ') + '\n';
-
-    output += '\n';
-
-    rowData.forEach((r) => {
-        output += r.join('    ') + '\n';
+    data.forEach((d, index) => {
+        if (!d[key]) {
+            return;
+        }
+        const label = ignoreNullChar(d[key].toString());
+        output += `${index + 1}. ${label} 次数:${d.count}\n`;
     });
 
     return output;

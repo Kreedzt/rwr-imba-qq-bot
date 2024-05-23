@@ -22,11 +22,15 @@ export const LogCommandRegister: IRegister = {
 
         if (!command) {
             const allCmdLog = await getAllCmdLog();
-            const output = formatOutput(allCmdLog);
+            const output = formatOutput(allCmdLog, 'cmd', '命令用量统计Top 10');
             await ctx.reply(output);
         } else {
             const logData = await getLogByCmd(command);
-            const output = formatOutput(logData);
+            const output = formatOutput(
+                logData,
+                'params',
+                `命令'${command}'参数用量统计Top 10`
+            );
             await ctx.reply(output);
         }
     },

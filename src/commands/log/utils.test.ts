@@ -2,83 +2,50 @@ import { formatOutput } from './utils';
 import { describe, expect, it } from 'vitest';
 
 describe('transformSqlData2Table', () => {
-    it.concurrent('empty array', () => {
+    it.concurrent('empty title', () => {
+        const data: any[] = [
+            {
+                cmd: 'tdollskin',
+                count: 2,
+            },
+            {
+                cmd: 'tdoll',
+                count: 1,
+            },
+        ];
+
+        expect(formatOutput(data, 'cmd', '')).toBe(
+            '\n1. tdollskin 次数:2\n2. tdoll 次数:1\n'
+        );
+    });
+    it.concurrent('empty title and data', () => {
         const data: any[] = [];
 
-        expect(formatOutput(data)).toBe('');
+        expect(formatOutput(data, '', '')).toBe('\n' + '无数据');
     });
 
-    it.concurrent('emtpy data', () => {
+    it.concurrent('wrong data', () => {
         const data = [{}];
 
-        expect(formatOutput(data)).toBe('');
+        expect(formatOutput(data, '', 'Title')).toBe('Title\n');
     });
 
     it.concurrent('2 columns, non string data type', () => {
         const data = [
             {
                 cmd: 'tdollskin',
-                params: 53,
+                count: 2,
             },
             {
                 cmd: 'tdoll',
-                params: 'm4',
+                count: 1,
             },
         ];
 
-        expect(formatOutput(data)).toBe(`cmd    params
-
-tdollskin    53
-tdoll    m4
-`);
-    });
-
-    it.concurrent('2 columns', () => {
-        const data = [
-            {
-                cmd: 'tdollskin',
-                params: '53',
-            },
-            {
-                cmd: 'tdoll',
-                params: 'm4',
-            },
-        ];
-
-        expect(formatOutput(data)).toBe(`cmd    params
-
-tdollskin    53
-tdoll    m4
-`);
-    });
-
-    it.concurrent('should transform sql data to table', () => {
-        const data = [
-            {
-                cmd: 'tdollskin',
-                params: 53,
-                user_id: 523145043,
-                group_id: 555555,
-                received_time: '2024-05-21 21:30:19.661',
-                response_time: '2024-05-21 21:30:19.665',
-                elapse_time: 4,
-            },
-            {
-                cmd: 'tdoll',
-                params: 'm4',
-                user_id: 523145043,
-                group_id: 555555,
-                received_time: '2024-05-21 21:30:57.768',
-                response_time: '2024-05-21 21:30:57.772',
-                elapse_time: 4,
-            },
-        ];
-
-        expect(formatOutput(data)).toBe(
-            `cmd    params    user_id    group_id    received_time    response_time    elapse_time
-
-tdollskin    53    523145043    555555    2024-05-21 21:30:19.661    2024-05-21 21:30:19.665    4
-tdoll    m4    523145043    555555    2024-05-21 21:30:57.768    2024-05-21 21:30:57.772    4
+        expect(formatOutput(data, 'cmd', '命令使用次数统计Top2')).toBe(
+            `命令使用次数统计Top2
+1. tdollskin 次数:2
+2. tdoll 次数:1
 `
         );
     });
