@@ -8,7 +8,7 @@ export const LogCommandRegister: IRegister = {
     isAdmin: true,
     exec: async (ctx) => {
         if (ctx.params.size > 1) {
-            await ctx.reply('需要一个参数, 示例: #log tdoll');
+            await ctx.reply('最多为一个参数, 示例: #log tdoll');
             return;
         }
 
@@ -20,13 +20,17 @@ export const LogCommandRegister: IRegister = {
             }
         });
 
-        if (command === 'all') {
+        if (!command) {
             const allCmdLog = await getAllCmdLog();
-            const output = formatOutput(allCmdLog);
+            const output = formatOutput(allCmdLog, 'cmd', '命令用量统计Top 10');
             await ctx.reply(output);
         } else {
             const logData = await getLogByCmd(command);
-            const output = formatOutput(logData);
+            const output = formatOutput(
+                logData,
+                'params',
+                `命令'${command}'参数用量统计Top 10`
+            );
             await ctx.reply(output);
         }
     },
