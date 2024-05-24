@@ -32,7 +32,7 @@ import {
     QADeleteCommandRegister,
 } from './qa/register';
 import { VersionCommandRegister } from './version/register';
-import { LogCommandRegister } from './log/register';
+import { LogCommandRegister, LogSelfRegister } from './log/register';
 import { ClickHouseService } from '../services/clickHouse.service';
 
 const allCommands: IRegister[] = [
@@ -54,6 +54,7 @@ const allCommands: IRegister[] = [
     QADeleteCommandRegister,
     VersionCommandRegister,
     LogCommandRegister,
+    LogSelfRegister,
 ];
 
 export const initCommands = (env: GlobalEnv) => {
