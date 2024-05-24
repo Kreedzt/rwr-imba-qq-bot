@@ -17,6 +17,7 @@ yarn-error.log*
 .npm
 .eslintcache
 coverage/
+sonar-report.xml
 
 # local test file
 src/info.json

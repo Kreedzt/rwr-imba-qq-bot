@@ -15,9 +15,13 @@ export default defineConfig({
         coverage: {
             all: true,
             include: ['src'],
-            provider: 'istanbul', // or 'c8',
-            reporter: ['text', 'json', 'cobertura', 'html'],
+            provider: 'istanbul',
+            reporter: ['text', 'json', 'cobertura', 'html', 'lcov'],
         },
         includeSource: ['src'],
+        reporters: [
+            'default',
+            ['vitest-sonar-reporter', { outputFile: 'sonar-report.xml' }],
+        ],
     },
 });
