@@ -29,14 +29,14 @@ export const LogSelfRegister: IRegister = {
         });
 
         if (!command) {
-            const allCmdLog = await getLogByCmdAndUser(
-                ctx.event.user_id,
-                command
-            );
+            const allCmdLog = await getLogByUser(ctx.event.user_id);
             const output = formatOutput(allCmdLog, 'cmd', '命令用量统计Top 10');
             await ctx.reply(output);
         } else {
-            const logData = await getLogByUser(ctx.event.user_id);
+            const logData = await getLogByCmdAndUser(
+                ctx.event.user_id,
+                command
+            );
             const output = formatOutput(
                 logData,
                 'params',
