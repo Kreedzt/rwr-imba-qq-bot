@@ -33,11 +33,7 @@ export const LogSelfRegister: IRegister = {
                 ctx.event.user_id,
                 command
             );
-            const output = formatOutput(
-                allCmdLog,
-                'params',
-                '命令用量统计Top 10'
-            );
+            const output = formatOutput(allCmdLog, 'cmd', '命令用量统计Top 10');
             await ctx.reply(output);
         } else {
             const logData = await getLogByUser(ctx.event.user_id);
