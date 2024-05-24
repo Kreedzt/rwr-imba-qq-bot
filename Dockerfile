@@ -25,7 +25,7 @@ RUN apk add --no-cache --virtual .build-deps \
 
 COPY ./ ./
 
-RUN npm run build:release
+RUN npm run build
 
 # run
 FROM node:18.16.0-alpine
