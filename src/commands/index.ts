@@ -147,6 +147,8 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
         return;
     }
 
+    const isAdminUser = env.ADMIN_QQ_LIST.some((qq) => event.user_id === qq);
+
     if (firstCommand === hitCommand.name || firstCommand === hitCommand.alias) {
         // handling... skiped re-replay
         if (handlingRequestSet.has(event.message_id)) {
@@ -157,7 +159,11 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
             handlingRequestSet.add(event.message_id);
 
             const timeIntervalRes = checkTimeIntervalValid(hitCommand, event);
-            if (!hitCommand.isAdmin && !timeIntervalRes.success) {
+            if (
+                !isAdminUser &&
+                !hitCommand.isAdmin &&
+                !timeIntervalRes.success
+            ) {
                 // seconds
                 const diffs = timeIntervalRes.amount! / 1000;
                 // ms
