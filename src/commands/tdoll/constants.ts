@@ -24,4 +24,4 @@ export const TDOLL_CATEGORY_CN_MAPPER: Record<string, TDollCategoryEnum> = {
     手枪: TDollCategoryEnum.HG,
 };
 
-export const TDOLL_SKIN_NOT_FOUND_MSG = '未找到指定人形编号的皮肤, 请检查输入是否有误!\n若确认输入无误, 多数是 gfwiki 数据问题, 请尝试去 gfwiki 查看数据(这并不是 bot 本身问题)';
+export const TDOLL_SKIN_NOT_FOUND_MSG = '未找到指定人形编号的皮肤, 请检查输入是否有误, 请注意需要输入编号而非名称!\n若确认输入编号无误, 多数是 gfwiki 数据问题, 请尝试去 gfwiki 查看数据(这并不是 bot 本身问题)';
