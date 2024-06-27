@@ -203,15 +203,19 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
             const stringParams = paramsList.join(' ');
 
             if (process.env.CLICKHOUSE_HOST) {
-                await ClickHouseService.getInst().insertCmdData({
-                    cmd: hitCommand.name,
-                    params: stringParams,
-                    user_id: event.user_id,
-                    group_id: event.group_id,
-                    received_time: startDate,
-                    response_time: endDate,
-                    elapse_time: diff,
-                });
+                ClickHouseService.getInst()
+                    .insertCmdData({
+                        cmd: hitCommand.name,
+                        params: stringParams,
+                        user_id: event.user_id,
+                        group_id: event.group_id,
+                        received_time: startDate,
+                        response_time: endDate,
+                        elapse_time: diff,
+                    })
+                    .catch((err) => {
+                        logger.error('insertCmdData error', err);
+                    });
             }
         } catch (e) {
             await quickReply(event, '命令执行失败, 请检查日志');
