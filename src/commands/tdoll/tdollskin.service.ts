@@ -2,15 +2,30 @@ import * as fs from 'node:fs/promises';
 import { AsyncCacheService } from '../../services/asyncCache.service';
 import { ITDollSkinDataItem } from './types';
 
-class TDollSkinService extends AsyncCacheService<Record<string, ITDollSkinDataItem>> {
+class TDollSkinService extends AsyncCacheService<
+    Record<string, ITDollSkinDataItem>
+> {
     cacheTime = 24 * 60 * 60;
+
+    lastRaw = '';
+    lastData = {} as Record<string, ITDollSkinDataItem>;
 
     async fetchData() {
         const raw = await fs.readFile(
             process.env.TDOLL_SKIN_DATA_FILE as string,
             'utf-8'
         );
-        return JSON.parse(raw) as Record<string, ITDollSkinDataItem>;
+
+        if (raw !== this.lastRaw) {
+            const nextData = JSON.parse(raw) as Record<
+                string,
+                ITDollSkinDataItem
+            >;
+            this.lastRaw = raw;
+            this.lastData = nextData;
+        }
+
+        return this.lastData;
     }
 }
 

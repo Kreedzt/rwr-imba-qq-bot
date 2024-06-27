@@ -6,6 +6,7 @@ import {
 } from './utils';
 import { TDollSvc } from './tdoll.service';
 import { TDollSkinSvc } from './tdollskin.service';
+import { logger } from '../../utils/logger';
 
 export const TDollCommandRegister: IRegister = {
     name: 'tdoll',
@@ -72,8 +73,13 @@ export const TDollSkinCommandRegister: IRegister = {
             return;
         }
 
-        const tdollData = await TDollSvc.getData();
-        const tdollSkinData = await TDollSkinSvc.getData();
+        const start = Date.now();
+        const [tdollData, tdollSkinData] = await Promise.all([
+            TDollSvc.getData(),
+            TDollSkinSvc.getData(),
+        ]);
+        const end = Date.now();
+        logger.info(`fetch tdoll & tdollSkinData time: ${end - start}ms`);
 
         let query: string = '';
 
