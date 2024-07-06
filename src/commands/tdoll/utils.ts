@@ -1,11 +1,16 @@
 import * as fs from 'fs';
 import { GlobalEnv } from '../../types';
-import { ITDollDataItem, ITDollSkinDataItem } from './types';
+import {
+    ITDollDataItem,
+    ITDollSkinDataItem,
+    ITDollSkinPrintSkinItem,
+} from './types';
 import {
     TDOLL_CATEGORY_CN_MAPPER,
     TDOLL_CATEGORY_EN_MAPPER,
     TDOLL_RANDOM_KEY,
-    TDOLL_SKIN_NOT_FOUND, TDOLL_SKIN_NOT_FOUND_MSG,
+    TDOLL_SKIN_NOT_FOUND,
+    TDOLL_SKIN_NOT_FOUND_MSG,
     TDOLL_URL_PREFIX,
 } from './constants';
 import { resizeImg } from '../../utils/imgproxy';
@@ -162,12 +167,10 @@ export const formatTDollSkinData = (
     skin.forEach((item) => {
         res += `${item.index + 1}. ${item.title} ID:${item.value}\n`;
         if (item.image) {
-            const imageUrl = item.image.pic.includes(TDOLL_URL_PREFIX) ? item.image.pic : `${TDOLL_URL_PREFIX}${item.image.pic}`;
-            res += `[CQ:image,file=${resizeImg(
-                imageUrl,
-                150,
-                150
-            )},cache=0]\n`;
+            const imageUrl = item.image.pic.includes(TDOLL_URL_PREFIX)
+                ? item.image.pic
+                : `${TDOLL_URL_PREFIX}${item.image.pic}`;
+            res += `[CQ:image,file=${resizeImg(imageUrl, 150, 150)},cache=0]\n`;
         }
     });
 
@@ -198,4 +201,36 @@ export const getTDollSkinReplyText = (
     const skin = record[query];
 
     return formatTDollSkinData(query, tdollData, skin);
+};
+
+/**
+ * Get tdoll skin print data, ready to print on canvas
+ * @param query
+ * @param tdollData
+ * @param record
+ */
+export const getTDollSkinPrintData = (
+    query: string,
+    tdollData: ITDollDataItem[],
+    record: Record<string, ITDollSkinDataItem>
+): ITDollSkinPrintSkinItem[] => {
+    if (!(query in record)) {
+        return [];
+    }
+
+    const skin = record[query];
+
+    return skin.map((s) => {
+        const imgUrl = s.image?.pic.includes(TDOLL_URL_PREFIX)
+            ? s.image?.pic
+            : `${TDOLL_URL_PREFIX}${s.image?.pic}`;
+        const item: ITDollSkinPrintSkinItem = {
+            title: s.title,
+            src: s.image?.pic ? resizeImg(imgUrl, 150, 150) : '',
+            width: 150,
+            height: 150,
+            id: +s.value,
+        };
+        return item;
+    });
 };

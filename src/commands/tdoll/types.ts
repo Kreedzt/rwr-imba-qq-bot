@@ -99,3 +99,16 @@ export type ITDollSkinDataItem = Array<{
     value: string;
     image?: ITDollSkinImage;
 }>;
+
+export interface ITDollSkinPrintSkinItem {
+    src: string;
+    id: number;
+    title: string;
+    width: number;
+    height: number;
+}
+
+export interface ITDollSkinPrintData {
+    doll: ITDollDataItem;
+    skins: ITDollSkinPrintSkinItem[];
+}
