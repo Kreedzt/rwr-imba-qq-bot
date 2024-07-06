@@ -7,8 +7,10 @@ import type {
     ResServerItem,
     OnlineServerItem,
     IUserMatchedServerItem,
+    IMapDataItem,
 } from './types';
 import { QUERY_USER_IN_SERVERS_LIMIT } from './constants';
+import * as fs from 'node:fs/promises';
 
 const SERVER_API_URL = 'http://rwr.runningwithrifles.com/rwr_server_list';
 
@@ -367,7 +369,7 @@ export const calcCanvasTextWidth = (text: string, base: number): number => {
  * @param user query user
  */
 export const getWhereisHeaderSectionText = (
-    user: string,
+    user: string
 ): {
     staticSection: string;
     userSection: string;
@@ -390,4 +392,22 @@ export const getWhereisFooterSectionText = (count: number) => {
     }
 
     return `共计 ${count} 位玩家结果(只展示 ${QUERY_USER_IN_SERVERS_LIMIT} 位玩家列表)`;
+};
+
+export const readMapData = async (
+    mapDataFile: string
+): Promise<IMapDataItem[]> => {
+    try {
+        const data = await fs.readFile(mapDataFile, 'utf8');
+        const mapData = JSON.parse(data) as IMapDataItem[];
+        return mapData;
+    } catch (e) {
+        logger.error('> readMapData error');
+        logger.error(e);
+        return [];
+    }
+};
+
+export const getMapTextInCanvas = (m: IMapDataItem) => {
+    return `${m.id}(${m.name})`;
 };

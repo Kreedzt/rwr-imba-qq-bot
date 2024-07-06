@@ -5,13 +5,20 @@ import dayjs from 'dayjs';
 import {
     calcCanvasTextWidth,
     getCountColor,
+    getMapShortName,
+    getMapTextInCanvas,
     getServerInfoDisplaySectionText,
     getServersHeaderDisplaySectionText,
     getUserMatchedServerDisplaySectionText,
     getWhereisFooterSectionText,
     getWhereisHeaderSectionText,
 } from './utils';
-import { IUserMatchedServerItem, OnlineServerItem } from './types';
+import {
+    IMapDataItem,
+    IUserMatchedServerItem,
+    OnlineServerItem,
+} from './types';
+import { map } from 'lodash';
 
 const OUTPUT_FOLDER = 'out';
 
@@ -400,4 +407,191 @@ export const printUserInServerListPng = (
     context.fillText(footerText, 10, nextStartY + 20);
 
     return getCanvasOutput(canvas, fileName);
+};
+
+/**
+ * output map png spacing
+ */
+const UNDER_MAP_SERVER_SPACING = 20;
+
+export const printMapPng = (
+    serverList: OnlineServerItem[],
+    mapData: IMapDataItem[],
+    fileName: string
+): string => {
+    const fnStartTime = dayjs();
+
+    if (!fs.existsSync(OUTPUT_FOLDER)) {
+        fs.mkdirSync(OUTPUT_FOLDER);
+    }
+
+    const titleData = `共计 ${mapData.length} 项地图数据`;
+
+    const titleWidth = calcCanvasTextWidth(titleData, 20) + 20;
+
+    let maxLengthStr = '';
+    serverList.forEach((s) => {
+        const sectionData = getServerInfoDisplaySectionText(s);
+        const outputText =
+            sectionData.serverSection +
+            sectionData.playersSection +
+            new Array(8).fill('');
+        if (outputText.length > maxLengthStr.length) {
+            maxLengthStr = outputText;
+        }
+    });
+
+    mapData.forEach((m) => {
+        const sectionData = getMapTextInCanvas(m);
+
+        const outputText = sectionData;
+
+        if (outputText.length > maxLengthStr.length) {
+            maxLengthStr = outputText;
+        }
+    });
+
+    const width = Math.max(
+        titleWidth,
+        calcCanvasTextWidth(maxLengthStr, 14) + 20
+    );
+    const height = 120 + serverList.length * 40 + mapData.length * 40;
+
+    const canvas = createCanvas(width, height);
+    const context = canvas.getContext('2d');
+
+    /**
+     * Layout
+     */
+    context.fillStyle = '#451a03';
+    context.fillRect(0, 0, width, height);
+
+    /**
+     * Header
+     */
+    context.font = 'bold 20pt Consolas';
+    context.textAlign = 'left';
+    context.textBaseline = 'top';
+    context.fillStyle = '#3574d4';
+
+    context.fillStyle = '#fff';
+    context.fillText(titleData, 10, 10);
+
+    /**
+     * Content
+     */
+    let nextStartY = 10 + 40 + 10;
+
+    context.font = 'bold 20pt Consolas';
+    context.textAlign = 'left';
+    context.textBaseline = 'top';
+    context.fillStyle = '#3574d4';
+
+    /**
+     * Border start Y
+     */
+    const rectStartY = nextStartY + 10;
+
+    let maxRectWidth = 0;
+    mapData.forEach((m) => {
+        context.fillStyle = '#bfdbfe';
+        const mapText = getMapTextInCanvas(m);
+        // map section
+        context.fillText(mapText, 20, 10 + nextStartY);
+        nextStartY += 40;
+
+        const mapSectionWidth = context.measureText(mapText).width;
+        if (mapSectionWidth > maxRectWidth) {
+            maxRectWidth = mapSectionWidth;
+        }
+
+        serverList
+            .filter((s) => {
+                return getMapShortName(s.map_id) === m.id;
+            })
+            .forEach((s) => {
+                // server section
+                const serverText = getServerInfoDisplaySectionText(s);
+                context.fillStyle = '#fff';
+                context.fillText(
+                    serverText.serverSection,
+                    20 + UNDER_MAP_SERVER_SPACING,
+                    10 + nextStartY
+                );
+                const serverSectionWidth = context.measureText(
+                    serverText.serverSection
+                ).width;
+
+                // count section
+                context.fillStyle = getCountColor(
+                    s.current_players,
+                    s.max_players
+                );
+                context.fillText(
+                    serverText.playersSection,
+                    20 + UNDER_MAP_SERVER_SPACING + serverSectionWidth,
+                    10 + nextStartY
+                );
+
+                // count section
+                context.fillStyle = getCountColor(
+                    s.current_players,
+                    s.max_players
+                );
+                context.fillText(
+                    serverText.playersSection,
+                    20 + UNDER_MAP_SERVER_SPACING + serverSectionWidth,
+                    10 + nextStartY
+                );
+
+                nextStartY += 40;
+
+                const allText =
+                    serverText.serverSection + serverText.playersSection;
+                const allTextWidth =
+                    context.measureText(allText).width +
+                    UNDER_MAP_SERVER_SPACING;
+
+                if (allTextWidth > maxRectWidth) {
+                    maxRectWidth = allTextWidth;
+                }
+            });
+    });
+
+    /**
+     * Render rect
+     */
+    const maxTextInfo = context.measureText(maxLengthStr);
+    const maxTextWidth = maxTextInfo.width;
+    context.strokeStyle = '#f48225';
+    context.rect(
+        10,
+        rectStartY,
+        maxRectWidth + 20,
+        mapData.length * 40 + serverList.length * 40
+    );
+    context.stroke();
+
+    /**
+     * Footer
+     */
+    context.fillStyle = '#fff';
+    context.font = 'bold 10pt Consolas';
+    context.textAlign = 'left';
+    const fnEndTime = dayjs();
+
+    const calcCost = fnEndTime.diff(fnStartTime);
+    const footerText = getFooterText(calcCost, fnEndTime);
+    context.fillText(footerText, 10, nextStartY + 20);
+
+    const buffer = canvas.toBuffer('image/png', {
+        compressionLevel: 3,
+        filters: canvas.PNG_FILTER_NONE,
+    });
+
+    const outputPath = path.join(process.cwd(), OUTPUT_FOLDER, `./${fileName}`);
+
+    fs.writeFileSync(outputPath, buffer);
+
+    return outputPath;
 };

@@ -14,6 +14,7 @@ export interface GlobalEnv {
     WEBSITE_DATA_FILE: string;
     TDOLL_DATA_FILE: string;
     TDOLL_SKIN_DATA_FILE: string;
+    MAPS_DATA_FILE: string;
     QA_DATA_FILE: string;
     GLM_APIKEY: string;
     GLM_KNOWLEDGE_ID: string;
