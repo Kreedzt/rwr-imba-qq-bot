@@ -7,6 +7,7 @@ import {
 } from '../types';
 import {
     AnalyticsCommandRegister,
+    MapsCommandRegister,
     ServersCommandRegister,
     WhereIsCommandRegister,
 } from './servers/register';
@@ -40,6 +41,7 @@ const allCommands: IRegister[] = [
     ServersCommandRegister,
     WhereIsCommandRegister,
     AnalyticsCommandRegister,
+    MapsCommandRegister,
     RollCommandRegister,
     SetuCommandRegister,
     TouhouCommandRegister,

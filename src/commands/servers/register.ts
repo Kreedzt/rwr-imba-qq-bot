@@ -1,13 +1,22 @@
 import { logger } from '../../utils/logger';
 import { GlobalEnv, IRegister } from '../../types';
 import { getStaticHttpPath } from '../../utils/cmdreq';
-import { printServerListPng, printUserInServerListPng } from './canvas';
-import { SERVERS_OUTPUT_FILE, WHEREIS_OUTPUT_FILE } from './constants';
-import { getUserMatchedList, queryAllServers } from './utils';
+import {
+    printMapPng,
+    printServerListPng,
+    printUserInServerListPng,
+} from './canvas';
+import {
+    MAPS_OUTPUT_FILE,
+    SERVERS_OUTPUT_FILE,
+    WHEREIS_OUTPUT_FILE,
+} from './constants';
+import { getUserMatchedList, queryAllServers, readMapData } from './utils';
 import { printChartPng, printHoursChartPng } from './chart';
 import { AnalysticsTask } from './analysticsTask';
 import { AnalysticsHoursTask } from './analyticsHoursTask';
 import { parseIgnoreSpace } from '../../utils/cmd';
+import { IMapDataItem } from './types';
 
 export const ServersCommandRegister: IRegister = {
     name: 'servers',
@@ -139,5 +148,32 @@ export const AnalyticsCommandRegister: IRegister = {
         logger.info('AnalysticsCommandRegister::init()');
         AnalysticsTask.start(env);
         AnalysticsHoursTask.start(env);
+    },
+};
+
+let MAP_DATA: IMapDataItem[] = [];
+
+export const MapsCommandRegister: IRegister = {
+    name: 'maps',
+    alias: 'm',
+    description: '查询所有 rwr 地图列表.[5s CD]',
+    isAdmin: false,
+    timesInterval: 5,
+    exec: async (ctx) => {
+        const serverList = await queryAllServers(ctx.env.SERVERS_MATCH_REGEX);
+
+        if (!MAP_DATA.length) {
+            const data = await readMapData(ctx.env.MAPS_DATA_FILE);
+            MAP_DATA = data;
+        }
+
+        printMapPng(serverList, MAP_DATA, MAPS_OUTPUT_FILE);
+
+        let cqOutput = `[CQ:image,file=${getStaticHttpPath(
+            ctx.env,
+            MAPS_OUTPUT_FILE
+        )},cache=0,c=8]`;
+
+        await ctx.reply(cqOutput);
     },
 };

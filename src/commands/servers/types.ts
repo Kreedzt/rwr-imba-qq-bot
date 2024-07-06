@@ -44,3 +44,8 @@ export interface IUserMatchedServerItem {
     user: string;
     server: OnlineServerItem;
 }
+
+export interface IMapDataItem {
+    name: string;
+    id: string;
+}
