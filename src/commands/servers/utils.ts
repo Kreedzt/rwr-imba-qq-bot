@@ -409,5 +409,5 @@ export const readMapData = async (
 };
 
 export const getMapTextInCanvas = (m: IMapDataItem) => {
-    return `${m.id}(${m.name})`;
+    return `${m.id}: ${m.name}`;
 };
