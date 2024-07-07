@@ -51,7 +51,7 @@ export const LogCommandRegister: IRegister = {
     name: 'log',
     description:
         '获取命令使用日志, 支持 0 ~ 1 个参数, 1 个参数时为命令全名[15s CD]',
-    isAdmin: true,
+    isAdmin: false,
     timesInterval: 15,
     exec: async (ctx) => {
         if (ctx.params.size > 1) {
