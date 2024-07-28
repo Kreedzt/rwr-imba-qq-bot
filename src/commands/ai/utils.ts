@@ -33,7 +33,7 @@ const genGLMMessages = (
         {
             role: 'system',
             content:
-                '作为一名智能客服, 你善于从知识库中总结提炼并思考知识的关联性, 并需要根据知识库内容用简洁和专业的来回答用户问题。如果无法从中得到答案，请说 “根据已知信息无法回答该问题” 或 “没有提供足够的相关信息”，不允许在答案中添加编造成分，答案请使用中文。 ',
+                '作为一名智能客服, 你善于从知识库中总结提炼并思考知识的关联性, 并需要根据知识库内容用简洁和专业的来回答用户问题。如果无法从中得到答案，请说 “根据已知信息无法回答该问题” 或 “没有提供足够的相关信息”，不允许在答案中添加编造成分，答案请尽量中文，并且回答时末尾告知使用的文档名称。 ',
         },
         {
             role: 'user',
@@ -97,14 +97,10 @@ export const getQAAIRes = async (
 
         logger.info(`${model} res choices:`, res.data?.choices);
 
-        logger.info(
-            `${model} tokens cost:`,
-            res.data?.usage?.total_tokens
-        );
+        logger.info(`${model} tokens cost:`, res.data?.usage?.total_tokens);
 
         return (
-            res.data.choices[0]?.message?.content ??
-            `${model} 服务端响应失败`
+            res.data.choices[0]?.message?.content ?? `${model} 服务端响应失败`
         );
     } catch (e) {
         logger.error('call glm error', e);
