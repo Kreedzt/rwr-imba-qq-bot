@@ -6,9 +6,9 @@ export const AiCommandRegister: IRegister = {
     name: 'ai',
     description: '使用AI模型与知识库内容进行智能问答[20s CD]',
     timesInterval: 20,
-    isAdmin: true,
+    isAdmin: false,
     parseParams: (msg: string) => {
-        return parseIgnoreSpace(['ai'], msg);
+        return parseIgnoreSpace(['#ai'], msg);
     },
     exec: async (ctx) => {
         let query: string = '';
@@ -23,6 +23,9 @@ export const AiCommandRegister: IRegister = {
         if (!ctx.env.GLM_APIKEY) {
             replyText = '未配置GLM_APIKEY, 无法使用AI模型进行智能问答';
         } else {
+            await ctx.reply(
+                `正在使用[${ctx.env.GLM_MODEL}]模型查询中, 请耐心等待...`
+            );
             replyText = await getAIQAMatchRes(query, ctx);
         }
 
