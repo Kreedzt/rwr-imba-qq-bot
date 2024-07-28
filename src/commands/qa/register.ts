@@ -12,7 +12,6 @@ import {
     readQAData,
     writeQAData,
 } from './utils';
-import * as repl from 'repl';
 import { parseIgnoreSpace } from '../../utils/cmd';
 
 let qaData: IQADataItem[] = [];
