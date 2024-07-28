@@ -18,6 +18,7 @@ export interface GlobalEnv {
     QA_DATA_FILE: string;
     GLM_APIKEY: string;
     GLM_KNOWLEDGE_ID: string;
+    GLM_MODEL: string;
     IMGPROXY_URL: string;
 }
 
