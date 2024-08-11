@@ -7,6 +7,7 @@ import {
 import { TDollSvc } from './tdoll.service';
 import { TDollSkinSvc } from './tdollskin.service';
 import { logger } from '../../utils/logger';
+import { TDOLL_SKIN_END_TEXT } from './constants';
 
 export const TDollCommandRegister: IRegister = {
     name: 'tdoll',
@@ -96,11 +97,9 @@ export const TDollSkinCommandRegister: IRegister = {
             }
         });
 
-        const replyText = getTDollSkinReplyText(
-            query,
-            tdollData,
-            tdollSkinData
-        );
+        let replyText = getTDollSkinReplyText(query, tdollData, tdollSkinData);
+
+        replyText += `\n${TDOLL_SKIN_END_TEXT}`;
 
         await ctx.reply(replyText);
     },
