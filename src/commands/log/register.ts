@@ -11,6 +11,10 @@ export const LogSelfRegister: IRegister = {
     name: 'logself',
     description:
         '获取自己的命令使用日志, 支持 0 ~ 1 个参数, 1 个参数时为命令全名[15s CD]',
+    hint: [
+        '查询自己使用命令次数: #logself',
+        '查询指定使用命令参数: #logself servers',
+    ],
     alias: 'ls',
     isAdmin: false,
     timesInterval: 15,
@@ -51,6 +55,10 @@ export const LogCommandRegister: IRegister = {
     name: 'log',
     description:
         '获取命令使用日志, 支持 0 ~ 1 个参数, 1 个参数时为命令全名[15s CD]',
+    hint: [
+        '查询所有人命令使用次数: #log',
+        '查询所有人指定命令参数: #log servers',
+    ],
     isAdmin: false,
     timesInterval: 15,
     exec: async (ctx) => {

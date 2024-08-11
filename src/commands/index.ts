@@ -14,7 +14,11 @@ import {
 import { RollCommandRegister } from './roll/register';
 import { logger } from '../utils/logger';
 import { RemoteService } from '../services/remote.service';
-import { getCommandParams, getFirstCommand } from '../utils/cmd';
+import {
+    getCommandParams,
+    getFirstCommand,
+    parseIgnoreSpace,
+} from '../utils/cmd';
 import { checkTimeIntervalValid } from '../utils/cmdreq';
 import { FuckCommandRegister } from './fuck/register';
 import { SetuCommandRegister } from './setu/register';
@@ -113,24 +117,52 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
 
     // help:
     if (firstCommand === 'help' || firstCommand === 'h') {
-        let helpText = '帮助列表: \n';
+        const params = parseIgnoreSpace(['#help', '#h'], msg);
 
-        avaliableCommands
-            .filter((c) => {
-                if (
-                    c.isAdmin &&
-                    !env.ADMIN_QQ_LIST.some((qq) => event.user_id === qq)
-                ) {
-                    return false;
-                }
+        let query = '';
+        params.forEach((v, k) => {
+            if (!query) {
+                query = k;
+            }
+        });
 
-                return true;
-            })
-            .forEach((c) => {
-                helpText += `#${c.name}${c.alias ? `(${c.alias})` : ''}: ${
-                    c.description
-                }\n\n`;
-            });
+        // spec cmd help
+        let helpText = '';
+
+        if (query) {
+            const hitCommand = avaliableCommands.find(
+                (c) => c.name === query || c.alias === query
+            );
+
+            if (hitCommand) {
+                helpText = `#${hitCommand.name}(${hitCommand.alias}): 帮助列表\n\n`;
+
+                hitCommand.hint?.forEach((h) => {
+                    helpText += `${h}\n\n`;
+                });
+            } else {
+                helpText = '未找到对应命令\n';
+            }
+        } else {
+            helpText = '帮助列表: \n';
+
+            avaliableCommands
+                .filter((c) => {
+                    if (
+                        c.isAdmin &&
+                        !env.ADMIN_QQ_LIST.some((qq) => event.user_id === qq)
+                    ) {
+                        return false;
+                    }
+
+                    return true;
+                })
+                .forEach((c) => {
+                    helpText += `#${c.name}${c.alias ? `(${c.alias})` : ''}: ${
+                        c.description
+                    }\n\n`;
+                });
+        }
 
         await quickReply(event, helpText);
         return;

@@ -21,6 +21,7 @@ export const QACommandRegister: IRegister = {
     alias: 'q',
     description:
         '根据定义好的问答列表问题查询答案, 需要一个参数, 支持模糊匹配, 支持拼音缩写及全拼.[10s CD]',
+    hint: ['查询问题答案: #qa Question1', '获取问题列表: #qa'],
     timesInterval: 10,
     isAdmin: false,
     parseParams: (msg: string) => {
@@ -44,12 +45,7 @@ export const QACommandRegister: IRegister = {
             }
         });
 
-        let replyText = '';
-        if (!ctx.env.GLM_APIKEY) {
-            replyText = getQAMatchRes(qaData, query);
-        } else {
-            replyText = await getSmartQAMatchRes(qaData, query, ctx);
-        }
+        const replyText = getQAMatchRes(qaData, query);
 
         await ctx.reply(replyText);
     },
@@ -58,6 +54,7 @@ export const QACommandRegister: IRegister = {
 export const QADefineCommandRegister: IRegister = {
     name: 'qadefine',
     description: '定义 qa 的问答列表',
+    hint: ['定义问题答案(重复问题会被覆盖): #qadefine 问题 答案'],
     timesInterval: 0,
     isAdmin: true,
     parseParams: (msg: string) => {
@@ -137,6 +134,7 @@ export const QADefineCommandRegister: IRegister = {
 export const QADeleteCommandRegister: IRegister = {
     name: 'qadelete',
     description: '删除 qa 的问答',
+    hint: ['删除问题答案: #qadelete 问题'],
     timesInterval: 0,
     isAdmin: true,
     exec: async (ctx) => {
