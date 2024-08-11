@@ -12,6 +12,12 @@ export const TDollCommandRegister: IRegister = {
     name: 'tdoll',
     alias: 'td',
     description: '根据枪名查询数据, 支持模糊匹配, 忽略大小写及符号.[10s CD]',
+    hint: [
+        '按名称查询指定武器数据: #tdoll M4A1',
+        '按名称模糊查询武器数据: #tdoll m4',
+        '随机武器: #tdoll random',
+        '随机 AR 武器: #tdoll random ar',
+    ],
     timesInterval: 10,
     isAdmin: false,
     exec: async (ctx) => {
@@ -65,6 +71,7 @@ export const TDollSkinCommandRegister: IRegister = {
     name: 'tdollskin',
     alias: 'ts',
     description: '根据武器编号查询皮肤数据, 需要输入一个编号参数.[10s CD]',
+    hint: ['查询指定 ID 武器皮肤数据: #tdollskin 2'],
     timesInterval: 10,
     isAdmin: false,
     exec: async (ctx) => {

@@ -21,6 +21,7 @@ import { IMapDataItem } from './types';
 export const ServersCommandRegister: IRegister = {
     name: 'servers',
     alias: 's',
+    hint: ['查询所有在线的 rwr 服务器列表: #servers'],
     description: '查询所有在线的 rwr 服务器列表.[5s CD]',
     isAdmin: false,
     timesInterval: 5,
@@ -46,6 +47,7 @@ export const WhereIsCommandRegister: IRegister = {
     name: 'whereis',
     alias: 'w',
     description: '查询玩家所在的 rwr 服务器, 需要一个参数.[5s CD]',
+    hint: ['查询目标玩家所在服务器: #whereis KREEDZT'],
     isAdmin: false,
     timesInterval: 5,
     parseParams: (msg: string) => {
@@ -112,6 +114,10 @@ export const AnalyticsCommandRegister: IRegister = {
     alias: 'a',
     description:
         '查询服务器统计信息(参数 h 表明查询最近 24 小时的数据, d 表明查询最近 7 天的数据).[15s CD]',
+    hint: [
+        '按周查询服务器统计信息: #analytics',
+        '按小时查询服务器统计信息: #analytics h',
+    ],
     isAdmin: false,
     timesInterval: 15,
     exec: async (ctx) => {
@@ -157,6 +163,7 @@ export const MapsCommandRegister: IRegister = {
     name: 'maps',
     alias: 'm',
     description: '查询所有 rwr 地图列表.[5s CD]',
+    hint: ['按地图顺序查询服务器状态列表: #maps'],
     isAdmin: false,
     timesInterval: 5,
     exec: async (ctx) => {
