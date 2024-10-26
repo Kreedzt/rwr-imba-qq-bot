@@ -3,11 +3,13 @@ import { GlobalEnv, IRegister } from '../../types';
 import { getStaticHttpPath } from '../../utils/cmdreq';
 import {
     printMapPng,
+    printPlayersPng,
     printServerListPng,
     printUserInServerListPng,
 } from './canvas';
 import {
     MAPS_OUTPUT_FILE,
+    PLAYERS_OUTPUT_FILE,
     SERVERS_OUTPUT_FILE,
     WHEREIS_OUTPUT_FILE,
 } from './constants';
@@ -181,6 +183,31 @@ export const MapsCommandRegister: IRegister = {
             ctx.env,
             MAPS_OUTPUT_FILE
         )},cache=0,c=8]`;
+
+        await ctx.reply(cqOutput);
+    },
+};
+
+export const PlayersCommandRegister: IRegister = {
+    name: 'players',
+    alias: 'p',
+    hint: ['查询所有在线的 rwr 玩家列表: #players'],
+    description: '查询所有服务器内在线的 rwr 玩家列表.[5s CD]',
+    isAdmin: false,
+    timesInterval: 5,
+    exec: async (ctx) => {
+        const serverList = await queryAllServers(ctx.env.SERVERS_MATCH_REGEX);
+
+        printPlayersPng(serverList, PLAYERS_OUTPUT_FILE);
+
+        let cqOutput = `[CQ:image,file=${getStaticHttpPath(
+            ctx.env,
+            PLAYERS_OUTPUT_FILE
+        )},cache=0,c=8]`;
+
+        if (serverList.length === 0 && ctx.env.SERVERS_FALLBACK_URL) {
+            cqOutput += `\n检测到当前服务器列表为空, 请尝试使用备用查询地址: ${ctx.env.SERVERS_FALLBACK_URL}`;
+        }
 
         await ctx.reply(cqOutput);
     },
