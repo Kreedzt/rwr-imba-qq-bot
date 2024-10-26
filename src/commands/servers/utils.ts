@@ -411,3 +411,19 @@ export const readMapData = async (
 export const getMapTextInCanvas = (m: IMapDataItem) => {
     return `${m.id}: ${m.name}`;
 };
+
+/**
+ * Get correct players in server
+ * @param server server item
+ * @returns players name list
+ */
+export const getPlayersInServer = (server: OnlineServerItem): string[] => {
+    let playersArr: string[] = [];
+    if (typeof server.player === 'string') {
+        playersArr.push(server.player);
+    } else if (Array.isArray(server.player)) {
+        playersArr = server.player;
+    }
+
+    return playersArr;
+};

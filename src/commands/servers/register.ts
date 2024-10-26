@@ -3,11 +3,13 @@ import { GlobalEnv, IRegister } from '../../types';
 import { getStaticHttpPath } from '../../utils/cmdreq';
 import {
     printMapPng,
+    printPlayersPng,
     printServerListPng,
     printUserInServerListPng,
 } from './canvas';
 import {
     MAPS_OUTPUT_FILE,
+    PLAYERS_OUTPUT_FILE,
     SERVERS_OUTPUT_FILE,
     WHEREIS_OUTPUT_FILE,
 } from './constants';
@@ -16,7 +18,7 @@ import { printChartPng, printHoursChartPng } from './chart';
 import { AnalysticsTask } from './analysticsTask';
 import { AnalysticsHoursTask } from './analyticsHoursTask';
 import { parseIgnoreSpace } from '../../utils/cmd';
-import { IMapDataItem } from './types';
+import { MapsDataService } from './mapsData.service';
 
 export const ServersCommandRegister: IRegister = {
     name: 'servers',
@@ -150,14 +152,12 @@ export const AnalyticsCommandRegister: IRegister = {
 
         await ctx.reply(cqOutput);
     },
-    init: (env: GlobalEnv) => {
+    init: async (env: GlobalEnv) => {
         logger.info('AnalysticsCommandRegister::init()');
         AnalysticsTask.start(env);
         AnalysticsHoursTask.start(env);
     },
 };
-
-let MAP_DATA: IMapDataItem[] = [];
 
 export const MapsCommandRegister: IRegister = {
     name: 'maps',
@@ -166,20 +166,48 @@ export const MapsCommandRegister: IRegister = {
     hint: ['按地图顺序查询服务器状态列表: #maps'],
     isAdmin: false,
     timesInterval: 5,
+    init: async (env) => {
+        MapsDataService.init(env.MAPS_DATA_FILE);
+        await MapsDataService.getInst().refresh();
+    },
     exec: async (ctx) => {
         const serverList = await queryAllServers(ctx.env.SERVERS_MATCH_REGEX);
 
-        if (!MAP_DATA.length) {
-            const data = await readMapData(ctx.env.MAPS_DATA_FILE);
-            MAP_DATA = data;
-        }
-
-        printMapPng(serverList, MAP_DATA, MAPS_OUTPUT_FILE);
+        printMapPng(
+            serverList,
+            MapsDataService.getInst().getData(),
+            MAPS_OUTPUT_FILE
+        );
 
         let cqOutput = `[CQ:image,file=${getStaticHttpPath(
             ctx.env,
             MAPS_OUTPUT_FILE
         )},cache=0,c=8]`;
+
+        await ctx.reply(cqOutput);
+    },
+};
+
+export const PlayersCommandRegister: IRegister = {
+    name: 'players',
+    alias: 'p',
+    hint: ['查询所有在线的 rwr 玩家列表: #players'],
+    description: '查询所有服务器内在线的 rwr 玩家列表.[5s CD]',
+    isAdmin: false,
+    timesInterval: 5,
+    exec: async (ctx) => {
+        const serverList = await queryAllServers(ctx.env.SERVERS_MATCH_REGEX);
+
+        printPlayersPng(serverList, PLAYERS_OUTPUT_FILE);
+
+        let cqOutput = `[CQ:image,file=${getStaticHttpPath(
+            ctx.env,
+            PLAYERS_OUTPUT_FILE
+        )},cache=0,c=8]`;
+
+        if (serverList.length === 0 && ctx.env.SERVERS_FALLBACK_URL) {
+            cqOutput += `\n检测到当前服务器列表为空, 请尝试使用备用查询地址: ${ctx.env.SERVERS_FALLBACK_URL}`;
+        }
 
         await ctx.reply(cqOutput);
     },

@@ -10,6 +10,7 @@ import {
     MapsCommandRegister,
     ServersCommandRegister,
     WhereIsCommandRegister,
+    PlayersCommandRegister,
 } from './servers/register';
 import { RollCommandRegister } from './roll/register';
 import { logger } from '../utils/logger';
@@ -47,6 +48,7 @@ const allCommands: IRegister[] = [
     WhereIsCommandRegister,
     AnalyticsCommandRegister,
     MapsCommandRegister,
+    PlayersCommandRegister,
     RollCommandRegister,
     SetuCommandRegister,
     TouhouCommandRegister,
@@ -65,10 +67,12 @@ const allCommands: IRegister[] = [
     AiCommandRegister,
 ];
 
-export const initCommands = (env: GlobalEnv) => {
-    allCommands.forEach((cmd) => {
-        cmd.init?.(env);
-    });
+export const initCommands = async (env: GlobalEnv) => {
+    await Promise.all(
+        allCommands.map(async (cmd) => {
+            await cmd.init?.(env);
+        })
+    );
 };
 
 const quickReply = async (event: MessageEvent, text: string) => {

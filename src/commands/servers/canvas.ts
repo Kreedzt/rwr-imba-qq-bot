@@ -7,6 +7,7 @@ import {
     getCountColor,
     getMapShortName,
     getMapTextInCanvas,
+    getPlayersInServer,
     getServerInfoDisplaySectionText,
     getServersHeaderDisplaySectionText,
     getUserMatchedServerDisplaySectionText,
@@ -19,6 +20,7 @@ import {
     OnlineServerItem,
 } from './types';
 import { map } from 'lodash';
+import exp from 'node:constants';
 
 const OUTPUT_FOLDER = 'out';
 
@@ -190,6 +192,200 @@ export const printServerListPng = (
     const maxTextWidth = maxTextInfo.width;
     context.strokeStyle = '#f48225';
     context.rect(10, rectStartY, maxRectWidth + 20, serverList.length * 40);
+    context.stroke();
+
+    /**
+     * Footer
+     */
+    context.fillStyle = '#fff';
+    context.font = 'bold 10pt Consolas';
+    context.textAlign = 'left';
+    const fnEndTime = dayjs();
+
+    const calcCost = fnEndTime.diff(fnStartTime);
+    const footerText = getFooterText(calcCost, fnEndTime);
+    context.fillText(footerText, 10, nextStartY + 20);
+
+    const buffer = canvas.toBuffer('image/png', {
+        compressionLevel: 3,
+        filters: canvas.PNG_FILTER_NONE,
+    });
+
+    const outputPath = path.join(process.cwd(), OUTPUT_FOLDER, `./${fileName}`);
+
+    fs.writeFileSync(outputPath, buffer);
+
+    return outputPath;
+};
+
+/**
+ * Print players output png
+ * @param serverList server list
+ * @param fileName output file name
+ */
+export const printPlayersPng = (
+    serverList: OnlineServerItem[],
+    fileName: string
+): string => {
+    const fnStartTime = dayjs();
+
+    if (!fs.existsSync(OUTPUT_FOLDER)) {
+        fs.mkdirSync(OUTPUT_FOLDER);
+    }
+
+    const titleData = getServersHeaderDisplaySectionText(serverList);
+    const totalTitle =
+        titleData.serversTotalSection +
+        titleData.playersTotalStaticSection +
+        titleData.playersCountSection;
+
+    const titleWidth = calcCanvasTextWidth(totalTitle, 20) + 20;
+
+    // Server line + Player line
+    let contentLines = 0;
+    let maxLengthStr = '';
+    serverList.forEach((s) => {
+        contentLines += 1;
+        // Servers max width
+        const sectionData = getServerInfoDisplaySectionText(s);
+        const outputText =
+            sectionData.serverSection + sectionData.playersSection;
+        if (outputText.length > maxLengthStr.length) {
+            maxLengthStr = outputText;
+        }
+
+        // Players max width
+        getPlayersInServer(s).forEach((p) => {
+            contentLines += 1;
+            if (p.length > maxLengthStr.length) {
+                maxLengthStr = p;
+            }
+        });
+    });
+
+    const contentOutputWidth = calcCanvasTextWidth(maxLengthStr, 14) + 20;
+
+    const width = Math.max(titleWidth, contentOutputWidth);
+    const height = 120 + contentLines * 40;
+    const canvas = createCanvas(width, height);
+    const context = canvas.getContext('2d');
+
+    /**
+     * Layout
+     */
+    context.fillStyle = '#451a03';
+    context.fillRect(0, 0, width, height);
+
+    /**
+     * Header
+     */
+    context.font = 'bold 20pt Consolas';
+    context.textAlign = 'left';
+    context.textBaseline = 'top';
+    context.fillStyle = '#3574d4';
+
+    context.fillStyle = '#fff';
+    context.fillText(
+        titleData.serversTotalSection + titleData.playersTotalStaticSection,
+        10,
+        10
+    );
+
+    const titleStaticSectionWidth = context.measureText(
+        titleData.serversTotalSection + titleData.playersTotalStaticSection
+    ).width;
+    // count
+    const allServersCapacity = serverList.reduce(
+        (acc, cur) => acc + cur.max_players,
+        0
+    );
+    const allPlayersCount = serverList.reduce(
+        (acc, cur) => acc + cur.current_players,
+        0
+    );
+    context.fillStyle = getCountColor(allPlayersCount, allServersCapacity);
+    context.fillText(
+        titleData.playersCountSection,
+        10 + titleStaticSectionWidth,
+        10
+    );
+
+    /**
+     * Content
+     */
+    let nextStartY = 10 + 40 + 10;
+
+    context.font = 'bold 20pt Consolas';
+    context.textAlign = 'left';
+    context.textBaseline = 'top';
+    context.fillStyle = '#3574d4';
+
+    /**
+     * Border start Y
+     */
+    const rectStartY = nextStartY + 10;
+
+    let maxRectWidth = 0;
+    serverList.forEach((s) => {
+        context.font = 'bold 20pt Consolas';
+        /**
+         * Render server info text
+         */
+        context.fillStyle = '#fff';
+        const outputSectionText = getServerInfoDisplaySectionText(s);
+        // all text, update maxRectWidth
+        const allText =
+            outputSectionText.serverSection +
+            outputSectionText.playersSection +
+            outputSectionText.mapSection;
+        const allTextWidth = context.measureText(allText).width;
+        if (allTextWidth > maxRectWidth) {
+            maxRectWidth = allTextWidth;
+        }
+
+        // server section
+        context.fillText(outputSectionText.serverSection, 20, 10 + nextStartY);
+        const serverSectionWidth = context.measureText(
+            outputSectionText.serverSection
+        ).width;
+
+        // count section
+        context.fillStyle = getCountColor(s.current_players, s.max_players);
+        context.fillText(
+            outputSectionText.playersSection,
+            20 + serverSectionWidth,
+            10 + nextStartY
+        );
+        const playersSectionWidth = context.measureText(
+            outputSectionText.playersSection
+        ).width;
+
+        // map section
+        context.fillStyle = '#fff';
+        context.fillText(
+            outputSectionText.mapSection,
+            20 + serverSectionWidth + playersSectionWidth,
+            10 + nextStartY
+        );
+
+        // render players
+        context.font = 'bold 16pt Consolas';
+        context.fillStyle = '#fff';
+        getPlayersInServer(s).forEach((p) => {
+            context.fillText(p, 20, 10 + nextStartY + 40);
+            nextStartY += 40;
+        });
+
+        nextStartY += 40;
+    });
+
+    /**
+     * Render rect
+     */
+    const maxTextInfo = context.measureText(maxLengthStr);
+    const maxTextWidth = maxTextInfo.width;
+    context.strokeStyle = '#f48225';
+    context.rect(10, rectStartY, maxRectWidth + 20, contentLines * 40);
     context.stroke();
 
     /**

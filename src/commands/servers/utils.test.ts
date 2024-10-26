@@ -8,6 +8,7 @@ import {
     getUserMatchedList,
     getWhereisHeaderSectionText,
     getWhereisFooterSectionText,
+    getPlayersInServer,
 } from './utils';
 
 const MOCK_CT_SERVER_ITEM: OnlineServerItem = {
@@ -184,5 +185,47 @@ describe('getWhereisFooterSectionText', () => {
         expect(getWhereisFooterSectionText(999)).toBe(
             '共计 999 位玩家结果(只展示 5 位玩家列表)'
         );
+    });
+});
+
+describe('getPlayersInServer', () => {
+    it.concurrent('should return empty', () => {
+        expect(
+            getPlayersInServer({
+                ...MOCK_CT_SERVER_ITEM,
+                player: [],
+            })
+        ).toEqual([]);
+
+        expect(
+            getPlayersInServer({
+                ...MOCK_CT_SERVER_ITEM,
+                player: undefined,
+            })
+        ).toEqual([]);
+    });
+
+    it.concurrent('should return players', () => {
+        expect(getPlayersInServer(MOCK_CT_SERVER_ITEM)).toEqual([
+            'RUMI CIVAN',
+            'ASTA',
+            'MR. QUIEN',
+            'RYIA',
+            'XZBWZ',
+            'BLCOD',
+            'AR.',
+            'AILE ROZY',
+            'D_TAIL',
+            'M4SOPMOD',
+            'MOYUII',
+            'ZZH',
+            'LEOCM',
+            'SHENYANGKS',
+            'ICEYKEY',
+            'EAVTA',
+            'JON XUE',
+            'BORE',
+            'EINS',
+        ]);
     });
 });

@@ -49,7 +49,7 @@ const env = {
 } as GlobalEnv;
 
 RemoteService.init(env.REMOTE_URL);
-initCommands(env);
+
 logger.info('Env initialized:', {
     PORT: env.PORT,
     HOSTNAME: env.HOSTNAME,
@@ -117,6 +117,8 @@ if (process.env.CLICKHOUSE_DB) {
     });
 }
 
-app.listen(env.PORT, () => {
+app.listen(env.PORT, async () => {
+    logger.info('initing Commands...', env);
+    await initCommands(env);
     logger.info(`App listening on port ${env.PORT}`);
 });
