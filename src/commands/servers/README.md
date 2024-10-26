@@ -62,3 +62,18 @@
 
 -   maps: 根据 MAPS_DATA_FILE 提供的地图数据, 生成地图列表图片输出
 -   m: maps 的别名
+
+## players
+
+### 用途
+
+根据 SERVERS_MATCH_REGEX 筛选服务器, 查询服务器玩家列表并生成图片输出
+
+### 环境变量
+
+-   SERVERS_MATCH_REGEX: 用于匹配服务器的正则表达式，用于 `players` 命令的过滤
+
+### 注册的指令
+
+-   players: 根据 SERVERS_MATCH_REGEX 筛选服务器, 查询服务器玩家列表并生成图片输出
+-   p: players 的别名
