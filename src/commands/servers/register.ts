@@ -16,7 +16,7 @@ import { printChartPng, printHoursChartPng } from './chart';
 import { AnalysticsTask } from './analysticsTask';
 import { AnalysticsHoursTask } from './analyticsHoursTask';
 import { parseIgnoreSpace } from '../../utils/cmd';
-import { IMapDataItem } from './types';
+import { MapsDataService } from './mapsData.service';
 
 export const ServersCommandRegister: IRegister = {
     name: 'servers',
@@ -150,14 +150,12 @@ export const AnalyticsCommandRegister: IRegister = {
 
         await ctx.reply(cqOutput);
     },
-    init: (env: GlobalEnv) => {
+    init: async (env: GlobalEnv) => {
         logger.info('AnalysticsCommandRegister::init()');
         AnalysticsTask.start(env);
         AnalysticsHoursTask.start(env);
     },
 };
-
-let MAP_DATA: IMapDataItem[] = [];
 
 export const MapsCommandRegister: IRegister = {
     name: 'maps',
@@ -166,15 +164,18 @@ export const MapsCommandRegister: IRegister = {
     hint: ['按地图顺序查询服务器状态列表: #maps'],
     isAdmin: false,
     timesInterval: 5,
+    init: async (env) => {
+        MapsDataService.init(env.MAPS_DATA_FILE);
+        await MapsDataService.getInst().refresh();
+    },
     exec: async (ctx) => {
         const serverList = await queryAllServers(ctx.env.SERVERS_MATCH_REGEX);
 
-        if (!MAP_DATA.length) {
-            const data = await readMapData(ctx.env.MAPS_DATA_FILE);
-            MAP_DATA = data;
-        }
-
-        printMapPng(serverList, MAP_DATA, MAPS_OUTPUT_FILE);
+        printMapPng(
+            serverList,
+            MapsDataService.getInst().getData(),
+            MAPS_OUTPUT_FILE
+        );
 
         let cqOutput = `[CQ:image,file=${getStaticHttpPath(
             ctx.env,

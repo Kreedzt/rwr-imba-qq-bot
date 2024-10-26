@@ -65,10 +65,12 @@ const allCommands: IRegister[] = [
     AiCommandRegister,
 ];
 
-export const initCommands = (env: GlobalEnv) => {
-    allCommands.forEach((cmd) => {
-        cmd.init?.(env);
-    });
+export const initCommands = async (env: GlobalEnv) => {
+    await Promise.all(
+        allCommands.map(async (cmd) => {
+            await cmd.init?.(env);
+        })
+    );
 };
 
 const quickReply = async (event: MessageEvent, text: string) => {

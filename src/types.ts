@@ -90,5 +90,5 @@ export interface IRegister<T extends RegisterParamType = RegisterParamType> {
     defaultParams?: T;
     parseParams?: (msg: string) => Map<string, boolean>;
     exec: (ctx: MsgExecCtx) => Promise<void>;
-    init?: (env: GlobalEnv) => void;
+    init?: (env: GlobalEnv) => Promise<void>;
 }
