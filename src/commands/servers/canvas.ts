@@ -370,7 +370,7 @@ export const printPlayersPng = (
 
         // render players
         context.font = 'bold 16pt Consolas';
-        context.fillStyle = '#fff';
+        context.fillStyle = '#a5f3fc';
         getPlayersInServer(s).forEach((p) => {
             context.fillText(p, 20, 10 + nextStartY + 40);
             nextStartY += 40;
