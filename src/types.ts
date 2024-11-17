@@ -20,6 +20,7 @@ export interface GlobalEnv {
     GLM_KNOWLEDGE_ID: string;
     GLM_MODEL: string;
     IMGPROXY_URL: string;
+    OUTPUT_BG_IMG: string;
 }
 
 export interface BaseEvent {
