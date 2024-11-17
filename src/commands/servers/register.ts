@@ -19,6 +19,7 @@ import { AnalysticsTask } from './analysticsTask';
 import { AnalysticsHoursTask } from './analyticsHoursTask';
 import { parseIgnoreSpace } from '../../utils/cmd';
 import { MapsDataService } from './mapsData.service';
+import { CanvasImgService } from './canvasImg.service';
 
 export const ServersCommandRegister: IRegister = {
     name: 'servers',
@@ -27,6 +28,11 @@ export const ServersCommandRegister: IRegister = {
     description: '查询所有在线的 rwr 服务器列表.[5s CD]',
     isAdmin: false,
     timesInterval: 5,
+    init: async (env) => {
+        if (env.OUTPUT_BG_IMG) {
+            await CanvasImgService.getInstance().addImg(env.OUTPUT_BG_IMG);
+        }
+    },
     exec: async (ctx) => {
         const serverList = await queryAllServers(ctx.env.SERVERS_MATCH_REGEX);
 

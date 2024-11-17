@@ -1,4 +1,4 @@
-import { Canvas, createCanvas } from 'canvas';
+import { Canvas, createCanvas, CanvasRenderingContext2D } from 'canvas';
 import * as fs from 'fs';
 import * as path from 'path';
 import dayjs from 'dayjs';
@@ -19,8 +19,9 @@ import {
     IUserMatchedServerItem,
     OnlineServerItem,
 } from './types';
-import { map } from 'lodash';
-import exp from 'node:constants';
+import { GlobalEnv } from '../../types';
+import { CanvasImgService } from './canvasImg.service';
+import { logger } from '../../utils/logger';
 
 const OUTPUT_FOLDER = 'out';
 
@@ -44,6 +45,38 @@ const getCanvasOutput = (canvas: Canvas, outPath: string) => {
     return outputPath;
 };
 
+const addBgImg = (
+    width: number,
+    height: number,
+    ctx: CanvasRenderingContext2D
+) => {
+    const path = (process.env as unknown as GlobalEnv).OUTPUT_BG_IMG;
+    if (!path) {
+        return;
+    }
+    const img = CanvasImgService.getInstance().getImg(path);
+    if (!img) {
+        return;
+    }
+    const imgWidth = img.width;
+    const imgHeight = img.height;
+
+    const widthRatio = width / imgWidth;
+    const heightRatio = height / imgHeight;
+    const scale = Math.min(widthRatio, heightRatio);
+
+    const scaledWidth = imgWidth * scale;
+    const scaledHeight = imgHeight * scale;
+    const x = (width - scaledWidth) / 2;
+    const y = (height - scaledHeight) / 2;
+
+    ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+
+    // 添加半透明蒙层
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'; // 半透明黑色
+    ctx.fillRect(0, 0, width, height); // 绘制蒙层
+};
+
 /**
  * Print servers output png
  * @param serverList server list
@@ -52,7 +85,7 @@ const getCanvasOutput = (canvas: Canvas, outPath: string) => {
 export const printServerListPng = (
     serverList: OnlineServerItem[],
     fileName: string
-): string => {
+) => {
     const fnStartTime = dayjs();
 
     if (!fs.existsSync(OUTPUT_FOLDER)) {
@@ -91,6 +124,11 @@ export const printServerListPng = (
      */
     context.fillStyle = '#451a03';
     context.fillRect(0, 0, width, height);
+
+    /**
+     * Background image, need draw first
+     */
+    addBgImg(width, height, context);
 
     /**
      * Header
@@ -275,6 +313,11 @@ export const printPlayersPng = (
      */
     context.fillStyle = '#451a03';
     context.fillRect(0, 0, width, height);
+
+    /**
+     * Background image, need draw first
+     */
+    addBgImg(width, height, context);
 
     /**
      * Header
@@ -463,6 +506,11 @@ export const printUserInServerListPng = (
     const canvas = createCanvas(width, height);
 
     const context = canvas.getContext('2d');
+
+    /**
+     * Background image, need draw first
+     */
+    addBgImg(width, height, context);
 
     /**
      * Layout
@@ -661,6 +709,11 @@ export const printMapPng = (
      */
     context.fillStyle = '#451a03';
     context.fillRect(0, 0, width, height);
+
+    /**
+     * Background image, need draw first
+     */
+    addBgImg(width, height, context);
 
     /**
      * Header
