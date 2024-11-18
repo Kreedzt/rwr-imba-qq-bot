@@ -182,7 +182,7 @@ export class MapsCanvas extends BaseCanvas {
             10,
             this.renderStartY + 10,
             this.maxRectWidth + 20,
-            this.contentLines * 40 + 10
+            this.contentLines * 40
         );
         context.stroke();
         this.renderStartY += 10;
