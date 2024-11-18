@@ -91,7 +91,11 @@ export const getJoinServerUrl = (server: OnlineServerItem): string => {
 
 export const getServersHeaderDisplaySectionText = (
     serverList: OnlineServerItem[]
-) => {
+): {
+    serversTotalSection: string;
+    playersTotalStaticSection: string;
+    playersCountSection: string;
+} => {
     const serversTotalSection = `在线服务器数: ${serverList.length}, `;
     const playersTotalStaticSection = `在线玩家数: `;
     const playersCountSection = `${countTotalPlayers(
@@ -151,7 +155,7 @@ export const getCountColor = (current: number, max: number): string => {
 
     // 0%
     if (current === 0) {
-        return '#6b7280';
+        return '#9ca3af';
     }
 
     return '#22c55e';

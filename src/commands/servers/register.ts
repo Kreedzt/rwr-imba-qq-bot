@@ -19,7 +19,7 @@ import { AnalysticsTask } from './analysticsTask';
 import { AnalysticsHoursTask } from './analyticsHoursTask';
 import { parseIgnoreSpace } from '../../utils/cmd';
 import { MapsDataService } from './mapsData.service';
-import { CanvasImgService } from './canvasImg.service';
+import { CanvasImgService } from './canvasGroup/canvasImg.service';
 
 export const ServersCommandRegister: IRegister = {
     name: 'servers',
