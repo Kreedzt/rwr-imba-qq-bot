@@ -5,10 +5,11 @@ import {
     calcCanvasTextWidth,
     getServerInfoDisplaySectionText,
     getCountColor,
+    getPlayersInServer,
 } from '../utils';
 import { BaseCanvas } from './baseCanvas';
 
-export class ServersCanvas extends BaseCanvas {
+export class PlayersCanvas extends BaseCanvas {
     // constructor params
     serverList: OnlineServerItem[];
     fileName: string;
@@ -55,17 +56,26 @@ export class ServersCanvas extends BaseCanvas {
 
     measureList() {
         this.maxLengthStr = '';
+
         this.serverList.forEach((s) => {
-            this.contentLines += 1;
             const sectionData = getServerInfoDisplaySectionText(s);
             const outputText =
                 sectionData.serverSection + sectionData.playersSection;
             if (outputText.length > this.maxLengthStr.length) {
                 this.maxLengthStr = outputText;
             }
+            this.contentLines += 1;
+
+            // Players max width
+            getPlayersInServer(s).forEach((p) => {
+                this.contentLines += 1;
+                if (p.length > this.maxLengthStr.length) {
+                    this.maxLengthStr = p;
+                }
+            });
         });
 
-        this.renderHeight = 120 + this.serverList.length * 40;
+        this.renderHeight = 120 + this.contentLines * 40;
     }
 
     renderLayout(
@@ -164,6 +174,14 @@ export class ServersCanvas extends BaseCanvas {
                 20 + serverSectionWidth + playersSectionWidth,
                 10 + this.renderStartY
             );
+
+            // render players
+            context.font = 'bold 16pt Consolas';
+            context.fillStyle = '#a5f3fc';
+            getPlayersInServer(s).forEach((p) => {
+                context.fillText(p, 20, 10 + this.renderStartY + 40);
+                this.renderStartY += 40;
+            });
 
             this.renderStartY += 40;
         });

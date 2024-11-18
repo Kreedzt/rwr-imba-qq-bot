@@ -1,4 +1,6 @@
-import { CanvasRenderingContext2D } from 'canvas';
+import * as fs from 'fs';
+import * as path from 'path';
+import { CanvasRenderingContext2D, Canvas } from 'canvas';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import {
@@ -17,6 +19,8 @@ const getFooterText = (cost: number, endTime: dayjs.Dayjs) => {
         `(cost=${cost}ms, render time=${endTime.format('YYYY-MM-DD HH:mm:ss')})`
     );
 };
+
+const OUTPUT_FOLDER = 'out';
 
 export class BaseCanvas {
     startTime?: Dayjs;
@@ -68,5 +72,22 @@ export class BaseCanvas {
 
     record() {
         this.startTime = dayjs();
+    }
+
+    writeFile(canvas: Canvas, fileName: string) {
+        const buffer = canvas.toBuffer('image/png', {
+            compressionLevel: 3,
+            filters: canvas.PNG_FILTER_NONE,
+        });
+
+        const outputPath = path.join(
+            process.cwd(),
+            OUTPUT_FOLDER,
+            `./${fileName}`
+        );
+
+        fs.writeFileSync(outputPath, buffer);
+
+        return outputPath;
     }
 }
