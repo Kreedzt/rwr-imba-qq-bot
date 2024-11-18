@@ -3,15 +3,8 @@ import * as path from 'path';
 import { CanvasRenderingContext2D, Canvas } from 'canvas';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
-import {
-    getServersHeaderDisplaySectionText,
-    calcCanvasTextWidth,
-    getServerInfoDisplaySectionText,
-    getCountColor,
-    getPlayersInServer,
-} from '../utils';
 import { GlobalEnv } from '../../../types';
-import { CanvasImgService } from '../canvasImg.service';
+import { CanvasImgService } from './canvasImg.service';
 
 const getFooterText = (cost: number, endTime: dayjs.Dayjs) => {
     return (
@@ -54,7 +47,7 @@ export class BaseCanvas {
         ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
 
         // 添加半透明蒙层
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'; // 半透明黑色
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; // 半透明黑色
         ctx.fillRect(0, 0, width, height); // 绘制蒙层
     }
 

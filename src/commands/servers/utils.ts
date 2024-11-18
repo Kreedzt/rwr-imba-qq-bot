@@ -155,7 +155,7 @@ export const getCountColor = (current: number, max: number): string => {
 
     // 0%
     if (current === 0) {
-        return '#6b7280';
+        return '#9ca3af';
     }
 
     return '#22c55e';
