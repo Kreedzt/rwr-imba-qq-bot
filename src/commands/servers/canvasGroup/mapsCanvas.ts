@@ -55,8 +55,13 @@ export class MapsCanvas extends BaseCanvas {
 
     measureList() {
         this.maxLengthStr = '';
+
+        /**
+         * map_id => count
+         */
+        const serverMapRecord = new Map<string, number>();
+
         this.serverList.forEach((s) => {
-            this.contentLines += 1;
             const sectionData = getServerInfoDisplaySectionText(s);
             const outputText =
                 sectionData.serverSection +
@@ -65,10 +70,22 @@ export class MapsCanvas extends BaseCanvas {
             if (outputText.length > this.maxLengthStr.length) {
                 this.maxLengthStr = outputText;
             }
+
+            const mapShortName = getMapShortName(s.map_id);
+
+            const record = serverMapRecord.get(mapShortName) ?? 0;
+
+            serverMapRecord.set(mapShortName, record + 1);
         });
 
         this.mapData.forEach((m) => {
             this.contentLines += 1;
+
+            const serversCountUnderMap = serverMapRecord.get(m.id);
+            if (serversCountUnderMap) {
+                this.contentLines += serversCountUnderMap;
+            }
+
             const sectionData = getMapTextInCanvas(m);
 
             const outputText = sectionData;

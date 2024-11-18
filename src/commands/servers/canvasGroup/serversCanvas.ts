@@ -175,9 +175,11 @@ export class ServersCanvas extends BaseCanvas {
             10,
             this.renderStartY + 10,
             this.maxRectWidth + 20,
+            // plus end offset
             this.contentLines * 40 + 10
         );
         context.stroke();
+        // start offset
         this.renderStartY += 10;
     }
 
