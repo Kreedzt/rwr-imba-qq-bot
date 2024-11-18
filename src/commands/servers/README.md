@@ -9,6 +9,7 @@
 ### 环境变量
 
 -   SERVERS_MATCH_REGEX: 用于匹配服务器的正则表达式，用于 `servers` 命令的过滤
+-   OUTPUT_BG_IMG: 将输出的图片添加背景图 layer 层, 位于底色上方
 
 ### 注册的指令
 
@@ -25,6 +26,7 @@
 
 -   SERVERS_MATCH_REGEX: 用于匹配服务器的正则表达式，用于 `whereis` 命令的过滤
 -   SERVERS_FALLBACK_URL: 用于当 SERVERS_MATCH_REGEX 无法匹配到服务器时, 呈现的备用 URL
+-   OUTPUT_BG_IMG: 将输出的图片添加背景图 layer 层, 位于底色上方
 
 ### 注册的指令
 
@@ -57,6 +59,7 @@
 ### 环境变量
 
 -   MAPS_DATA_FILE: 用于提供地图数据的 JSON 数据文件名
+-   OUTPUT_BG_IMG: 将输出的图片添加背景图 layer 层, 位于底色上方
 
 ### 注册的指令
 
@@ -72,6 +75,7 @@
 ### 环境变量
 
 -   SERVERS_MATCH_REGEX: 用于匹配服务器的正则表达式，用于 `players` 命令的过滤
+-   OUTPUT_BG_IMG: 将输出的图片添加背景图 layer 层, 位于底色上方
 
 ### 注册的指令
 
