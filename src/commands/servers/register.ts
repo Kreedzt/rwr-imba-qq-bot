@@ -13,7 +13,7 @@ import {
     SERVERS_OUTPUT_FILE,
     WHEREIS_OUTPUT_FILE,
 } from './constants';
-import { getUserMatchedList, queryAllServers, readMapData } from './utils';
+import { getUserMatchedList, queryAllServers } from './utils';
 import { printChartPng, printHoursChartPng } from './chart';
 import { AnalysticsTask } from './analysticsTask';
 import { AnalysticsHoursTask } from './analyticsHoursTask';
@@ -58,6 +58,11 @@ export const WhereIsCommandRegister: IRegister = {
     hint: ['查询目标玩家所在服务器: #whereis KREEDZT'],
     isAdmin: false,
     timesInterval: 5,
+    init: async (env) => {
+        if (env.OUTPUT_BG_IMG) {
+            await CanvasImgService.getInstance().addImg(env.OUTPUT_BG_IMG);
+        }
+    },
     parseParams: (msg: string) => {
         return parseIgnoreSpace(['#whereis', '#w'], msg);
     },
@@ -80,20 +85,6 @@ export const WhereIsCommandRegister: IRegister = {
         }
         const serverList = await queryAllServers(ctx.env.SERVERS_MATCH_REGEX);
         logger.info('> call getUserInServerListDisplay', targetName);
-        // const content = getUserInServerListDisplay(targetName, serverList);
-        // const count = content.total;
-        //
-        // const titleText = `查询 '${targetName}' 所在服务器结果:\n`;
-        // let footerText = '';
-        // if (count === 0) {
-        //     footerText = '未找到玩家';
-        // } else {
-        //     footerText += `共计 ${count} 位玩家结果(只展示 ${QUERY_USER_IN_SERVERS_LIMIT} 位玩家列表)`;
-        // }
-        //
-        // const totalText = [...content.results, footerText];
-
-        // printPng(titleText, totalText, WHEREIS_OUTPUT_FILE);
 
         const userResults = getUserMatchedList(targetName, serverList);
 
@@ -173,6 +164,9 @@ export const MapsCommandRegister: IRegister = {
     isAdmin: false,
     timesInterval: 5,
     init: async (env) => {
+        if (env.OUTPUT_BG_IMG) {
+            await CanvasImgService.getInstance().addImg(env.OUTPUT_BG_IMG);
+        }
         MapsDataService.init(env.MAPS_DATA_FILE);
         await MapsDataService.getInst().refresh();
     },
@@ -201,6 +195,11 @@ export const PlayersCommandRegister: IRegister = {
     description: '查询所有服务器内在线的 rwr 玩家列表.[5s CD]',
     isAdmin: false,
     timesInterval: 5,
+    init: async (env) => {
+        if (env.OUTPUT_BG_IMG) {
+            await CanvasImgService.getInstance().addImg(env.OUTPUT_BG_IMG);
+        }
+    },
     exec: async (ctx) => {
         const serverList = await queryAllServers(ctx.env.SERVERS_MATCH_REGEX);
 

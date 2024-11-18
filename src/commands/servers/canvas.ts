@@ -508,15 +508,15 @@ export const printUserInServerListPng = (
     const context = canvas.getContext('2d');
 
     /**
-     * Background image, need draw first
-     */
-    addBgImg(width, height, context);
-
-    /**
      * Layout
      */
     context.fillStyle = '#451a03';
     context.fillRect(0, 0, width, height);
+
+    /**
+     * Background image, need draw first
+     */
+    addBgImg(width, height, context);
 
     /**
      * Header
