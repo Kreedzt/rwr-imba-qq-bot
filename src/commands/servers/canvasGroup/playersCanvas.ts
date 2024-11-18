@@ -193,7 +193,7 @@ export class PlayersCanvas extends BaseCanvas {
             10,
             this.renderStartY + 10,
             this.maxRectWidth + 20,
-            this.contentLines * 40
+            this.contentLines * 40 + 10
         );
         context.stroke();
         this.renderStartY += 10;
