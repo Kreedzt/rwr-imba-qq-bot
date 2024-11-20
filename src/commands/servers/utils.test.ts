@@ -43,6 +43,15 @@ const MOCK_CT_SERVER_ITEM: OnlineServerItem = {
         'JON XUE',
         'BORE',
         'EINS',
+        'A1',
+        'A2',
+        'A3',
+        'A4',
+        'A5',
+        'A6',
+        'A7',
+        'A8',
+        'A9',
     ],
     comment:
         'Read server rules in our discord: discord.gg/wwUM3kYmRC, QQ Group: 706234535',
@@ -119,8 +128,8 @@ describe('getUserMatchedList', () => {
     it.concurrent('over limit', () => {
         const res = getUserMatchedList('A', [MOCK_CT_SERVER_ITEM]);
 
-        expect(res.results.length).toBe(5);
-        expect(res.total).toBe(8);
+        expect(res.results.length).toBe(15);
+        expect(res.total).toBe(17);
     });
 });
 
@@ -177,13 +186,13 @@ describe('getWhereisFooterSectionText', () => {
 
     it.concurrent('count 2', () => {
         expect(getWhereisFooterSectionText(2)).toBe(
-            '共计 2 位玩家结果(只展示 5 位玩家列表)'
+            '共计 2 位玩家结果(只展示 15 位玩家列表)'
         );
     });
 
     it.concurrent('count 999', () => {
         expect(getWhereisFooterSectionText(999)).toBe(
-            '共计 999 位玩家结果(只展示 5 位玩家列表)'
+            '共计 999 位玩家结果(只展示 15 位玩家列表)'
         );
     });
 });
@@ -226,6 +235,15 @@ describe('getPlayersInServer', () => {
             'JON XUE',
             'BORE',
             'EINS',
+            'A1',
+            'A2',
+            'A3',
+            'A4',
+            'A5',
+            'A6',
+            'A7',
+            'A8',
+            'A9',
         ]);
     });
 });
