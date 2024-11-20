@@ -1,4 +1,4 @@
-export const QUERY_USER_IN_SERVERS_LIMIT = 5;
+export const QUERY_USER_IN_SERVERS_LIMIT = 15;
 
 export const OUTPUT_FOLDER = 'out';
 export const SERVERS_OUTPUT_FILE = 'servers.png';
