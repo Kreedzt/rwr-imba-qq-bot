@@ -1,6 +1,7 @@
-import express from 'express';
+import Fastify from 'fastify';
+import path from 'path';
+import fastifyStatic from '@fastify/static';
 import dotenv from 'dotenv';
-import bodyParser from 'body-parser';
 import { BaseEvent, GlobalEnv, MessageEvent, NoticeEvent } from './types';
 import { logger } from './utils/logger';
 import { RemoteService } from './services/remote.service';
@@ -8,31 +9,38 @@ import { msgHandler, initCommands } from './commands';
 import { noticeHandler } from './notices';
 import { ClickHouseService } from './services/clickHouse.service';
 
-const app = express();
+const app = Fastify({
+    logger: {
+        serializers: {
+            res(res) {
+                return {
+                    type: 'access:response',
+                    method: res.request?.method,
+                    url: res.request?.url,
+                    params: res.request?.params,
+                    hostname: res.request?.hostname,
+                    ip: res.request?.ip,
+                    elapse: res.elapsedTime,
+                    statusCode: res.statusCode,
+                };
+            },
+            req(req) {
+                return {
+                    type: 'access:request',
+                    method: req.method,
+                    url: req.url,
+                    params: req.params,
+                    hostname: req.hostname,
+                    ip: req.ip,
+                };
+            },
+        },
+    },
+});
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.use('/out', express.static('out'));
-app.use((req, res, next) => {
-    const start = Date.now();
-    const logData = {
-        method: req.method,
-        url: req.url,
-        params: req.params,
-        body: req.body,
-        hostname: req.hostname,
-        ip: req.ip,
-    };
-    next();
-    const end = Date.now();
-    const elapsed = end - start;
-    console.log(
-        JSON.stringify({
-            type: 'access',
-            ...logData,
-            elapse: elapsed,
-        })
-    );
+app.register(fastifyStatic, {
+    root: path.join(__dirname, '../out'),
+    prefix: '/out/'
 });
 
 // ENV
@@ -84,7 +92,7 @@ app.post('/in', async (req, res) => {
 });
 
 app.get('/ping', async (req, res) => {
-    res.end('pong!');
+    res.send('pong!');
 });
 
 if (process.env.CLICKHOUSE_DB) {
@@ -113,12 +121,18 @@ if (process.env.CLICKHOUSE_DB) {
 
         const resData = [columns, ...rowData];
 
-        res.json(resData);
+        res.send(resData);
     });
 }
 
-app.listen(env.PORT, async () => {
-    logger.info('initing Commands...', env);
-    await initCommands(env);
-    logger.info(`App listening on port ${env.PORT}`);
-});
+app.listen(
+    {
+        port: env.PORT,
+    },
+    async (err, address) => {
+        if (err) throw err;
+        logger.info('initing Commands...', env);
+        await initCommands(env);
+        logger.info(`App listening on ${address}`);
+    }
+);
