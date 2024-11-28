@@ -69,9 +69,15 @@ const allCommands: IRegister[] = [
 
 export const initCommands = async (env: GlobalEnv) => {
     await Promise.all(
-        allCommands.map(async (cmd) => {
-            await cmd.init?.(env);
-        })
+        allCommands
+            .filter((cmd) => {
+                if (env.ACTIVE_COMMANDS) {
+                    return env.ACTIVE_COMMANDS.includes(cmd.name);
+                }
+            })
+            .map(async (cmd) => {
+                await cmd.init?.(env);
+            })
     );
 };
 
