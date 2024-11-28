@@ -1,5 +1,5 @@
 # build
-FROM node:18.16.0-alpine as builder
+FROM node:22.11.0-alpine as builder
 
 ARG TAG_NAME
 ENV APP_VERSION=$TAG_NAME
@@ -28,7 +28,7 @@ COPY ./ ./
 RUN npm run build
 
 # run
-FROM node:18.16.0-alpine
+FROM node:22.11.0-alpine
 
 WORKDIR /app
 
