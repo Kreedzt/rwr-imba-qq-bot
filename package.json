@@ -18,6 +18,10 @@
     "test:watch": "vitest --watch",
     "coverage": "vitest --coverage"
   },
+  "engines": {
+    "node": ">=22.11.0",
+    "npm": ">=10.9.0"
+  },
   "keywords": [
     "qq",
     "bot",
@@ -62,5 +66,9 @@
     "vite-plugin-node": "^3.1.0",
     "vitest": "^1.6.0",
     "vitest-sonar-reporter": "^2.0.0"
+  },
+  "volta": {
+    "node": "22.11.0",
+    "npm": "10.9.0"
   }
 }

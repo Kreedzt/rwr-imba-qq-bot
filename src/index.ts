@@ -40,7 +40,7 @@ const app = Fastify({
 
 app.register(fastifyStatic, {
     root: path.join(__dirname, '../out'),
-    prefix: '/out/'
+    prefix: '/out/',
 });
 
 // ENV
@@ -127,6 +127,7 @@ if (process.env.CLICKHOUSE_DB) {
 
 app.listen(
     {
+        host: env.HOSTNAME,
         port: env.PORT,
     },
     async (err, address) => {
