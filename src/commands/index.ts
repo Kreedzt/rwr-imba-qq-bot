@@ -74,6 +74,8 @@ export const initCommands = async (env: GlobalEnv) => {
                 if (env.ACTIVE_COMMANDS) {
                     return env.ACTIVE_COMMANDS.includes(cmd.name);
                 }
+
+                return true;
             })
             .map(async (cmd) => {
                 await cmd.init?.(env);
