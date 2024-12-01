@@ -14,7 +14,7 @@ import {
     WHEREIS_OUTPUT_FILE,
 } from './constants';
 import { getUserMatchedList, queryAllServers } from './utils';
-import { printChartPng, printHoursChartPng } from './chart';
+import {printChartPng, printHoursChartPng} from './chart';
 import { AnalysticsTask } from './analysticsTask';
 import { AnalysticsHoursTask } from './analyticsHoursTask';
 import { parseIgnoreSpace } from '../../utils/cmd';
@@ -131,6 +131,7 @@ export const AnalyticsCommandRegister: IRegister = {
             // 按小时查询
             case 'h': {
                 path = await printHoursChartPng();
+                // path = await printHoursChartPngV2();
                 break;
             }
             // 按 7 天查询

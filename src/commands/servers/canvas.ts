@@ -1,17 +1,5 @@
 import * as fs from 'fs';
 import {
-    calcCanvasTextWidth,
-    getCountColor,
-    getMapShortName,
-    getMapTextInCanvas,
-    getPlayersInServer,
-    getServerInfoDisplaySectionText,
-    getServersHeaderDisplaySectionText,
-    getUserMatchedServerDisplaySectionText,
-    getWhereisFooterSectionText,
-    getWhereisHeaderSectionText,
-} from './utils';
-import {
     IMapDataItem,
     IUserMatchedServerItem,
     OnlineServerItem,
