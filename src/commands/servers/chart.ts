@@ -4,10 +4,13 @@ import { createCanvas } from 'canvas';
 import * as echarts from 'echarts';
 import { IAnalysisData } from './types';
 import {
-    ANALYSIS_DATA_FILE, ANALYSIS_HOURS_DATA_FILE, ANALYSIS_HOURS_OUTPUT_FILE,
+    ANALYSIS_DATA_FILE,
+    ANALYSIS_HOURS_DATA_FILE,
+    ANALYSIS_HOURS_OUTPUT_FILE,
     ANALYSIS_OUTPUT_FILE,
     OUTPUT_FOLDER,
 } from './constants';
+import { logger } from '../../utils/logger';
 
 const readData = () => {
     const fileContent = fs.readFileSync(
@@ -65,6 +68,14 @@ export const printChartPng = async () => {
                 },
                 type: 'line',
             },
+            {
+                data: data.map((d) => d.count),
+                label: {
+                    show: true,
+                    position: 'top',
+                },
+                type: 'bar',
+            },
         ],
     });
 
@@ -85,7 +96,11 @@ export const printChartPng = async () => {
 
 const readHoursData = () => {
     const fileContent = fs.readFileSync(
-        path.join(process.cwd(), OUTPUT_FOLDER, `./${ANALYSIS_HOURS_DATA_FILE}`),
+        path.join(
+            process.cwd(),
+            OUTPUT_FOLDER,
+            `./${ANALYSIS_HOURS_DATA_FILE}`
+        ),
         'utf-8'
     );
 
@@ -98,7 +113,7 @@ const readHoursData = () => {
             c: 0,
         };
     });
-}
+};
 
 export const printHoursChartPng = async () => {
     // echarts:
@@ -138,7 +153,14 @@ export const printHoursChartPng = async () => {
                     show: true,
                 },
                 type: 'line',
-                smooth: true
+            },
+            {
+                data: data.map((d) => d.count),
+                label: {
+                    show: true,
+                    position: 'top',
+                },
+                type: 'bar',
             },
         ],
     });
