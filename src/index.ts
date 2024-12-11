@@ -71,8 +71,8 @@ logger.info('Env initialized:', {
     TDOLL_DATA_FILE: env.TDOLL_DATA_FILE,
     TDOLL_SKIN_DATA_FILE: env.TDOLL_SKIN_DATA_FILE,
     QA_DATA_FILE: env.QA_DATA_FILE,
-    GLM_API_KEY: env.GLM_APIKEY,
-    GLM_KNOWLEDGE_ID: env.GLM_KNOWLEDGE_ID,
+    DIFY_AI_TOKEN: env.DIFY_AI_TOKEN,
+    DIFY_AI_URL: env.DIFY_AI_URL,
 });
 
 app.post('/in', async (req, res) => {
