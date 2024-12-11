@@ -21,11 +21,11 @@ export const AiCommandRegister: IRegister = {
         });
 
         let replyText = '';
-        if (!ctx.env.GLM_APIKEY) {
-            replyText = '未配置GLM_APIKEY, 无法使用AI模型进行智能问答';
+        if (!ctx.env.DIFY_AI_TOKEN || !ctx.env.DIFY_AI_URL) {
+            replyText = '未配置 DIFY_AI_TOKEN 或 DIFY_AI_URL, 无法使用AI模型进行智能问答';
         } else {
             await ctx.reply(
-                `正在使用[${ctx.env.GLM_MODEL}]模型查询中, 请耐心等待...`
+                `正在查询中, 请耐心等待...`
             );
             replyText = await getAIQAMatchRes(query, ctx);
         }

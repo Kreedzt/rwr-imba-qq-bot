@@ -4,7 +4,8 @@ import { MsgExecCtx } from '../../types';
 import { AI_MODEL_DISPLAY_NAME, AI_MODEL_NAME } from './constants';
 import { logger } from '../../utils/logger';
 import axios, { AxiosResponse } from 'axios';
-import { IGLMResponse } from './types';
+import { IDifyAIResponse } from './types';
+import _ from 'lodash';
 
 const genGLMJWT = (apiKey: string): string => {
     const [key, secret] = apiKey.split('.');
@@ -45,13 +46,13 @@ const genGLMMessages = (
 export const getAIQAMatchRes = async (query: string, ctx: MsgExecCtx) => {
     const res = await getQAAIRes(
         query,
-        ctx.env.GLM_APIKEY,
-        ctx.env.GLM_KNOWLEDGE_ID,
-        ctx.env.GLM_MODEL
+        ctx.env.DIFY_AI_URL,
+        ctx.env.DIFY_AI_TOKEN,
+        ctx.event.user_id.toString()
     );
 
     if (res) {
-        return `[${ctx.env.GLM_MODEL}]${res}`;
+        return `${res}`;
     }
 
     return `未匹配到指定问题, 请尝试其他问题或联系管理员更新知识库`;
@@ -59,51 +60,45 @@ export const getAIQAMatchRes = async (query: string, ctx: MsgExecCtx) => {
 
 export const getQAAIRes = async (
     query: string,
-    apiKey: string,
-    knowledgeId: string,
-    model: string
+    url: string,
+    token: string,
+    user: string
 ) => {
-    const jwt = genGLMJWT(apiKey);
-
     const queryParams = {
-        model: model,
-        messages: genGLMMessages(query),
-        temperature: 0.95,
-        top_p: 0.7,
-        max_tokens: 1024,
-        tools: [
-            {
-                type: 'retrieval',
-                retrieval: {
-                    knowledge_id: knowledgeId,
-                },
-            },
-        ],
-        stream: false,
+        inputs: {},
+        query,
+        response_mode: 'blocking',
+        user,
     };
 
     logger.info('queryParams:', queryParams);
 
     try {
-        const res = (await axios.post(
-            'https://open.bigmodel.cn/api/paas/v4/chat/completions',
-            queryParams,
-            {
-                headers: {
-                    Authorization: jwt,
-                },
-            }
-        )) as AxiosResponse<IGLMResponse>;
+        const res = (await axios.post(url, queryParams, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })) as AxiosResponse<IDifyAIResponse>;
 
-        logger.info(`${model} res choices:`, res.data?.choices);
+        logger.info(`res answer:`, res.data?.answer);
 
-        logger.info(`${model} tokens cost:`, res.data?.usage?.total_tokens);
-
-        return (
-            res.data.choices[0]?.message?.content ?? `${model} 服务端响应失败`
+        logger.info(
+            `tokens cost:`,
+            res.data?.metadata.usage.total_tokens,
+            res.data.metadata.usage.total_price
         );
+
+        const docsOutput = _.uniq(
+            res.data.metadata.retriever_resources.map(
+                (s) => `《${s.document_name}》`
+            )
+        ).join(', ');
+
+        return res.data.answer
+            ? `${res.data.answer}\n\n 引用文档: ${docsOutput}`
+            : '服务端响应失败';
     } catch (e) {
-        logger.error('call glm error', e);
-        return `${model}服务端响应失败`;
+        logger.error('call dify.ai error', e);
+        return '服务端响应失败';
     }
 };

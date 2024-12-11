@@ -16,9 +16,8 @@ export interface GlobalEnv {
     TDOLL_SKIN_DATA_FILE: string;
     MAPS_DATA_FILE: string;
     QA_DATA_FILE: string;
-    GLM_APIKEY: string;
-    GLM_KNOWLEDGE_ID: string;
-    GLM_MODEL: string;
+    DIFY_AI_TOKEN: string;
+    DIFY_AI_URL: string;
     IMGPROXY_URL: string;
     OUTPUT_BG_IMG: string;
 }
