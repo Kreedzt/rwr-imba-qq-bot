@@ -34,3 +34,15 @@ export const TDOLL_SKIN_NOT_FOUND_MSG =
 export const TDOLL_OUTPUT_FOLDER = 'out';
 
 export const TDOLL2_OUTPUT_FILE = 'tdoll2.png';
+
+export const CANVAS_STYLE = {
+    FONT: 'bold 20pt Consolas',
+    TEXT_COLOR: '#fff',
+    BACKGROUND_COLOR: '#451a03',
+    BORDER_COLOR: '#f48225',
+    PADDING: 10,
+    IMAGE_SIZE: 40,
+    LINE_HEIGHT: 40,
+    TITLE_OFFSET: 60,
+    RECT_OFFSET: 10,
+};

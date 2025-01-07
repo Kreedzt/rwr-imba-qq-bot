@@ -7,19 +7,7 @@ import {
 import { BaseCanvas } from '../../services/baseCanvas';
 import { ITDollDataItem } from './types';
 import { resizeImg } from '../../utils/imgproxy';
-
-// Constants
-const CANVAS_STYLE = {
-    FONT: 'bold 20pt Consolas',
-    TEXT_COLOR: '#fff',
-    BACKGROUND_COLOR: '#451a03',
-    BORDER_COLOR: '#f48225',
-    PADDING: 10,
-    IMAGE_SIZE: 40,
-    LINE_HEIGHT: 40,
-    TITLE_OFFSET: 60,
-    RECT_OFFSET: 10,
-};
+import { CANVAS_STYLE } from './constants';
 
 export class TDoll2Canvas extends BaseCanvas {
     renderStartY: number = 0;
@@ -48,10 +36,27 @@ export class TDoll2Canvas extends BaseCanvas {
     }
 
     private applyBaseStyle(context: CanvasRenderingContext2D) {
-        context.font = CANVAS_STYLE.FONT;
-        context.textAlign = 'left';
-        context.textBaseline = 'top';
-        context.fillStyle = CANVAS_STYLE.TEXT_COLOR;
+        this.setContextStyle(context, {
+            font: CANVAS_STYLE.FONT,
+            textAlign: 'left',
+            textBaseline: 'top',
+            fillStyle: CANVAS_STYLE.TEXT_COLOR
+        });
+    }
+
+    private setContextStyle(
+        context: CanvasRenderingContext2D,
+        style: {
+            font?: string;
+            textAlign?: CanvasTextAlign;
+            textBaseline?: CanvasTextBaseline;
+            fillStyle?: string | CanvasGradient | CanvasPattern;
+        }
+    ) {
+        if (style.font) context.font = style.font;
+        if (style.textAlign) context.textAlign = style.textAlign;
+        if (style.textBaseline) context.textBaseline = style.textBaseline;
+        if (style.fillStyle) context.fillStyle = style.fillStyle;
     }
 
     async loadAllImg() {
