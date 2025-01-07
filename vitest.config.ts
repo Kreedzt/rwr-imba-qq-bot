@@ -12,6 +12,7 @@ export default defineConfig({
     test: {
         globals: true,
         watch: false,
+        pool: 'forks',
         coverage: {
             all: true,
             include: ['src'],
