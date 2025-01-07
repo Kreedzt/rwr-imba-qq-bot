@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { ITDollDataItem, ITDollSkinDataItem } from './types';
+import { ITDollDataItem, ITDollSkinDataItem } from '../types/types';
 import {
     TDOLL_CATEGORY_CN_MAPPER,
     TDOLL_CATEGORY_EN_MAPPER,
@@ -8,10 +8,10 @@ import {
     TDOLL_SKIN_NOT_FOUND,
     TDOLL_SKIN_NOT_FOUND_MSG,
     TDOLL_URL_PREFIX,
-} from './constants';
-import { resizeImg } from '../../utils/imgproxy';
-import { TDollCategoryEnum } from './enums';
-import { TDoll2Canvas } from './tdoll2Canvas';
+} from '../types/constants';
+import { resizeImg } from '../../../utils/imgproxy';
+import { TDollCategoryEnum } from '../types/enums';
+import { TDoll2Canvas } from '../canvas/tdoll2Canvas';
 
 /**
  * Read tdoll data from file

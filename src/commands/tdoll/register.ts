@@ -6,11 +6,11 @@ import {
     getTDollDataWithCategoryRes,
     getTDollSkinReplyText,
     printTDoll2Png,
-} from './utils';
-import { TDollSvc } from './tdoll.service';
-import { TDollSkinSvc } from './tdollskin.service';
+} from './utils/utils';
+import { TDollSvc } from './services/tdoll.service';
+import { TDollSkinSvc } from './services/tdollskin.service';
 import { logger } from '../../utils/logger';
-import { TDOLL2_OUTPUT_FILE, TDOLL_SKIN_END_TEXT } from './constants';
+import { TDOLL2_OUTPUT_FILE, TDOLL_SKIN_END_TEXT } from './types/constants';
 import { getStaticHttpPath } from '../../utils/cmdreq';
 
 // 工具函数

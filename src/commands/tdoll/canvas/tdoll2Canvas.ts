@@ -4,10 +4,10 @@ import {
     loadImage,
     Image,
 } from 'canvas';
-import { BaseCanvas } from '../../services/baseCanvas';
-import { ITDollDataItem } from './types';
-import { resizeImg } from '../../utils/imgproxy';
-import { CANVAS_STYLE } from './constants';
+import { BaseCanvas } from '../../../services/baseCanvas';
+import { ITDollDataItem } from '../types/types';
+import { resizeImg } from '../../../utils/imgproxy';
+import { CANVAS_STYLE } from '../types/constants';
 
 export class TDoll2Canvas extends BaseCanvas {
     renderStartY: number = 0;
