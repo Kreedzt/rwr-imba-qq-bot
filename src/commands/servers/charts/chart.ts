@@ -2,15 +2,15 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { createCanvas } from 'canvas';
 import * as echarts from 'echarts';
-import { IAnalysisData } from './types';
+import { IAnalysisData } from '../types/types';
 import {
     ANALYSIS_DATA_FILE,
     ANALYSIS_HOURS_DATA_FILE,
     ANALYSIS_HOURS_OUTPUT_FILE,
     ANALYSIS_OUTPUT_FILE,
     OUTPUT_FOLDER,
-} from './constants';
-import { logger } from '../../utils/logger';
+} from '../types/constants';
+import { logger } from '../../../utils/logger';
 
 const readData = () => {
     const fileContent = fs.readFileSync(

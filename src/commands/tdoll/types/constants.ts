@@ -30,3 +30,19 @@ export const TDOLL_CATEGORY_CN_MAPPER: Record<string, TDollCategoryEnum> = {
 
 export const TDOLL_SKIN_NOT_FOUND_MSG =
     '未找到指定人形编号的皮肤, 请检查输入是否有误, 请注意需要输入编号而非名称!\n若确认输入编号无误, 多数是 gfwiki 数据问题, 请尝试去 gfwiki 查看数据(这并不是 bot 本身问题)';
+
+export const TDOLL_OUTPUT_FOLDER = 'out';
+
+export const TDOLL2_OUTPUT_FILE = 'tdoll2.png';
+
+export const CANVAS_STYLE = {
+    FONT: 'bold 20pt Consolas',
+    TEXT_COLOR: '#fff',
+    BACKGROUND_COLOR: '#451a03',
+    BORDER_COLOR: '#f48225',
+    PADDING: 10,
+    IMAGE_SIZE: 40,
+    LINE_HEIGHT: 40,
+    TITLE_OFFSET: 60,
+    RECT_OFFSET: 10,
+};

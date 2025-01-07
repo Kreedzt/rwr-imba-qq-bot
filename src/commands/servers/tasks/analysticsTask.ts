@@ -1,11 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { CronJob } from 'cron';
-import { GlobalEnv } from '../../types';
-import { countTotalPlayers, queryAllServers } from './utils';
-import { logger } from '../../utils/logger';
-import { IAnalysisData } from './types';
-import { ANALYSIS_DATA_FILE, OUTPUT_FOLDER } from './constants';
+import { GlobalEnv } from '../../../types';
+import { countTotalPlayers, queryAllServers } from '../utils/utils';
+import { logger } from '../../../utils/logger';
+import { IAnalysisData } from '../types/types';
+import { ANALYSIS_DATA_FILE, OUTPUT_FOLDER } from '../types/constants';
 
 export class AnalysticsTask {
     // 10 分钟更新一次

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ITDollDataItem, ITDollSkinDataItem } from './types';
+import { ITDollDataItem, ITDollSkinDataItem } from '../types/types';
 import {
     formatTDollData,
     formatTDollSkinData,
@@ -9,8 +9,8 @@ import {
     getTDollDataWithCategoryRes,
     getTDollSkinReplyText,
 } from './utils';
-import { TDollCategoryEnum } from './enums';
-import { TDOLL_SKIN_NOT_FOUND_MSG } from './constants';
+import { TDollCategoryEnum } from '../types/enums';
+import { TDOLL_SKIN_NOT_FOUND_MSG } from '../types/constants';
 
 const MOCK_DATA: ITDollDataItem[] = [
     {

@@ -1,13 +1,13 @@
 import { createCanvas, CanvasRenderingContext2D } from 'canvas';
-import { OnlineServerItem } from '../types';
+import { OnlineServerItem } from '../types/types';
 import {
     getServersHeaderDisplaySectionText,
     calcCanvasTextWidth,
     getServerInfoDisplaySectionText,
     getCountColor,
     getPlayersInServer,
-} from '../utils';
-import { BaseCanvas } from './baseCanvas';
+} from '../utils/utils';
+import { BaseCanvas } from '../../../services/baseCanvas';
 
 export class PlayersCanvas extends BaseCanvas {
     // constructor params

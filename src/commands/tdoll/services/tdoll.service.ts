@@ -1,8 +1,8 @@
 import * as fs from 'node:fs/promises';
-import {AsyncCacheService} from "../../services/asyncCache.service";
-import {ITDollDataItem} from "./types";
+import {AsyncCacheService} from "../../../services/asyncCache.service";
+import {ITDollDataItem} from "../types/types";
 
-class TDollService extends AsyncCacheService<ITDollDataItem[]>{
+export class TDollService extends AsyncCacheService<ITDollDataItem[]>{
     cacheTime = 24 * 60 * 60;
 
     async fetchData() {

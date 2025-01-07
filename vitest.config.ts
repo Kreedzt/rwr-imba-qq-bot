@@ -12,6 +12,8 @@ export default defineConfig({
     test: {
         globals: true,
         watch: false,
+        // node-canvas report: https://github.com/vitest-dev/vitest/issues/2261
+        pool: 'forks',
         coverage: {
             all: true,
             include: ['src'],

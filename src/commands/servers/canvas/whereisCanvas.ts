@@ -1,27 +1,30 @@
 import { createCanvas, CanvasRenderingContext2D } from 'canvas';
-import { OnlineServerItem } from '../types';
+import { IUserMatchedServerItem } from '../types/types';
 import {
-    getServersHeaderDisplaySectionText,
     calcCanvasTextWidth,
-    getServerInfoDisplaySectionText,
     getCountColor,
-} from '../utils';
-import { BaseCanvas } from './baseCanvas';
+    getWhereisHeaderSectionText,
+    getUserMatchedServerDisplaySectionText,
+    getWhereisFooterSectionText,
+} from '../utils/utils';
+import { BaseCanvas } from '../../../services/baseCanvas';
 
-export class ServersCanvas extends BaseCanvas {
+export class WhereisCanvas extends BaseCanvas {
     // constructor params
-    serverList: OnlineServerItem[];
+    matchList: IUserMatchedServerItem[];
     fileName: string;
+    query: string;
+    count: number;
 
     // render params data
     measureMaxWidth = 0;
     renderWidth = 0;
     renderHeight = 0;
 
-    titleData: ReturnType<typeof getServersHeaderDisplaySectionText> = {
-        serversTotalSection: '',
-        playersTotalStaticSection: '',
-        playersCountSection: '',
+    titleData: ReturnType<typeof getWhereisHeaderSectionText> = {
+        staticSection: '',
+        userSection: '',
+        staticSection2: '',
     };
     totalTitle = '';
 
@@ -32,20 +35,27 @@ export class ServersCanvas extends BaseCanvas {
 
     totalFooter = '';
 
-    constructor(serverList: OnlineServerItem[], fileName: string) {
+    constructor(
+        matchList: IUserMatchedServerItem[],
+        query: string,
+        count: number,
+        fileName: string
+    ) {
         super();
-        this.serverList = serverList;
+        this.matchList = matchList;
+        this.query = query;
+        this.count = count;
         this.fileName = fileName;
     }
 
     measureTitle() {
-        const titleData = getServersHeaderDisplaySectionText(this.serverList);
+        const titleData = getWhereisHeaderSectionText(this.query);
         this.titleData = titleData;
 
         this.totalTitle =
-            titleData.serversTotalSection +
-            titleData.playersTotalStaticSection +
-            titleData.playersCountSection;
+            titleData.staticSection +
+            titleData.userSection +
+            titleData.staticSection2;
 
         const titleWidth = calcCanvasTextWidth(this.totalTitle, 20) + 20;
         if (titleWidth > this.measureMaxWidth) {
@@ -55,17 +65,20 @@ export class ServersCanvas extends BaseCanvas {
 
     measureList() {
         this.maxLengthStr = '';
-        this.serverList.forEach((s) => {
+        this.matchList.forEach((m) => {
             this.contentLines += 1;
-            const sectionData = getServerInfoDisplaySectionText(s);
+            const section = getUserMatchedServerDisplaySectionText(m);
             const outputText =
-                sectionData.serverSection + sectionData.playersSection;
+                section.userSection +
+                section.staticSection +
+                section.serverCount +
+                section.mapSection;
             if (outputText.length > this.maxLengthStr.length) {
                 this.maxLengthStr = outputText;
             }
         });
 
-        this.renderHeight = 120 + this.serverList.length * 40;
+        this.renderHeight = 120 + 40 + this.matchList.length * 40;
     }
 
     renderLayout(
@@ -81,31 +94,30 @@ export class ServersCanvas extends BaseCanvas {
         context.font = 'bold 20pt Consolas';
         context.textAlign = 'left';
         context.textBaseline = 'top';
+
+        // static section
         context.fillStyle = '#fff';
+        context.fillText(this.titleData.staticSection, 10, 10);
+        const titleStaticSectionWidth = context.measureText(
+            this.titleData.staticSection
+        ).width;
+
+        // user section
+        context.fillStyle = '#22d3ee';
         context.fillText(
-            this.titleData.serversTotalSection +
-                this.titleData.playersTotalStaticSection,
-            10,
+            this.titleData.userSection,
+            10 + titleStaticSectionWidth,
             10
         );
-
-        const titleStaticSectionWidth = context.measureText(
-            this.titleData.serversTotalSection +
-                this.titleData.playersTotalStaticSection
+        const titleUserSectionWidth = context.measureText(
+            this.titleData.userSection
         ).width;
-        // count
-        const allServersCapacity = this.serverList.reduce(
-            (acc, cur) => acc + cur.max_players,
-            0
-        );
-        const allPlayersCount = this.serverList.reduce(
-            (acc, cur) => acc + cur.current_players,
-            0
-        );
-        context.fillStyle = getCountColor(allPlayersCount, allServersCapacity);
+
+        // static section 2
+        context.fillStyle = '#fff';
         context.fillText(
-            this.titleData.playersCountSection,
-            10 + titleStaticSectionWidth,
+            this.titleData.staticSection2,
+            10 + titleStaticSectionWidth + titleUserSectionWidth,
             10
         );
 
@@ -119,54 +131,77 @@ export class ServersCanvas extends BaseCanvas {
         context.fillStyle = '#3574d4';
 
         this.maxRectWidth = 0;
-        this.serverList.forEach((s) => {
-            context.font = 'bold 20pt Consolas';
+        this.matchList.forEach((m) => {
             /**
-             * Render server info text
+             * Render user in server info text
              */
-            context.fillStyle = '#fff';
-            const outputSectionText = getServerInfoDisplaySectionText(s);
+            const outputSectionText = getUserMatchedServerDisplaySectionText(m);
             // all text, update maxRectWidth
             const allText =
-                outputSectionText.serverSection +
-                outputSectionText.playersSection +
+                outputSectionText.userSection +
+                outputSectionText.staticSection +
+                outputSectionText.serverCount +
                 outputSectionText.mapSection;
             const allTextWidth = context.measureText(allText).width;
             if (allTextWidth > this.maxRectWidth) {
                 this.maxRectWidth = allTextWidth;
             }
 
-            // server section
+            // user section
+            context.fillStyle = '#22d3ee';
             context.fillText(
-                outputSectionText.serverSection,
+                outputSectionText.userSection,
                 20,
                 10 + this.renderStartY
             );
-            const serverSectionWidth = context.measureText(
-                outputSectionText.serverSection
+            const userSectionWidth = context.measureText(
+                outputSectionText.userSection
             ).width;
 
-            // count section
-            context.fillStyle = getCountColor(s.current_players, s.max_players);
+            // user + server static section(xxx is playing server1)
+            context.fillStyle = '#fff';
             context.fillText(
-                outputSectionText.playersSection,
-                20 + serverSectionWidth,
+                outputSectionText.staticSection,
+                20 + userSectionWidth,
                 10 + this.renderStartY
             );
-            const playersSectionWidth = context.measureText(
-                outputSectionText.playersSection
+            const staticSectionWidth = context.measureText(
+                outputSectionText.staticSection
             ).width;
 
-            // map section
+            // server capacity count section
+            context.fillStyle = getCountColor(
+                m.server.current_players,
+                m.server.max_players
+            );
+            context.fillText(
+                outputSectionText.serverCount,
+                20 + userSectionWidth + staticSectionWidth,
+                10 + this.renderStartY
+            );
+            const serverCountWidth = context.measureText(
+                outputSectionText.serverCount
+            ).width;
+
+            // server map section
             context.fillStyle = '#fff';
             context.fillText(
                 outputSectionText.mapSection,
-                20 + serverSectionWidth + playersSectionWidth,
+                20 + userSectionWidth + staticSectionWidth + serverCountWidth,
                 10 + this.renderStartY
             );
 
             this.renderStartY += 40;
         });
+    }
+
+    renderFooterExtra(context: CanvasRenderingContext2D) {
+        const footerData = getWhereisFooterSectionText(this.count);
+        context.fillStyle = '#fff';
+        context.font = 'bold 10pt Consolas';
+        context.textAlign = 'left';
+        context.fillText(footerData, 10, this.renderStartY + 20);
+        this.renderStartY += 40;
     }
 
     renderRect(context: CanvasRenderingContext2D) {
@@ -175,11 +210,9 @@ export class ServersCanvas extends BaseCanvas {
             10,
             this.renderStartY + 10,
             this.maxRectWidth + 20,
-            // plus end offset
             this.contentLines * 40 + 10
         );
         context.stroke();
-        // start offset
         this.renderStartY += 10;
     }
 
@@ -213,6 +246,7 @@ export class ServersCanvas extends BaseCanvas {
         this.renderTitle(context);
         this.renderRect(context);
         this.renderList(context);
+        this.renderFooterExtra(context);
         this.renderFooter(context);
 
         return super.writeFile(canvas, this.fileName);

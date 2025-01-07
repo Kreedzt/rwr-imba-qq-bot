@@ -1,69 +1,126 @@
-import { IRegister } from '../../types';
+import { IRegister, ParamsType } from '../../types';
 import {
+    getMatchedTDollData,
+    getMatchedTDollDataWithCategory,
     getTDollDataRes,
     getTDollDataWithCategoryRes,
     getTDollSkinReplyText,
-} from './utils';
-import { TDollSvc } from './tdoll.service';
-import { TDollSkinSvc } from './tdollskin.service';
+    printTDoll2Png,
+} from './utils/utils';
+import { TDollSvc } from './services/tdoll.service';
+import { TDollSkinSvc } from './services/tdollskin.service';
 import { logger } from '../../utils/logger';
-import { TDOLL_SKIN_END_TEXT } from './constants';
+import { TDOLL2_OUTPUT_FILE, TDOLL_SKIN_END_TEXT } from './types/constants';
+import { getStaticHttpPath } from '../../utils/cmdreq';
 
-export const TDollCommandRegister: IRegister = {
-    name: 'tdoll',
-    alias: 'td',
+// 工具函数
+const getQueryParams = (params: ParamsType): string[] =>
+    Array.from(params.keys()).map(String);
+
+const validateParams = async (
+    ctx: any,
+    expectedSize: number,
+    errorMessage: string
+): Promise<boolean> => {
+    if (ctx.params.size !== expectedSize) {
+        await ctx.reply(errorMessage);
+        return false;
+    }
+    return true;
+};
+
+const handleError = async (ctx: any, error: any, commandName: string) => {
+    logger.error(`${commandName} command error: ${error}`);
+    await ctx.reply('查询失败，请稍后重试');
+};
+
+const getTDollReply = async (ctx: any, query: string, query2?: string) => {
+    const tdollData = await TDollSvc.getData();
+    if (query2) {
+        return getTDollDataWithCategoryRes(tdollData, query, query2);
+    }
+    return getTDollDataRes(tdollData, query);
+};
+
+const getTDoll2Reply = async (ctx: any, query: string, query2?: string) => {
+    const tdollData = await TDollSvc.getData();
+    const matchedRes = query2
+        ? getMatchedTDollDataWithCategory(tdollData, query, query2)
+        : getMatchedTDollData(tdollData, query);
+
+    if (matchedRes.length === 0) {
+        await ctx.reply('未找到指定枪名，请检查输入是否有误！');
+        return null;
+    }
+
+    await printTDoll2Png(query, matchedRes, TDOLL2_OUTPUT_FILE);
+    return `[CQ:image,file=${getStaticHttpPath(
+        ctx.env,
+        TDOLL2_OUTPUT_FILE
+    )},cache=0,c=8]`;
+};
+
+const createTDollCommand = (name: string, alias: string): IRegister => ({
+    name,
+    alias,
     description: '根据枪名查询数据, 支持模糊匹配, 忽略大小写及符号.[10s CD]',
     hint: [
-        '按名称查询指定武器数据: #tdoll M4A1',
-        '按名称模糊查询武器数据: #tdoll m4',
-        '随机武器: #tdoll random',
-        '随机 AR 武器: #tdoll random ar',
+        `按名称查询指定武器数据: #${alias} M4A1`,
+        `按名称模糊查询武器数据: #${alias} m4`,
+        `随机武器: #${alias} random`,
+        `随机 AR 武器: #${alias} random ar`,
     ],
     timesInterval: 10,
     isAdmin: false,
     exec: async (ctx) => {
-        if (ctx.params.size < 1 || ctx.params.size > 2) {
-            await ctx.reply(
-                '参数不正确, 示例: #tdoll M4A1, #tdoll random(random 为随机返回), #tdoll m4 ar(查询突击步枪), #tdoll random ar(随机突击步枪)'
-            );
-            return;
+        try {
+            if (ctx.params.size < 1 || ctx.params.size > 2) {
+                await ctx.reply(
+                    '参数不正确, 示例: #tdoll M4A1, #tdoll random(random 为随机返回), #tdoll m4 ar(查询突击步枪), #tdoll random ar(随机突击步枪)'
+                );
+                return;
+            }
+
+            const [query, query2] = getQueryParams(ctx.params);
+            const replyText = await getTDollReply(ctx, query, query2);
+            if (replyText) {
+                await ctx.reply(replyText);
+            }
+        } catch (error) {
+            await handleError(ctx, error, name);
         }
+    },
+});
 
-        const tdollData = await TDollSvc.getData();
-        if (ctx.params.size === 1) {
-            let query: string = '';
+export const TDollCommandRegister = createTDollCommand('tdoll', 'td');
+export const TDoll2CommandRegister: IRegister = {
+    name: 'tdoll2',
+    alias: 'td2',
+    description: '根据枪名查询数据, 支持模糊匹配, 忽略大小写及符号.[10s CD]',
+    hint: [
+        '按名称查询指定武器数据: #td2 M4A1',
+        '按名称模糊查询武器数据: #td2 m4',
+        '随机武器: #td2 random',
+        '随机 AR 武器: #td2 random ar',
+    ],
+    timesInterval: 10,
+    isAdmin: false,
+    exec: async (ctx) => {
+        try {
+            if (ctx.params.size < 1 || ctx.params.size > 2) {
+                await ctx.reply(
+                    '参数不正确, 示例: #tdoll M4A1, #tdoll random(random 为随机返回), #tdoll m4 ar(查询突击步枪), #tdoll random ar(随机突击步枪)'
+                );
+                return;
+            }
 
-            ctx.params.forEach((checked, inputParam) => {
-                if (!query) {
-                    query = inputParam;
-                }
-            });
-
-            const replyText = getTDollDataRes(tdollData, query);
-
-            await ctx.reply(replyText);
-            return;
-        }
-
-        if (ctx.params.size === 2) {
-            let query: string = '';
-            let query2: string = '';
-
-            ctx.params.forEach((checked, inputParam) => {
-                if (!query) {
-                    query = inputParam;
-                } else {
-                    query2 = inputParam;
-                }
-            });
-
-            const replyText = getTDollDataWithCategoryRes(
-                tdollData,
-                query,
-                query2
-            );
-
-            await ctx.reply(replyText);
+            const [query, query2] = getQueryParams(ctx.params);
+            const cqOutput = await getTDoll2Reply(ctx, query, query2);
+            if (cqOutput) {
+                await ctx.reply(cqOutput);
+            }
+        } catch (error) {
+            await handleError(ctx, error, 'tdoll2');
         }
     },
 };
@@ -76,31 +133,34 @@ export const TDollSkinCommandRegister: IRegister = {
     timesInterval: 10,
     isAdmin: false,
     exec: async (ctx) => {
-        if (ctx.params.size !== 1) {
-            await ctx.reply('需要1个参数, 示例: #tdollskin 2');
-            return;
-        }
-
-        const start = Date.now();
-        const [tdollData, tdollSkinData] = await Promise.all([
-            TDollSvc.getData(),
-            TDollSkinSvc.getData(),
-        ]);
-        const end = Date.now();
-        logger.info(`fetch tdoll & tdollSkinData time: ${end - start}ms`);
-
-        let query: string = '';
-
-        ctx.params.forEach((checked, inputParam) => {
-            if (!query) {
-                query = inputParam;
+        try {
+            if (
+                !(await validateParams(
+                    ctx,
+                    1,
+                    '需要1个参数, 示例: #tdollskin 2'
+                ))
+            ) {
+                return;
             }
-        });
 
-        let replyText = getTDollSkinReplyText(query, tdollData, tdollSkinData);
+            const start = Date.now();
+            const [tdollData, tdollSkinData] = await Promise.all([
+                TDollSvc.getData(),
+                TDollSkinSvc.getData(),
+            ]);
+            logger.info(
+                `fetch tdoll & tdollSkinData time: ${Date.now() - start}ms`
+            );
 
-        replyText += `\n${TDOLL_SKIN_END_TEXT}`;
+            const [query] = getQueryParams(ctx.params);
+            const replyText =
+                getTDollSkinReplyText(query, tdollData, tdollSkinData) +
+                `\n${TDOLL_SKIN_END_TEXT}`;
 
-        await ctx.reply(replyText);
+            await ctx.reply(replyText);
+        } catch (error) {
+            await handleError(ctx, error, 'tdollskin');
+        }
     },
 };
