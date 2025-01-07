@@ -3,7 +3,7 @@ import * as path from 'path';
 import { CanvasRenderingContext2D, Canvas } from 'canvas';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
-import { GlobalEnv } from '../../../types';
+import { GlobalEnv } from '../types';
 import { CanvasImgService } from './canvasImg.service';
 
 const getFooterText = (cost: number, endTime: dayjs.Dayjs) => {

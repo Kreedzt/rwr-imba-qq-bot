@@ -6,7 +6,7 @@ import {
     getServerInfoDisplaySectionText,
     getCountColor,
 } from '../utils';
-import { BaseCanvas } from './baseCanvas';
+import { BaseCanvas } from '../../../services/baseCanvas';
 
 export class ServersCanvas extends BaseCanvas {
     // constructor params

@@ -7,7 +7,7 @@ import {
     getUserMatchedServerDisplaySectionText,
     getWhereisFooterSectionText,
 } from '../utils';
-import { BaseCanvas } from './baseCanvas';
+import { BaseCanvas } from '../../../services/baseCanvas';
 
 export class WhereisCanvas extends BaseCanvas {
     // constructor params

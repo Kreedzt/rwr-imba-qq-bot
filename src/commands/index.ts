@@ -31,6 +31,7 @@ import { WebsiteCommandRegister } from './website/register';
 import {
     TDollCommandRegister,
     TDollSkinCommandRegister,
+    TDoll2CommandRegister
 } from './tdoll/register';
 import {
     QACommandRegister,
@@ -65,6 +66,7 @@ const allCommands: IRegister[] = [
     LogCommandRegister,
     LogSelfRegister,
     AiCommandRegister,
+    TDoll2CommandRegister
 ];
 
 export const initCommands = async (env: GlobalEnv) => {

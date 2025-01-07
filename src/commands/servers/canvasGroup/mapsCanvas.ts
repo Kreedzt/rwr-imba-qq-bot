@@ -7,7 +7,7 @@ import {
     getMapTextInCanvas,
     getMapShortName,
 } from '../utils';
-import { BaseCanvas } from './baseCanvas';
+import { BaseCanvas } from '../../../services/baseCanvas';
 
 const UNDER_MAP_SERVER_SPACING = 20;
 

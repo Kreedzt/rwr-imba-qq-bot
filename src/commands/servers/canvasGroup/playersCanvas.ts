@@ -7,7 +7,7 @@ import {
     getCountColor,
     getPlayersInServer,
 } from '../utils';
-import { BaseCanvas } from './baseCanvas';
+import { BaseCanvas } from '../../../services/baseCanvas';
 
 export class PlayersCanvas extends BaseCanvas {
     // constructor params
