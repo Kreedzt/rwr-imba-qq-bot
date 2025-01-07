@@ -1,12 +1,12 @@
 import { createCanvas, CanvasRenderingContext2D } from 'canvas';
-import { IMapDataItem, OnlineServerItem } from '../types';
+import { IMapDataItem, OnlineServerItem } from '../types/types';
 import {
     calcCanvasTextWidth,
     getCountColor,
     getServerInfoDisplaySectionText,
     getMapTextInCanvas,
     getMapShortName,
-} from '../utils';
+} from '../utils/utils';
 import { BaseCanvas } from '../../../services/baseCanvas';
 
 const UNDER_MAP_SERVER_SPACING = 20;

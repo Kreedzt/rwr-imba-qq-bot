@@ -3,11 +3,11 @@ import {
     IMapDataItem,
     IUserMatchedServerItem,
     OnlineServerItem,
-} from './types';
-import { ServersCanvas } from './canvasGroup/serversCanvas';
-import { PlayersCanvas } from './canvasGroup/playersCanvas';
-import { WhereisCanvas } from './canvasGroup/whereisCanvas';
-import { MapsCanvas } from './canvasGroup/mapsCanvas';
+} from '../types/types';
+import { ServersCanvas } from '../canvas/serversCanvas';
+import { PlayersCanvas } from '../canvas/playersCanvas';
+import { WhereisCanvas } from '../canvas/whereisCanvas';
+import { MapsCanvas } from '../canvas/mapsCanvas';
 
 const OUTPUT_FOLDER = 'out';
 

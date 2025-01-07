@@ -6,19 +6,19 @@ import {
     printPlayersPng,
     printServerListPng,
     printUserInServerListPng,
-} from './canvas';
+} from './utils/canvas';
 import {
     MAPS_OUTPUT_FILE,
     PLAYERS_OUTPUT_FILE,
     SERVERS_OUTPUT_FILE,
     WHEREIS_OUTPUT_FILE,
-} from './constants';
-import { getUserMatchedList, queryAllServers } from './utils';
-import {printChartPng, printHoursChartPng} from './chart';
-import { AnalysticsTask } from './analysticsTask';
-import { AnalysticsHoursTask } from './analyticsHoursTask';
+} from './types/constants';
+import { getUserMatchedList, queryAllServers } from './utils/utils';
+import {printChartPng, printHoursChartPng} from './charts/chart';
+import { AnalysticsTask } from './tasks/analysticsTask';
+import { AnalysticsHoursTask } from './tasks/analyticsHoursTask';
 import { parseIgnoreSpace } from '../../utils/cmd';
-import { MapsDataService } from './mapsData.service';
+import { MapsDataService } from './services/mapsData.service';
 import { CanvasImgService } from '../../services/canvasImg.service';
 
 export const ServersCommandRegister: IRegister = {

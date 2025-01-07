@@ -1,5 +1,5 @@
-import { IMapDataItem } from './types';
-import { readMapData } from './utils';
+import { IMapDataItem } from '../types/types';
+import { readMapData } from '../utils/utils';
 
 export class MapsDataService {
     static selfInst: MapsDataService;

@@ -1,15 +1,15 @@
 import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
-import type { Nullable } from '../../types';
-import { logger } from '../../utils/logger';
+import type { Nullable } from '../../../types';
+import { logger } from '../../../utils/logger';
 import type {
     Res,
     ResServerItem,
     OnlineServerItem,
     IUserMatchedServerItem,
     IMapDataItem,
-} from './types';
-import { QUERY_USER_IN_SERVERS_LIMIT } from './constants';
+} from '../types/types';
+import { QUERY_USER_IN_SERVERS_LIMIT } from '../types/constants';
 import * as fs from 'node:fs/promises';
 
 const SERVER_API_URL = 'http://rwr.runningwithrifles.com/rwr_server_list';
