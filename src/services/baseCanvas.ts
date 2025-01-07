@@ -88,6 +88,10 @@ export class BaseCanvas {
             filters: canvas.PNG_FILTER_NONE,
         });
 
+        if (!fs.existsSync(OUTPUT_FOLDER)) {
+            fs.mkdirSync(OUTPUT_FOLDER);
+        }
+
         const outputPath = path.join(
             process.cwd(),
             OUTPUT_FOLDER,
