@@ -8,6 +8,19 @@ import { BaseCanvas } from '../../services/baseCanvas';
 import { ITDollDataItem } from './types';
 import { resizeImg } from '../../utils/imgproxy';
 
+// Constants
+const CANVAS_STYLE = {
+    FONT: 'bold 20pt Consolas',
+    TEXT_COLOR: '#fff',
+    BACKGROUND_COLOR: '#451a03',
+    BORDER_COLOR: '#f48225',
+    PADDING: 10,
+    IMAGE_SIZE: 40,
+    LINE_HEIGHT: 40,
+    TITLE_OFFSET: 60,
+    RECT_OFFSET: 10,
+};
+
 export class TDoll2Canvas extends BaseCanvas {
     renderStartY: number = 0;
     totalTitle: string = '';
@@ -34,24 +47,64 @@ export class TDoll2Canvas extends BaseCanvas {
         this.tdolls = tdolls;
     }
 
+    private applyBaseStyle(context: CanvasRenderingContext2D) {
+        context.font = CANVAS_STYLE.FONT;
+        context.textAlign = 'left';
+        context.textBaseline = 'top';
+        context.fillStyle = CANVAS_STYLE.TEXT_COLOR;
+    }
+
     async loadAllImg() {
-        await Promise.all(
-            this.tdolls.map(async (tdoll) => {
-                const avatarUrl = resizeImg(tdoll.avatar, 40, 40);
-                const avatarImg = await loadImage(avatarUrl);
-                this.imgMap.set(tdoll.id, avatarImg);
-                if (tdoll.mod === '1') {
-                    const avatarModImg = await loadImage(
-                        resizeImg(tdoll.avatarMod, 40, 40)
-                    );
-                    this.imgMap.set(`${tdoll.id}__mod`, avatarModImg);
-                }
-            })
-        );
+        try {
+            await Promise.all(
+                this.tdolls.map(async (tdoll) => {
+                    try {
+                        const avatarUrl = resizeImg(
+                            tdoll.avatar,
+                            CANVAS_STYLE.IMAGE_SIZE,
+                            CANVAS_STYLE.IMAGE_SIZE
+                        );
+                        const avatarImg = await loadImage(avatarUrl);
+                        this.imgMap.set(tdoll.id, avatarImg);
+
+                        if (tdoll.mod === '1') {
+                            const avatarModImg = await loadImage(
+                                resizeImg(
+                                    tdoll.avatarMod,
+                                    CANVAS_STYLE.IMAGE_SIZE,
+                                    CANVAS_STYLE.IMAGE_SIZE
+                                )
+                            );
+                            this.imgMap.set(`${tdoll.id}__mod`, avatarModImg);
+                        }
+                    } catch (error) {
+                        console.error(
+                            `Failed to load image for tdoll ${tdoll.id}:`,
+                            error
+                        );
+                    }
+                })
+            );
+        } catch (error) {
+            console.error('Error loading images:', error);
+            throw new Error('Failed to load images');
+        }
+    }
+
+    getTitleSection() {
+        return {
+            staticSection: '查询 ',
+            userSection: `${this.query}`,
+            staticSection2: ' 匹配结果',
+        };
     }
 
     measureTitle() {
-        const title = `查询: \`${this.query}\` 匹配结果`;
+        const section = this.getTitleSection();
+        const title =
+            section.staticSection +
+            section.userSection +
+            section.staticSection2;
         this.totalTitle = title;
 
         const titleWidth = this.calcCanvasTextWidth(title, 20) + 20;
@@ -90,60 +143,92 @@ export class TDoll2Canvas extends BaseCanvas {
         context.fillRect(0, 0, width, height);
     }
 
+    /**
+     * Renders the main title at the top of the canvas
+     * @param context - The canvas rendering context
+     */
     renderTitle(context: CanvasRenderingContext2D) {
-        context.font = 'bold 20pt Consolas';
-        context.textAlign = 'left';
-        context.textBaseline = 'top';
-        context.fillStyle = '#fff';
-        context.fillText(this.totalTitle, 10, 10);
+        this.applyBaseStyle(context);
+        const section = this.getTitleSection();
+        context.fillText(
+            section.staticSection,
+            CANVAS_STYLE.PADDING,
+            CANVAS_STYLE.PADDING
+        );
+        const staticSectionWidth = context.measureText(
+            section.staticSection
+        ).width;
 
-        this.renderStartY = 10 + 40 + 10;
+        context.fillStyle = '#22d3ee';
+        context.fillText(
+            section.userSection,
+            CANVAS_STYLE.PADDING + staticSectionWidth,
+            CANVAS_STYLE.PADDING
+        );
+        const userSectionWidth = context.measureText(section.userSection).width;
+
+        context.fillStyle = '#fff';
+        context.fillText(
+            section.staticSection2,
+            CANVAS_STYLE.PADDING + userSectionWidth + staticSectionWidth,
+            CANVAS_STYLE.PADDING
+        );
+        this.renderStartY = CANVAS_STYLE.TITLE_OFFSET;
+    }
+
+    private renderTdollTitle(
+        context: CanvasRenderingContext2D,
+        tdoll: ITDollDataItem
+    ): number {
+        const sectionTitle = `No.${tdoll.id} ${tdoll.nameIngame || ''}${
+            tdoll.mod === '1' ? '(mod)' : ''
+        }`;
+        const sectionTitleWidth = context.measureText(sectionTitle).width;
+        context.fillText(sectionTitle, CANVAS_STYLE.PADDING, this.renderStartY);
+        this.renderStartY += CANVAS_STYLE.LINE_HEIGHT;
+        return sectionTitleWidth;
+    }
+
+    private renderTdollImages(
+        context: CanvasRenderingContext2D,
+        tdoll: ITDollDataItem
+    ): number {
+        let maxWidth = 0;
+        let offsetX = CANVAS_STYLE.PADDING;
+
+        const renderImage = (image: Image | undefined) => {
+            if (image) {
+                context.drawImage(
+                    image,
+                    offsetX,
+                    this.renderStartY,
+                    CANVAS_STYLE.IMAGE_SIZE,
+                    CANVAS_STYLE.IMAGE_SIZE
+                );
+                offsetX += CANVAS_STYLE.IMAGE_SIZE;
+                maxWidth = Math.max(maxWidth, offsetX);
+            }
+        };
+
+        renderImage(this.imgMap.get(tdoll.id));
+        if (tdoll.mod === '1') {
+            renderImage(this.imgMap.get(`${tdoll.id}__mod`));
+        }
+
+        this.renderStartY += CANVAS_STYLE.LINE_HEIGHT;
+        return maxWidth;
     }
 
     renderList(context: CanvasRenderingContext2D) {
-        context.font = 'bold 20pt Consolas';
-        context.textAlign = 'left';
-        context.textBaseline = 'top';
-        context.fillStyle = '#fff';
-
+        this.applyBaseStyle(context);
         this.maxRectWidth = 0;
+
         this.tdolls.forEach((tdoll) => {
-            // title
-            const sectionTitle = `No.${tdoll.id} ${tdoll.nameIngame || ''}${
-                tdoll.mod === '1' ? '(mod)' : ''
-            }`;
-            const sectionTitleWidth = context.measureText(sectionTitle).width;
-            context.fillText(sectionTitle, 10, this.renderStartY);
-            this.renderStartY += 40;
+            const titleWidth = this.renderTdollTitle(context, tdoll);
+            this.maxRectWidth = Math.max(this.maxRectWidth, titleWidth);
 
-            if (sectionTitleWidth > this.maxRectWidth) {
-                this.maxRectWidth = sectionTitleWidth;
-            }
-
-            // img
-            const avatarImg = this.imgMap.get(tdoll.id);
-            let offsetX = 10;
-            if (avatarImg) {
-                context.drawImage(avatarImg, 10, this.renderStartY, 40, 40);
-                offsetX += 40;
-                if (40 > this.maxRectWidth) {
-                    this.maxRectWidth = 40;
-                }
-            }
-            const avatarModImg = this.imgMap.get(`${tdoll.id}__mod`);
-            if (avatarModImg) {
-                context.drawImage(
-                    avatarModImg,
-                    offsetX,
-                    this.renderStartY,
-                    40,
-                    40
-                );
-                if (80 > this.maxRectWidth) {
-                    this.maxRectWidth = 80;
-                }
-            }
-            this.renderStartY += 40;
+            const imagesWidth = this.renderTdollImages(context, tdoll);
+            this.maxRectWidth = Math.max(this.maxRectWidth, imagesWidth);
         });
     }
 
@@ -161,7 +246,10 @@ export class TDoll2Canvas extends BaseCanvas {
         this.renderStartY += 10;
     }
 
-    measureRender() {
+    /**
+     * 测量渲染尺寸
+     */
+    private measureRender() {
         this.measureTitle();
         this.measureList();
 
