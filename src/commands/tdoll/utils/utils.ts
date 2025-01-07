@@ -68,28 +68,43 @@ export const getMatchedTDollData = (
         const randomData = dataList[randomIndex];
         return [randomData];
     }
-    return dataList.filter((d) => {
-        const userInput = query
-            .toLowerCase()
-            .replaceAll('-', '')
-            .replaceAll('.', '');
+    const userInput = query
+        .toLowerCase()
+        .replaceAll('-', '')
+        .replaceAll('.', '');
 
-        const currentName = d.nameIngame
-            .toLowerCase()
-            .replaceAll('-', '')
-            .replaceAll(' ', '')
-            .replaceAll('.', '');
+    return dataList
+        .filter((d) => {
+            const currentName = d.nameIngame
+                .toLowerCase()
+                .replaceAll('-', '')
+                .replaceAll(' ', '')
+                .replaceAll('.', '');
 
-        return currentName.includes(userInput);
-    });
+            return currentName.includes(userInput);
+        })
+        .sort((a, b) => {
+            const aName = a.nameIngame
+                .toLowerCase()
+                .replaceAll('-', '')
+                .replaceAll(' ', '')
+                .replaceAll('.', '');
+            const bName = b.nameIngame
+                .toLowerCase()
+                .replaceAll('-', '')
+                .replaceAll(' ', '')
+                .replaceAll('.', '');
+
+            return aName.indexOf(userInput) - bName.indexOf(userInput);
+        });
 };
 
 /**
  * Get matched tdoll data with category
- * @param dataList 
- * @param query 
- * @param query2 
- * @returns 
+ * @param dataList
+ * @param query
+ * @param query2
+ * @returns
  */
 export const getMatchedTDollDataWithCategory = (
     dataList: ITDollDataItem[],
