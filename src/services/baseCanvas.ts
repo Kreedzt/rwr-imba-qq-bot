@@ -15,6 +15,8 @@ const getFooterText = (cost: number, endTime: dayjs.Dayjs) => {
 
 const OUTPUT_FOLDER = 'out';
 
+export const CN_REGEX = new RegExp('[\u4E00-\u9FA5]');
+
 export class BaseCanvas {
     startTime?: Dayjs;
 
@@ -22,6 +24,19 @@ export class BaseCanvas {
     renderStartY = 0;
 
     constructor() {}
+
+    calcCanvasTextWidth(text: string, base: number): number {
+        let countWidth = 0;
+        for (let i = 0; i < text.length; ++i) {
+            if (CN_REGEX.test(text[i])) {
+                countWidth += base * 2;
+            } else {
+                countWidth += base;
+            }
+        }
+
+        return countWidth;
+    }
 
     renderBgImg(ctx: CanvasRenderingContext2D, width: number, height: number) {
         const path = (process.env as unknown as GlobalEnv).OUTPUT_BG_IMG;

@@ -1,15 +1,17 @@
 import * as fs from 'fs';
-import { GlobalEnv } from '../../types';
 import { ITDollDataItem, ITDollSkinDataItem } from './types';
 import {
     TDOLL_CATEGORY_CN_MAPPER,
     TDOLL_CATEGORY_EN_MAPPER,
+    TDOLL_OUTPUT_FOLDER,
     TDOLL_RANDOM_KEY,
-    TDOLL_SKIN_NOT_FOUND, TDOLL_SKIN_NOT_FOUND_MSG,
+    TDOLL_SKIN_NOT_FOUND,
+    TDOLL_SKIN_NOT_FOUND_MSG,
     TDOLL_URL_PREFIX,
 } from './constants';
 import { resizeImg } from '../../utils/imgproxy';
 import { TDollCategoryEnum } from './enums';
+import { TDoll2Canvas } from './tdoll2Canvas';
 
 /**
  * Read tdoll data from file
@@ -53,6 +55,65 @@ export const getRandomTDollData = (dataList: ITDollDataItem[]): string => {
 };
 
 /**
+ * Get matched tdoll data
+ * @param dataList
+ * @param query
+ */
+export const getMatchedTDollData = (
+    dataList: ITDollDataItem[],
+    query: string
+): ITDollDataItem[] => {
+    if (query.toLowerCase() === TDOLL_RANDOM_KEY) {
+        const randomIndex = Math.floor(Math.random() * dataList.length);
+        const randomData = dataList[randomIndex];
+        return [randomData];
+    }
+    return dataList.filter((d) => {
+        const userInput = query
+            .toLowerCase()
+            .replaceAll('-', '')
+            .replaceAll('.', '');
+
+        const currentName = d.nameIngame
+            .toLowerCase()
+            .replaceAll('-', '')
+            .replaceAll(' ', '')
+            .replaceAll('.', '');
+
+        return currentName.includes(userInput);
+    });
+};
+
+/**
+ * Get matched tdoll data with category
+ * @param dataList 
+ * @param query 
+ * @param query2 
+ * @returns 
+ */
+export const getMatchedTDollDataWithCategory = (
+    dataList: ITDollDataItem[],
+    query: string,
+    query2: string
+): ITDollDataItem[] => {
+    let new_query = query2;
+    let category = findCategoryByQuery(query);
+
+    if (!category) {
+        category = findCategoryByQuery(query2);
+        new_query = query;
+    }
+
+    if (!category) {
+        return [];
+    }
+
+    const targetData = dataList.filter((d) => d.tdollClass === category);
+
+    return getMatchedTDollData(targetData, new_query);
+};
+
+/**
  * Get tdoll data response with 1 query param
  * @param dataList
  * @param query
@@ -64,30 +125,7 @@ export const getTDollDataRes = (
     if (query.toLowerCase() === TDOLL_RANDOM_KEY) {
         return getRandomTDollData(dataList);
     }
-    const targetData = dataList
-        .filter((d) => {
-            const userInput = query
-                .toLowerCase()
-                .replaceAll('-', '')
-                .replaceAll('.', '');
-
-            const currentName = d.nameIngame
-                .toLowerCase()
-                .replaceAll('-', '')
-                .replaceAll(' ', '')
-                .replaceAll('.', '');
-
-            return currentName.includes(userInput);
-        })
-        .sort((a, b) => {
-            const aMatch = a.nameIngame;
-            const bMatch = b.nameIngame;
-            if (aMatch.indexOf(query) !== bMatch.indexOf(query)) {
-                return aMatch.indexOf(query) - bMatch.indexOf(query);
-            }
-
-            return aMatch.length - bMatch.length;
-        });
+    const targetData = getMatchedTDollData(dataList, query);
 
     const slicedData = targetData.slice(0, 10);
 
@@ -162,12 +200,10 @@ export const formatTDollSkinData = (
     skin.forEach((item) => {
         res += `${item.index + 1}. ${item.title} ID:${item.value}\n`;
         if (item.image) {
-            const imageUrl = item.image.pic.includes(TDOLL_URL_PREFIX) ? item.image.pic : `${TDOLL_URL_PREFIX}${item.image.pic}`;
-            res += `[CQ:image,file=${resizeImg(
-                imageUrl,
-                150,
-                150
-            )},cache=0]\n`;
+            const imageUrl = item.image.pic.includes(TDOLL_URL_PREFIX)
+                ? item.image.pic
+                : `${TDOLL_URL_PREFIX}${item.image.pic}`;
+            res += `[CQ:image,file=${resizeImg(imageUrl, 150, 150)},cache=0]\n`;
         }
     });
 
@@ -198,4 +234,22 @@ export const getTDollSkinReplyText = (
     const skin = record[query];
 
     return formatTDollSkinData(query, tdollData, skin);
+};
+
+export const printTDoll2Png = async (
+    query: string,
+    tdollData: ITDollDataItem[],
+    fileName: string
+) => {
+    if (!fs.existsSync(TDOLL_OUTPUT_FOLDER)) {
+        fs.mkdirSync(TDOLL_OUTPUT_FOLDER);
+    }
+
+    const outputPath = await new TDoll2Canvas(
+        query,
+        tdollData,
+        fileName
+    ).render();
+
+    return outputPath;
 };
