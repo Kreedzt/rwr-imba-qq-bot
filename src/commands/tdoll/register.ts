@@ -82,7 +82,9 @@ const createTDollCommand = (name: string, alias: string): IRegister => ({
             }
 
             const [query, query2] = getQueryParams(ctx.params);
-            const replyText = await getTDollReply(ctx, query, query2);
+            const replyText =
+                (await getTDollReply(ctx, query, query2)) +
+                '\n 注意: #tdoll2 命令即将在 2 个功能版本后替换 #tdoll 命令, 可尝鲜使用 #tdoll2 命令查询数据, 后续 #tdoll 命令输出调整为 #tdoll2 命令输出格式.';
             if (replyText) {
                 await ctx.reply(replyText);
             }
@@ -98,10 +100,10 @@ export const TDoll2CommandRegister: IRegister = {
     alias: 'td2',
     description: '根据枪名查询数据, 支持模糊匹配, 忽略大小写及符号.[10s CD]',
     hint: [
-        '按名称查询指定武器数据: #td2 M4A1',
-        '按名称模糊查询武器数据: #td2 m4',
-        '随机武器: #td2 random',
-        '随机 AR 武器: #td2 random ar',
+        '按名称查询指定武器数据: #tdoll2 M4A1',
+        '按名称模糊查询武器数据: #tdoll2 m4',
+        '随机武器: #tdoll2 random',
+        '随机 AR 武器: #tdoll2 random ar',
     ],
     timesInterval: 10,
     isAdmin: false,
