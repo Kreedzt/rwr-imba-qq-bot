@@ -40,7 +40,7 @@ export class TDoll2Canvas extends BaseCanvas {
             font: CANVAS_STYLE.FONT,
             textAlign: 'left',
             textBaseline: 'top',
-            fillStyle: CANVAS_STYLE.TEXT_COLOR
+            fillStyle: CANVAS_STYLE.TEXT_COLOR,
         });
     }
 
@@ -104,6 +104,20 @@ export class TDoll2Canvas extends BaseCanvas {
         };
     }
 
+    getTDollSection(tdoll: ITDollDataItem) {
+        const staticSection = `No.`;
+        const noSection = `${tdoll.id}`;
+        const staticSection2 = ` ${tdoll.nameIngame || ''}${
+            tdoll.mod === '1' ? '(mod)' : ''
+        }`;
+
+        return {
+            staticSection,
+            noSection,
+            staticSection2,
+        };
+    }
+
     measureTitle() {
         const section = this.getTitleSection();
         const title =
@@ -136,7 +150,8 @@ export class TDoll2Canvas extends BaseCanvas {
             }
         });
 
-        this.renderHeight = 120 + this.tdolls.length * 2 * 40;
+        // text: 40, img: 40, spacing: 10
+        this.renderHeight = 120 + this.tdolls.length * (40 + 40 + 10);
     }
 
     renderLayout(
@@ -185,13 +200,43 @@ export class TDoll2Canvas extends BaseCanvas {
         context: CanvasRenderingContext2D,
         tdoll: ITDollDataItem
     ): number {
-        const sectionTitle = `No.${tdoll.id} ${tdoll.nameIngame || ''}${
-            tdoll.mod === '1' ? '(mod)' : ''
-        }`;
-        const sectionTitleWidth = context.measureText(sectionTitle).width;
-        context.fillText(sectionTitle, CANVAS_STYLE.PADDING, this.renderStartY);
+        const section = this.getTDollSection(tdoll);
+
+        // No.
+        context.fillStyle = '#fff';
+        context.fillText(
+            section.staticSection,
+            CANVAS_STYLE.PADDING * 2,
+            this.renderStartY
+        );
+        const staticSectionWidth = context.measureText(
+            section.staticSection
+        ).width;
+
+        // id number
+        context.fillStyle = '#f97316';
+        context.fillText(
+            section.noSection,
+            CANVAS_STYLE.PADDING * 2 + staticSectionWidth,
+            this.renderStartY
+        );
+        const idSectionWidth = context.measureText(section.noSection).width;
+
+        // name
+        context.fillStyle = '#fff';
+        context.fillText(
+            section.staticSection2,
+            CANVAS_STYLE.PADDING * 2 + staticSectionWidth + idSectionWidth,
+            this.renderStartY
+        );
+
         this.renderStartY += CANVAS_STYLE.LINE_HEIGHT;
-        return sectionTitleWidth;
+
+        const fullWidth =
+            staticSectionWidth +
+            idSectionWidth +
+            context.measureText(section.staticSection2).width;
+        return fullWidth;
     }
 
     private renderTdollImages(
@@ -199,7 +244,7 @@ export class TDoll2Canvas extends BaseCanvas {
         tdoll: ITDollDataItem
     ): number {
         let maxWidth = 0;
-        let offsetX = CANVAS_STYLE.PADDING;
+        let offsetX = CANVAS_STYLE.PADDING * 2;
 
         const renderImage = (image: Image | undefined) => {
             if (image) {
@@ -229,6 +274,7 @@ export class TDoll2Canvas extends BaseCanvas {
         this.maxRectWidth = 0;
 
         this.tdolls.forEach((tdoll) => {
+            this.renderStartY += 10;
             const titleWidth = this.renderTdollTitle(context, tdoll);
             this.maxRectWidth = Math.max(this.maxRectWidth, titleWidth);
 
@@ -244,7 +290,7 @@ export class TDoll2Canvas extends BaseCanvas {
             this.renderStartY + 10,
             this.maxRectWidth + 20,
             // plus end offset
-            this.contentLines * 40 * 2 + 10
+            this.contentLines * (40 + 40 + 10) + 10
         );
         context.stroke();
         // start offset
