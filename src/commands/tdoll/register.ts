@@ -6,11 +6,17 @@ import {
     getTDollDataWithCategoryRes,
     getTDollSkinReplyText,
     printTDoll2Png,
+    printTDollSkin2Png,
 } from './utils/utils';
 import { TDollSvc } from './services/tdoll.service';
 import { TDollSkinSvc } from './services/tdollskin.service';
 import { logger } from '../../utils/logger';
-import { TDOLL2_OUTPUT_FILE, TDOLL_SKIN_END_TEXT } from './types/constants';
+import {
+    TDOLL2_OUTPUT_FILE,
+    TDOLL2_SKIN_OUTPUT_FILE,
+    TDOLL_SKIN_END_TEXT,
+    TDOLL_SKIN_NOT_FOUND_MSG,
+} from './types/constants';
 import { getStaticHttpPath } from '../../utils/cmdreq';
 
 // 工具函数
@@ -159,6 +165,58 @@ export const TDollSkinCommandRegister: IRegister = {
             const replyText =
                 getTDollSkinReplyText(query, tdollData, tdollSkinData) +
                 `\n${TDOLL_SKIN_END_TEXT}`;
+
+            await ctx.reply(replyText);
+        } catch (error) {
+            await handleError(ctx, error, 'tdollskin');
+        }
+    },
+};
+
+export const TDollSkin2CommandRegister: IRegister = {
+    name: 'tdollskin2',
+    alias: 'ts2',
+    description: '根据武器编号查询皮肤数据, 需要输入一个编号参数.[10s CD]',
+    hint: ['查询指定 ID 武器皮肤数据: #tdollskin2 2'],
+    timesInterval: 10,
+    isAdmin: false,
+    exec: async (ctx) => {
+        try {
+            if (
+                !(await validateParams(
+                    ctx,
+                    1,
+                    '需要1个参数, 示例: #tdollskin2 2'
+                ))
+            ) {
+                return;
+            }
+
+            const start = Date.now();
+            const [tdollData, tdollSkinData] = await Promise.all([
+                TDollSvc.getData(),
+                TDollSkinSvc.getData(),
+            ]);
+            logger.info(
+                `fetch tdoll & tdollSkinData time: ${Date.now() - start}ms`
+            );
+
+            const [query] = getQueryParams(ctx.params);
+            // const replyText =
+            //     getTDollSkinReplyText(query, tdollData, tdollSkinData) +
+            //     `\n${TDOLL_SKIN_END_TEXT}`;
+
+            let replyText = '';
+            if (!(query in tdollSkinData)) {
+                replyText = TDOLL_SKIN_NOT_FOUND_MSG;
+            } else {
+                replyText = await printTDollSkin2Png(
+                    query,
+                    tdollData,
+                    tdollSkinData,
+                    TDOLL2_SKIN_OUTPUT_FILE
+                );
+            }
 
             await ctx.reply(replyText);
         } catch (error) {

@@ -46,3 +46,5 @@ export const CANVAS_STYLE = {
     TITLE_OFFSET: 60,
     RECT_OFFSET: 10,
 };
+
+export const TDOLL2_SKIN_OUTPUT_FILE = 'tdoll_skin2.png';
