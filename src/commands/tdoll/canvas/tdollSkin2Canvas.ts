@@ -378,6 +378,8 @@ export class TDollSkin2Canvas extends BaseCanvas {
             maxWidth = Math.max(maxWidth, 150);
         });
 
+        this.renderStartY = this.state.startY;
+
         return maxWidth;
     }
 
@@ -445,7 +447,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
         const listWidth = this.dimensions.maxRectWidth + 40;
 
         this.renderFooter(context);
-        const footerWidth = context.measureText(this.state.footer).width + 30;
+        const footerWidth = context.measureText(this.totalFooter).width + 30;
 
         // Set final render width
         this.dimensions.width = Math.max(titleWidth, listWidth, footerWidth);

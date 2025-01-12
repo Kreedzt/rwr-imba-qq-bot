@@ -202,20 +202,23 @@ export const TDollSkin2CommandRegister: IRegister = {
             );
 
             const [query] = getQueryParams(ctx.params);
-            // const replyText =
-            //     getTDollSkinReplyText(query, tdollData, tdollSkinData) +
-            //     `\n${TDOLL_SKIN_END_TEXT}`;
 
             let replyText = '';
             if (!(query in tdollSkinData)) {
                 replyText = TDOLL_SKIN_NOT_FOUND_MSG;
             } else {
-                replyText = await printTDollSkin2Png(
+                
+                const outputPath = await printTDollSkin2Png(
                     query,
                     tdollData,
                     tdollSkinData,
                     TDOLL2_SKIN_OUTPUT_FILE
                 );
+
+                replyText = `[CQ:image,file=${getStaticHttpPath(
+                    ctx.env,
+                    outputPath
+                )},cache=0,c=8]`;
             }
 
             await ctx.reply(replyText);
