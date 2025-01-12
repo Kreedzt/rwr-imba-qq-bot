@@ -5,36 +5,71 @@ import {
     Image,
 } from 'canvas';
 import { BaseCanvas } from '../../../services/baseCanvas';
-import { ITDollDataItem, ITDollSkinDataItem } from '../types/types';
+import {
+    ITDollDataItem,
+    ITDollSkinDataItem,
+    ITDollSkinImage,
+} from '../types/types';
 import { resizeImg } from '../../../utils/imgproxy';
 import { CANVAS_STYLE, TDOLL_URL_PREFIX } from '../types/constants';
 import { calcCanvasTextWidth } from '../../servers/utils/utils';
 
+interface RenderDimensions {
+    width: number;
+    height: number;
+    maxWidth: number;
+    maxRectWidth: number;
+}
+
+interface RenderState {
+    startY: number;
+    title: string;
+    footer: string;
+}
+
+interface SkinItem {
+    index: number;
+    title: string;
+    value: string;
+    image?: ITDollSkinImage;
+}
+
+/**
+ * Canvas class for rendering T-Doll skin information
+ * Handles the layout and rendering of T-Doll details including images and skin information
+ */
 export class TDollSkin2Canvas extends BaseCanvas {
-    renderStartY: number = 0;
-    totalTitle: string = '';
-    totalFooter: string = '';
+    private dimensions: RenderDimensions = {
+        width: 0,
+        height: 0,
+        maxWidth: 0,
+        maxRectWidth: 0,
+    };
 
-    // render params data
-    measureMaxWidth = 0;
-    renderWidth = 0;
-    renderHeight = 0;
-    maxRectWidth = 0;
+    private state: RenderState = {
+        startY: 0,
+        title: '',
+        footer: '',
+    };
 
-    maxLengthStr: string = '';
-    contentLines = 0;
-    // key: tdoll id
-    tdollImgMap: Map<string, Image> = new Map();
-    // key: tdollskin id
-    tdollSkinImgMap: Map<string, Image> = new Map();
+    // Image caches
+    protected tdollImgMap: Map<string, Image> = new Map(); // key: tdoll id
+    protected tdollSkinImgMap: Map<string, Image> = new Map(); // key: tdollskin id
 
-    fileName: string;
-    query: string;
-    tdoll?: ITDollDataItem = undefined;
-    tdolls: ITDollDataItem[];
-    skinsRecord: Record<string, ITDollSkinDataItem>;
-    skinList?: ITDollSkinDataItem = undefined;
+    protected readonly fileName: string;
+    protected readonly query: string;
+    protected readonly tdoll?: ITDollDataItem;
+    protected readonly tdolls: ITDollDataItem[];
+    protected readonly skinsRecord: Record<string, ITDollSkinDataItem>;
+    protected readonly skinList?: SkinItem[];
 
+    /**
+     * Creates a new TDollSkin2Canvas instance
+     * @param query - The search query/ID for the T-Doll
+     * @param tdolls - Array of T-Doll data
+     * @param record - Record of T-Doll skin data
+     * @param fileName - Output file name for the canvas
+     */
     constructor(
         query: string,
         tdolls: ITDollDataItem[],
@@ -47,43 +82,43 @@ export class TDollSkin2Canvas extends BaseCanvas {
         this.tdolls = tdolls;
         this.tdoll = tdolls.find((tdoll) => tdoll.id === query);
         this.skinsRecord = record;
+
         const matchSkinRecord = record[query];
-        if (matchSkinRecord) {
-            this.skinList = Object.values(matchSkinRecord).filter(
-                (s) => s.image
+        if (matchSkinRecord?.length) {
+            this.skinList = matchSkinRecord.filter(
+                (skin): skin is Required<SkinItem> => {
+                    return Boolean(
+                        skin &&
+                            skin.image &&
+                            skin.index !== undefined &&
+                            skin.title &&
+                            skin.value
+                    );
+                }
             );
         }
     }
 
-    private applyBaseStyle(context: CanvasRenderingContext2D) {
-        this.setContextStyle(context, {
-            font: CANVAS_STYLE.FONT,
-            textAlign: 'left',
-            textBaseline: 'top',
-            fillStyle: CANVAS_STYLE.TEXT_COLOR,
-        });
+    // Rest of the implementation remains the same...
+    /**
+     * Applies the base canvas style settings
+     */
+    private applyBaseStyle(context: CanvasRenderingContext2D): void {
+        context.font = CANVAS_STYLE.FONT;
+        context.textAlign = 'left';
+        context.textBaseline = 'top';
+        context.fillStyle = CANVAS_STYLE.TEXT_COLOR;
     }
 
-    private setContextStyle(
-        context: CanvasRenderingContext2D,
-        style: {
-            font?: string;
-            textAlign?: CanvasTextAlign;
-            textBaseline?: CanvasTextBaseline;
-            fillStyle?: string | CanvasGradient | CanvasPattern;
-        }
-    ) {
-        if (style.font) context.font = style.font;
-        if (style.textAlign) context.textAlign = style.textAlign;
-        if (style.textBaseline) context.textBaseline = style.textBaseline;
-        if (style.fillStyle) context.fillStyle = style.fillStyle;
-    }
+    /**
+     * Loads all required images for the T-Doll and its skins
+     * @throws Error if image loading fails
+     */
+    protected async loadAllImg(): Promise<void> {
+        if (!this.tdoll) return;
 
-    async loadAllImg() {
         try {
-            if (!this.tdoll) {
-                return;
-            }
+            // Load T-Doll avatar
             const avatarUrl = resizeImg(
                 this.tdoll.avatar,
                 CANVAS_STYLE.IMAGE_SIZE,
@@ -92,18 +127,14 @@ export class TDollSkin2Canvas extends BaseCanvas {
             const avatarImg = await loadImage(avatarUrl);
             this.tdollImgMap.set(this.tdoll.id, avatarImg);
 
+            // Load skin images
             if (this.skinList?.length) {
                 await Promise.all(
                     this.skinList.map(async (skin) => {
                         if (!skin.image) return;
-                        const imgRawUrl = skin.image.pic.includes(
-                            TDOLL_URL_PREFIX
-                        )
-                            ? skin.image.pic
-                            : `${TDOLL_URL_PREFIX}${skin.image.pic}`;
 
+                        const imgRawUrl = this.getFullImageUrl(skin.image.pic);
                         const imgResizeUrl = resizeImg(imgRawUrl, 150, 150);
-
                         const skinImg = await loadImage(imgResizeUrl);
 
                         this.tdollSkinImgMap.set(skin.value, skinImg);
@@ -111,56 +142,78 @@ export class TDollSkin2Canvas extends BaseCanvas {
                 );
             }
         } catch (error) {
-            console.error(
-                `Failed to load image for tdoll ${this.tdoll?.id}:`,
-                error
-            );
+            const errorMsg = `Failed to load image for tdoll ${this.tdoll.id}`;
+            console.error(errorMsg, error);
+            throw new Error(errorMsg);
         }
     }
 
-    getTitleSection() {
+    /**
+     * Constructs the full image URL for a skin
+     */
+    private getFullImageUrl(picUrl: string): string {
+        return picUrl.includes(TDOLL_URL_PREFIX)
+            ? picUrl
+            : `${TDOLL_URL_PREFIX}${picUrl}`;
+    }
+
+    /**
+     * Gets the title section components
+     */
+    protected getTitleSection(): {
+        staticSection: string;
+        userSection: string;
+        staticSection2: string;
+    } {
         return {
             staticSection: '查询 ',
-            userSection: `${this.query}`,
+            userSection: this.query,
             staticSection2: ' 匹配结果',
         };
     }
 
-    getTDollSection() {
-        const staticSection = `No.`;
-        const noSection = this.tdoll?.id || '';
-        const staticSection2 = ` ${this.tdoll?.nameIngame || ''} ${
-            this.tdoll?.type || ''
-        }`;
-
+    /**
+     * Gets the T-Doll section components
+     */
+    protected getTDollSection(): {
+        staticSection: string;
+        noSection: string;
+        staticSection2: string;
+    } {
         return {
-            staticSection,
-            noSection,
-            staticSection2,
+            staticSection: 'No.',
+            noSection: this.tdoll?.id || '',
+            staticSection2: ` ${this.tdoll?.nameIngame || ''} ${
+                this.tdoll?.type || ''
+            }`,
         };
     }
 
-    measureTitle() {
+    /**
+     * Measures and sets the title dimensions
+     */
+    protected measureTitle(): void {
         const section = this.getTitleSection();
         const title =
             section.staticSection +
             section.userSection +
             section.staticSection2;
-        this.totalTitle = title;
+        this.state.title = title;
 
         const titleWidth = this.calcCanvasTextWidth(title, 20) + 20;
-
-        if (titleWidth > this.measureMaxWidth) {
-            this.measureMaxWidth = titleWidth;
-        }
+        this.dimensions.maxWidth = Math.max(
+            this.dimensions.maxWidth,
+            titleWidth
+        );
     }
 
-    measureContent() {
-        if (!this.tdoll) {
-            return;
-        }
-        this.maxLengthStr = '';
+    /**
+     * Measures and sets the content dimensions
+     */
+    protected measureContent(): void {
+        if (!this.tdoll) return;
 
+        // Measure T-Doll section
         const tDollSection = this.getTDollSection();
         const totalTitle = calcCanvasTextWidth(
             tDollSection.staticSection +
@@ -168,251 +221,272 @@ export class TDollSkin2Canvas extends BaseCanvas {
                 tDollSection.staticSection2,
             20
         );
-        this.measureMaxWidth = Math.max(this.measureMaxWidth, totalTitle);
+        this.dimensions.maxWidth = Math.max(
+            this.dimensions.maxWidth,
+            totalTitle
+        );
 
+        // Measure skin sections
         this.skinList?.forEach((tdoll, index) => {
             const skinTitle = `${index + 1}. ${tdoll.title} ID:${tdoll.value}`;
             const skinTitleWidth = this.calcCanvasTextWidth(skinTitle, 20);
-
-            this.measureMaxWidth = Math.max(
-                this.measureMaxWidth,
+            this.dimensions.maxWidth = Math.max(
+                this.dimensions.maxWidth,
                 skinTitleWidth,
-                // img
-                150
+                150 // minimum width for images
             );
         });
 
-        this.renderHeight =
-            120 +
-            // title: 20
-            20 +
-            // title spacing: 10
-            CANVAS_STYLE.PADDING +
-            // title img: 40
-            40 +
-            // padding: 10
-            CANVAS_STYLE.PADDING +
-            this.getSkinsHeight();
+        // Calculate total height
+        this.dimensions.height =
+            120 + // base height
+            20 + // title height
+            CANVAS_STYLE.PADDING + // title spacing
+            40 + // title image height
+            CANVAS_STYLE.PADDING + // padding
+            this.getSkinsHeight(); // skins section height
     }
 
-    renderLayout(
+    /**
+     * Renders the background layout
+     */
+    private renderLayout(
         context: CanvasRenderingContext2D,
         width: number,
         height: number
-    ) {
+    ): void {
         context.fillStyle = '#451a03';
         context.fillRect(0, 0, width, height);
     }
 
     /**
      * Renders the main title at the top of the canvas
-     * @param context - The canvas rendering context
      */
-    renderTitle(context: CanvasRenderingContext2D) {
+    private renderTitle(context: CanvasRenderingContext2D): void {
         this.applyBaseStyle(context);
         const section = this.getTitleSection();
-        context.fillText(
-            section.staticSection,
-            CANVAS_STYLE.PADDING,
-            CANVAS_STYLE.PADDING
-        );
-        const staticSectionWidth = context.measureText(
-            section.staticSection
-        ).width;
+        let currentX = CANVAS_STYLE.PADDING;
 
+        // Render static section
+        context.fillStyle = CANVAS_STYLE.TEXT_COLOR;
+        context.fillText(section.staticSection, currentX, CANVAS_STYLE.PADDING);
+        currentX += context.measureText(section.staticSection).width;
+
+        // Render user section
         context.fillStyle = '#22d3ee';
-        context.fillText(
-            section.userSection,
-            CANVAS_STYLE.PADDING + staticSectionWidth,
-            CANVAS_STYLE.PADDING
-        );
-        const userSectionWidth = context.measureText(section.userSection).width;
+        context.fillText(section.userSection, currentX, CANVAS_STYLE.PADDING);
+        currentX += context.measureText(section.userSection).width;
 
-        context.fillStyle = '#fff';
+        // Render static section 2
+        context.fillStyle = CANVAS_STYLE.TEXT_COLOR;
         context.fillText(
             section.staticSection2,
-            CANVAS_STYLE.PADDING + userSectionWidth + staticSectionWidth,
+            currentX,
             CANVAS_STYLE.PADDING
         );
-        this.renderStartY = CANVAS_STYLE.TITLE_OFFSET;
+
+        this.state.startY = CANVAS_STYLE.TITLE_OFFSET;
     }
 
+    /**
+     * Renders the T-Doll title section
+     * @returns The total width of the rendered title
+     */
     private renderTdollTitle(context: CanvasRenderingContext2D): number {
         const section = this.getTDollSection();
+        let currentX = CANVAS_STYLE.PADDING * 2;
+        const y = this.state.startY;
 
-        // No.
-        context.fillStyle = '#fff';
-        context.fillText(
-            section.staticSection,
-            CANVAS_STYLE.PADDING * 2,
-            this.renderStartY
-        );
-        const staticSectionWidth = context.measureText(
-            section.staticSection
-        ).width;
+        // Render "No."
+        context.fillStyle = CANVAS_STYLE.TEXT_COLOR;
+        context.fillText(section.staticSection, currentX, y);
+        currentX += context.measureText(section.staticSection).width;
 
-        // id number
+        // Render ID number
         context.fillStyle = '#f97316';
-        context.fillText(
-            section.noSection,
-            CANVAS_STYLE.PADDING * 2 + staticSectionWidth,
-            this.renderStartY
-        );
-        const idSectionWidth = context.measureText(section.noSection).width;
+        context.fillText(section.noSection, currentX, y);
+        currentX += context.measureText(section.noSection).width;
 
-        // name
-        context.fillStyle = '#fff';
-        context.fillText(
-            section.staticSection2,
-            CANVAS_STYLE.PADDING * 2 + staticSectionWidth + idSectionWidth,
-            this.renderStartY
-        );
+        // Render name and type
+        context.fillStyle = CANVAS_STYLE.TEXT_COLOR;
+        context.fillText(section.staticSection2, currentX, y);
         const nameSectionWidth = context.measureText(
             section.staticSection2
         ).width;
 
-        this.renderStartY += CANVAS_STYLE.PADDING * 2 + CANVAS_STYLE.PADDING;
+        this.state.startY += CANVAS_STYLE.PADDING * 3;
 
-        const fullWidth =
-            staticSectionWidth + idSectionWidth + nameSectionWidth;
-        return fullWidth;
+        return currentX + nameSectionWidth - CANVAS_STYLE.PADDING * 2;
     }
 
+    /**
+     * Renders the T-Doll avatar image
+     * @returns The width of the rendered image
+     */
     private renderTdollImage(context: CanvasRenderingContext2D): number {
-        if (!this.tdoll) {
-            return 0;
-        }
-        let maxWidth = 0;
-        let offsetX = CANVAS_STYLE.PADDING * 2;
+        if (!this.tdoll) return 0;
 
         const image = this.tdollImgMap.get(this.tdoll.id);
-        if (image) {
-            context.drawImage(
-                image,
-                offsetX,
-                this.renderStartY,
-                CANVAS_STYLE.IMAGE_SIZE,
-                CANVAS_STYLE.IMAGE_SIZE
-            );
+        if (!image) return 0;
 
-            offsetX += CANVAS_STYLE.IMAGE_SIZE;
-            maxWidth = Math.max(maxWidth, CANVAS_STYLE.IMAGE_SIZE);
-        }
+        const x = CANVAS_STYLE.PADDING * 2;
+        context.drawImage(
+            image,
+            x,
+            this.state.startY,
+            CANVAS_STYLE.IMAGE_SIZE,
+            CANVAS_STYLE.IMAGE_SIZE
+        );
 
-        this.renderStartY += CANVAS_STYLE.IMAGE_SIZE + CANVAS_STYLE.PADDING;
-        return maxWidth;
+        this.state.startY += CANVAS_STYLE.IMAGE_SIZE + CANVAS_STYLE.PADDING;
+        return CANVAS_STYLE.IMAGE_SIZE;
     }
 
-    getSkinsHeight() {
-        // spacing: 10, skin title: 40, skin img: 150
-        return (this.skinList?.length || 0) * (10 + 40 + 150);
+    /**
+     * Calculates the total height needed for skin sections
+     */
+    protected getSkinsHeight(): number {
+        const SKIN_SECTION_HEIGHT = 10 + 40 + 150; // spacing + title + image
+        return (this.skinList?.length || 0) * SKIN_SECTION_HEIGHT;
     }
 
+    /**
+     * Renders the T-Doll skin sections
+     * @returns The maximum width of the rendered skin sections
+     */
     private renderTdollSkins(context: CanvasRenderingContext2D): number {
-        if (!this.tdoll) {
-            return 0;
-        }
+        if (!this.tdoll || !this.skinList?.length) return 0;
+
         let maxWidth = 0;
+        const x = CANVAS_STYLE.PADDING * 2;
 
-        let offsetX = CANVAS_STYLE.PADDING * 2;
-
-        this.skinList?.forEach((skin, index) => {
+        this.skinList.forEach((skin, index) => {
             const image = this.tdollSkinImgMap.get(skin.value);
             if (!image) return;
 
-            this.renderStartY += CANVAS_STYLE.PADDING;
-            context.fillStyle = '#fff';
-
+            // Render skin title
+            this.state.startY += CANVAS_STYLE.PADDING;
+            context.fillStyle = CANVAS_STYLE.TEXT_COLOR;
             const title = `${index + 1}. ${skin.title} ID:${skin.value}`;
-            context.fillText(title, offsetX, this.renderStartY);
-            const textWidth = context.measureText(title).width;
+            context.fillText(title, x, this.state.startY);
+            maxWidth = Math.max(maxWidth, context.measureText(title).width);
 
-            this.renderStartY += CANVAS_STYLE.LINE_HEIGHT;
-            context.drawImage(image, offsetX, this.renderStartY, 150, 150);
-
-            this.renderStartY += 150;
-
-            maxWidth = Math.max(maxWidth, textWidth, 150);
+            // Render skin image
+            this.state.startY += CANVAS_STYLE.LINE_HEIGHT;
+            context.drawImage(image, x, this.state.startY, 150, 150);
+            this.state.startY += 150;
+            maxWidth = Math.max(maxWidth, 150);
         });
 
         return maxWidth;
     }
 
-    renderContent(context: CanvasRenderingContext2D) {
+    /**
+     * Renders all content sections
+     */
+    private renderContent(context: CanvasRenderingContext2D): void {
         this.applyBaseStyle(context);
-        this.maxRectWidth = 0;
+        this.dimensions.maxRectWidth = 0;
 
-        this.renderStartY += 10;
-        const titleWidth = this.renderTdollTitle(context);
-        this.maxRectWidth = Math.max(this.maxRectWidth, titleWidth);
+        this.state.startY += 10;
 
-        const imagesWidth = this.renderTdollImage(context);
-        this.maxRectWidth = Math.max(this.maxRectWidth, imagesWidth);
+        // Render each section and track maximum width
+        const sections = [
+            this.renderTdollTitle(context),
+            this.renderTdollImage(context),
+            this.renderTdollSkins(context),
+        ];
 
-        const skinsWidth = this.renderTdollSkins(context);
-        this.maxRectWidth = Math.max(this.maxRectWidth, skinsWidth);
-    }
-
-    renderRect(context: CanvasRenderingContext2D) {
-        context.strokeStyle = '#f48225';
-        context.rect(
-            CANVAS_STYLE.PADDING,
-            this.renderStartY + 10,
-            this.maxRectWidth + CANVAS_STYLE.PADDING * 2,
-            // title:20
-            20 +
-                // title spacing: 10
-                10 +
-                // title img: 40
-                40 +
-                // padding: 10
-                CANVAS_STYLE.PADDING +
-                this.getSkinsHeight() +
-                // static padding: 20(top: 10, bottom: 10)
-                CANVAS_STYLE.PADDING * 2
-        );
-        context.stroke();
-        // start offset
-        this.renderStartY += CANVAS_STYLE.PADDING;
+        this.dimensions.maxRectWidth = Math.max(...sections);
     }
 
     /**
-     * 测量渲染尺寸
+     * Renders the border rectangle around the content
      */
-    private measureRender() {
+    private renderRect(context: CanvasRenderingContext2D): void {
+        const rectHeight =
+            20 + // title height
+            10 + // title spacing
+            40 + // title image height
+            CANVAS_STYLE.PADDING + // padding
+            this.getSkinsHeight() + // skins height
+            CANVAS_STYLE.PADDING * 2; // top/bottom padding
+
+        context.strokeStyle = '#f48225';
+        context.rect(
+            CANVAS_STYLE.PADDING,
+            this.state.startY + 10,
+            this.dimensions.maxRectWidth + CANVAS_STYLE.PADDING * 2,
+            rectHeight
+        );
+        context.stroke();
+
+        this.state.startY += CANVAS_STYLE.PADDING;
+    }
+
+    /**
+     * Measures all canvas dimensions before rendering
+     */
+    protected measureRender(): void {
         this.measureTitle();
         this.measureContent();
 
-        const canvas = createCanvas(this.measureMaxWidth, this.renderHeight);
+        const canvas = createCanvas(
+            this.dimensions.maxWidth,
+            this.dimensions.height
+        );
         const context = canvas.getContext('2d');
 
+        // Measure each section
         this.renderTitle(context);
-        const titleWidth = context.measureText(this.totalTitle).width + 30;
+        const titleWidth = context.measureText(this.state.title).width + 30;
 
         this.renderContent(context);
-        const listWidth = this.maxRectWidth + 40;
+        const listWidth = this.dimensions.maxRectWidth + 40;
 
         this.renderFooter(context);
-        const footerWidth = context.measureText(this.totalFooter).width + 30;
+        const footerWidth = context.measureText(this.state.footer).width + 30;
 
-        this.renderWidth = Math.max(titleWidth, listWidth, footerWidth);
+        // Set final render width
+        this.dimensions.width = Math.max(titleWidth, listWidth, footerWidth);
     }
 
-    async render() {
-        await this.loadAllImg();
-        this.record();
-        this.measureRender();
+    /**
+     * Renders the complete canvas and saves to file
+     * @returns Promise resolving to the file path
+     */
+    public async render(): Promise<string> {
+        try {
+            await this.loadAllImg();
+            this.record();
+            this.measureRender();
 
-        const canvas = createCanvas(this.renderWidth, this.renderHeight);
-        const context = canvas.getContext('2d');
+            const canvas = createCanvas(
+                this.dimensions.width,
+                this.dimensions.height
+            );
+            const context = canvas.getContext('2d');
 
-        this.renderLayout(context, this.renderWidth, this.renderHeight);
-        this.renderBgImg(context, this.renderWidth, this.renderHeight);
-        this.renderTitle(context);
-        this.renderRect(context);
-        this.renderContent(context);
-        this.renderFooter(context);
+            // Render all components
+            this.renderLayout(
+                context,
+                this.dimensions.width,
+                this.dimensions.height
+            );
+            this.renderBgImg(
+                context,
+                this.dimensions.width,
+                this.dimensions.height
+            );
+            this.renderTitle(context);
+            this.renderRect(context);
+            this.renderContent(context);
+            this.renderFooter(context);
 
-        return super.writeFile(canvas, this.fileName);
+            return super.writeFile(canvas, this.fileName);
+        } catch (error) {
+            console.error('Failed to render canvas:', error);
+            throw error;
+        }
     }
 }
