@@ -12,6 +12,7 @@ import {
 import { resizeImg } from '../../../utils/imgproxy';
 import { TDollCategoryEnum } from '../types/enums';
 import { TDoll2Canvas } from '../canvas/tdoll2Canvas';
+import { TDollSkin2Canvas } from '../canvas/tdollSkin2Canvas';
 
 /**
  * Read tdoll data from file
@@ -263,6 +264,26 @@ export const printTDoll2Png = async (
     const outputPath = await new TDoll2Canvas(
         query,
         tdollData,
+        fileName
+    ).render();
+
+    return outputPath;
+};
+
+export const printTDollSkin2Png = async (
+    query: string,
+    tdollData: ITDollDataItem[],
+    record: Record<string, ITDollSkinDataItem>,
+    fileName: string
+) => {
+    if (!fs.existsSync(TDOLL_OUTPUT_FOLDER)) {
+        fs.mkdirSync(TDOLL_OUTPUT_FOLDER);
+    }
+
+    const outputPath = await new TDollSkin2Canvas(
+        query,
+        tdollData,
+        record,
         fileName
     ).render();
 
