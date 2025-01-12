@@ -109,7 +109,7 @@ export class TDoll2Canvas extends BaseCanvas {
         const noSection = `${tdoll.id}`;
         const staticSection2 = ` ${tdoll.nameIngame || ''}${
             tdoll.mod === '1' ? '(mod)' : ''
-        }`;
+        } ${tdoll.type || ''}`;
 
         return {
             staticSection,
@@ -265,7 +265,7 @@ export class TDoll2Canvas extends BaseCanvas {
             renderImage(this.imgMap.get(`${tdoll.id}__mod`));
         }
 
-        this.renderStartY += CANVAS_STYLE.LINE_HEIGHT;
+        this.renderStartY += CANVAS_STYLE.IMAGE_SIZE;
         return maxWidth;
     }
 

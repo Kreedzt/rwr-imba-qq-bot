@@ -8,6 +8,7 @@ import { BaseCanvas } from '../../../services/baseCanvas';
 import { ITDollDataItem, ITDollSkinDataItem } from '../types/types';
 import { resizeImg } from '../../../utils/imgproxy';
 import { CANVAS_STYLE, TDOLL_URL_PREFIX } from '../types/constants';
+import { calcCanvasTextWidth } from '../../servers/utils/utils';
 
 export class TDollSkin2Canvas extends BaseCanvas {
     renderStartY: number = 0;
@@ -128,7 +129,9 @@ export class TDollSkin2Canvas extends BaseCanvas {
     getTDollSection() {
         const staticSection = `No.`;
         const noSection = this.tdoll?.id || '';
-        const staticSection2 = ` ${this.tdoll?.nameIngame || ''}`;
+        const staticSection2 = ` ${this.tdoll?.nameIngame || ''} ${
+            this.tdoll?.type || ''
+        }`;
 
         return {
             staticSection,
@@ -150,8 +153,6 @@ export class TDollSkin2Canvas extends BaseCanvas {
         if (titleWidth > this.measureMaxWidth) {
             this.measureMaxWidth = titleWidth;
         }
-
-        this.renderHeight += 20;
     }
 
     measureContent() {
@@ -160,9 +161,14 @@ export class TDollSkin2Canvas extends BaseCanvas {
         }
         this.maxLengthStr = '';
 
-        const tdollTitle = `No.${this.tdoll.id} ${this.tdoll.nameIngame || ''}`;
-        const tdollTitleWidth = this.calcCanvasTextWidth(tdollTitle, 20);
-        this.measureMaxWidth = Math.max(this.measureMaxWidth, tdollTitleWidth);
+        const tDollSection = this.getTDollSection();
+        const totalTitle = calcCanvasTextWidth(
+            tDollSection.staticSection +
+                tDollSection.noSection +
+                tDollSection.staticSection2,
+            20
+        );
+        this.measureMaxWidth = Math.max(this.measureMaxWidth, totalTitle);
 
         this.skinList?.forEach((tdoll, index) => {
             const skinTitle = `${index + 1}. ${tdoll.title} ID:${tdoll.value}`;
@@ -176,20 +182,17 @@ export class TDollSkin2Canvas extends BaseCanvas {
             );
         });
 
-        // tdoll title: 20
-        // spacing: 10
-        // tdoll img: 40
-        // --- Loop:
-        // spacing: 10
-        // skin title: 20
-        // spacing: 10
-        // skin img: 150
         this.renderHeight =
             120 +
+            // title: 20
             20 +
-            10 +
+            // title spacing: 10
+            CANVAS_STYLE.PADDING +
+            // title img: 40
             40 +
-            (this.skinList?.length || 0) * (10 + 20 + 10 + 150);
+            // padding: 10
+            CANVAS_STYLE.PADDING +
+            this.getSkinsHeight();
     }
 
     renderLayout(
@@ -268,7 +271,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
             section.staticSection2
         ).width;
 
-        this.renderStartY += CANVAS_STYLE.LINE_HEIGHT;
+        this.renderStartY += CANVAS_STYLE.PADDING * 2 + CANVAS_STYLE.PADDING;
 
         const fullWidth =
             staticSectionWidth + idSectionWidth + nameSectionWidth;
@@ -296,8 +299,13 @@ export class TDollSkin2Canvas extends BaseCanvas {
             maxWidth = Math.max(maxWidth, CANVAS_STYLE.IMAGE_SIZE);
         }
 
-        this.renderStartY += CANVAS_STYLE.LINE_HEIGHT;
+        this.renderStartY += CANVAS_STYLE.IMAGE_SIZE + CANVAS_STYLE.PADDING;
         return maxWidth;
+    }
+
+    getSkinsHeight() {
+        // spacing: 10, skin title: 40, skin img: 150
+        return (this.skinList?.length || 0) * (10 + 40 + 150);
     }
 
     private renderTdollSkins(context: CanvasRenderingContext2D): number {
@@ -312,14 +320,14 @@ export class TDollSkin2Canvas extends BaseCanvas {
             const image = this.tdollSkinImgMap.get(skin.value);
             if (!image) return;
 
-            this.renderStartY += 10;
+            this.renderStartY += CANVAS_STYLE.PADDING;
             context.fillStyle = '#fff';
 
             const title = `${index + 1}. ${skin.title} ID:${skin.value}`;
             context.fillText(title, offsetX, this.renderStartY);
             const textWidth = context.measureText(title).width;
 
-            this.renderStartY += 20 + 10;
+            this.renderStartY += CANVAS_STYLE.LINE_HEIGHT;
             context.drawImage(image, offsetX, this.renderStartY, 150, 150);
 
             this.renderStartY += 150;
@@ -348,34 +356,30 @@ export class TDollSkin2Canvas extends BaseCanvas {
     renderRect(context: CanvasRenderingContext2D) {
         context.strokeStyle = '#f48225';
         context.rect(
-            10,
+            CANVAS_STYLE.PADDING,
             this.renderStartY + 10,
-            this.maxRectWidth + 20,
-            // tdoll title: 20
-            // spacing: 10
-            // tdoll img: 40
-            // --- Loop:
-            // spacing: 10
-            // skin title: 20
-            // spacing: 10
-            // skin img: 150
-            // staic padding: 10
+            this.maxRectWidth + CANVAS_STYLE.PADDING * 2,
+            // title:20
             20 +
+                // title spacing: 10
                 10 +
+                // title img: 40
                 40 +
-                (this.skinList?.length || 0) * (10 + 20 + 10 + 150) +
-                10
+                // padding: 10
+                CANVAS_STYLE.PADDING +
+                this.getSkinsHeight() +
+                // static padding: 20(top: 10, bottom: 10)
+                CANVAS_STYLE.PADDING * 2
         );
         context.stroke();
         // start offset
-        this.renderStartY += 10;
+        this.renderStartY += CANVAS_STYLE.PADDING;
     }
 
     /**
      * 测量渲染尺寸
      */
     private measureRender() {
-        this.renderHeight = 0;
         this.measureTitle();
         this.measureContent();
 
