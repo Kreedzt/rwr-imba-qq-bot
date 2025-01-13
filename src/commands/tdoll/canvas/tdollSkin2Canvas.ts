@@ -361,9 +361,6 @@ export class TDollSkin2Canvas extends BaseCanvas {
         const x = CANVAS_STYLE.PADDING * 2;
 
         this.skinList.forEach((skin, index) => {
-            const image = this.tdollSkinImgMap.get(skin.value);
-            if (!image) return;
-
             // Render skin title
             this.state.startY += CANVAS_STYLE.PADDING;
             context.fillStyle = CANVAS_STYLE.TEXT_COLOR;
@@ -373,9 +370,13 @@ export class TDollSkin2Canvas extends BaseCanvas {
 
             // Render skin image
             this.state.startY += CANVAS_STYLE.LINE_HEIGHT;
-            context.drawImage(image, x, this.state.startY, 150, 150);
+            const image = this.tdollSkinImgMap.get(skin.value);
+            if (image) {
+                context.drawImage(image, x, this.state.startY, 150, 150);
+                maxWidth = Math.max(maxWidth, 150);
+            }
+            // Even if no image, still increase startY to keep spacing
             this.state.startY += 150;
-            maxWidth = Math.max(maxWidth, 150);
         });
 
         this.renderStartY = this.state.startY;
