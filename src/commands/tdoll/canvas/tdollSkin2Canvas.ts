@@ -363,10 +363,22 @@ export class TDollSkin2Canvas extends BaseCanvas {
         this.skinList.forEach((skin, index) => {
             // Render skin title
             this.state.startY += CANVAS_STYLE.PADDING;
+            
+            // 分段渲染标题文本
             context.fillStyle = CANVAS_STYLE.TEXT_COLOR;
-            const title = `${index + 1}. ${skin.title} ID:${skin.value}`;
-            context.fillText(title, x, this.state.startY);
-            maxWidth = Math.max(maxWidth, context.measureText(title).width);
+            const prefix = `${index + 1}. ${skin.title} ID:`;
+            context.fillText(prefix, x, this.state.startY);
+            
+            // 计算前缀宽度
+            const prefixWidth = context.measureText(prefix).width;
+            
+            // 高亮渲染 skin.value
+            context.fillStyle = '#059669';
+            context.fillText(skin.value, x + prefixWidth, this.state.startY);
+            
+            // 计算总宽度
+            const totalWidth = prefixWidth + context.measureText(skin.value).width;
+            maxWidth = Math.max(maxWidth, totalWidth);
 
             // Render skin image
             this.state.startY += CANVAS_STYLE.LINE_HEIGHT;
