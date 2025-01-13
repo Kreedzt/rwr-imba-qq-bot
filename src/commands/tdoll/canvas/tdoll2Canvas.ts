@@ -8,6 +8,7 @@ import { BaseCanvas } from '../../../services/baseCanvas';
 import { ITDollDataItem } from '../types/types';
 import { resizeImg } from '../../../utils/imgproxy';
 import { CANVAS_STYLE } from '../types/constants';
+import { replacedQueryMatch } from '../utils/utils';
 
 export class TDoll2Canvas extends BaseCanvas {
     renderStartY: number = 0;
@@ -222,13 +223,56 @@ export class TDoll2Canvas extends BaseCanvas {
         );
         const idSectionWidth = context.measureText(section.noSection).width;
 
-        // name
-        context.fillStyle = '#fff';
-        context.fillText(
-            section.staticSection2,
-            CANVAS_STYLE.PADDING * 2 + staticSectionWidth + idSectionWidth,
-            this.renderStartY
-        );
+        // name with highlight if needed
+        const startX = CANVAS_STYLE.PADDING * 2 + staticSectionWidth + idSectionWidth;
+        if (this.query && this.query !== 'random') {
+            const name = section.staticSection2;
+            const processedName = replacedQueryMatch(name);
+            const processedQuery = replacedQueryMatch(this.query);
+            const queryIndex = processedName.indexOf(processedQuery);
+            
+            if (queryIndex !== -1) {
+                let matchStartIndex = 0;
+                let matchEndIndex = 0;
+                let currentProcessedIndex = 0;
+                
+                // 找到实际要高亮的字符位置
+                for (let i = 0; i < name.length; i++) {
+                    if (currentProcessedIndex === queryIndex) {
+                        matchStartIndex = i;
+                    }
+                    if (currentProcessedIndex === queryIndex + processedQuery.length) {
+                        matchEndIndex = i;
+                        break;
+                    }
+                    if (!/[-. ]/.test(name[i])) {
+                        currentProcessedIndex++;
+                    }
+                }
+                if (matchEndIndex === 0) matchEndIndex = name.length;
+
+                const before = name.substring(0, matchStartIndex);
+                const match = name.substring(matchStartIndex, matchEndIndex);
+                const after = name.substring(matchEndIndex);
+
+                context.fillStyle = '#fff';
+                context.fillText(before, startX, this.renderStartY);
+                const beforeWidth = context.measureText(before).width;
+
+                context.fillStyle = '#22d3ee';
+                context.fillText(match, startX + beforeWidth, this.renderStartY);
+                const matchWidth = context.measureText(match).width;
+
+                context.fillStyle = '#fff';
+                context.fillText(after, startX + beforeWidth + matchWidth, this.renderStartY);
+            } else {
+                context.fillStyle = '#fff';
+                context.fillText(name, startX, this.renderStartY);
+            }
+        } else {
+            context.fillStyle = '#fff';
+            context.fillText(section.staticSection2, startX, this.renderStartY);
+        }
 
         this.renderStartY += CANVAS_STYLE.LINE_HEIGHT;
 

@@ -55,6 +55,14 @@ export const getRandomTDollData = (dataList: ITDollDataItem[]): string => {
     return formatTDollData(randomData);
 };
 
+export const replacedQueryMatch = (query: string): string => {
+    return query
+        .toLowerCase()
+        .replaceAll('-', '')
+        .replaceAll('.', '')
+        .replaceAll(' ', '');
+};
+
 /**
  * Get matched tdoll data
  * @param dataList
