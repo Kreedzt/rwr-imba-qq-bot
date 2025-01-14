@@ -29,10 +29,10 @@ import { OnePtCommandRegister } from './1pt/register';
 import { NekoCommandRegister } from './neko/register';
 import { WebsiteCommandRegister } from './website/register';
 import {
+    TDoll0CommandRegister,
+    TDollSkin0CommandRegister,
     TDollCommandRegister,
     TDollSkinCommandRegister,
-    TDoll2CommandRegister,
-    TDollSkin2CommandRegister,
 } from './tdoll/register';
 import {
     QACommandRegister,
@@ -58,8 +58,8 @@ const allCommands: IRegister[] = [
     OnePtCommandRegister,
     NekoCommandRegister,
     WebsiteCommandRegister,
-    TDollCommandRegister,
-    TDollSkinCommandRegister,
+    TDoll0CommandRegister,
+    TDollSkin0CommandRegister,
     QACommandRegister,
     QADefineCommandRegister,
     QADeleteCommandRegister,
@@ -67,8 +67,8 @@ const allCommands: IRegister[] = [
     LogCommandRegister,
     LogSelfRegister,
     AiCommandRegister,
-    TDoll2CommandRegister,
-    TDollSkin2CommandRegister,
+    TDollCommandRegister,
+    TDollSkinCommandRegister,
 ];
 
 export const initCommands = async (env: GlobalEnv) => {

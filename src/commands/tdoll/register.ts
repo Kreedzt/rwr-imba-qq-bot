@@ -20,8 +20,13 @@ import { CommandHelper } from './utils/commandHelper';
  * @param isV2 是否使用V2版本
  * @returns IRegister
  */
-const createTDollCommand = (name: string, alias: string, isV2 = false): IRegister => {
-    const description = '根据枪名查询数据, 支持模糊匹配, 忽略大小写及符号.[10s CD]';
+const createTDollCommand = (
+    name: string,
+    alias: string,
+    isV2 = false
+): IRegister => {
+    const description =
+        '根据枪名查询数据, 支持模糊匹配, 忽略大小写及符号.[10s CD]';
     const hints = [
         `按名称查询指定武器数据: #${alias} M4A1`,
         `按名称模糊查询武器数据: #${alias} m4`,
@@ -41,20 +46,31 @@ const createTDollCommand = (name: string, alias: string, isV2 = false): IRegiste
                 // 参数校验
                 if (!(await CommandHelper.validateParams(ctx, 1, 2))) {
                     await ctx.reply(
-                        '参数不正确, 示例: #tdoll M4A1, #tdoll random(random 为随机返回), #tdoll m4 ar(查询突击步枪), #tdoll random ar(随机突击步枪)'
+                        `参数不正确, 示例: #${name} M4A1, #${name} random(random 为随机返回), #${name} m4 ar(查询突击步枪), #${name} random ar(随机突击步枪)`
                     );
                     return;
                 }
 
-                const [query, query2] = CommandHelper.getQueryParams(ctx.params);
+                const [query, query2] = CommandHelper.getQueryParams(
+                    ctx.params
+                );
                 let replyText: string | null = null;
 
                 if (isV2) {
-                    replyText = await CommandHelper.getTDoll2Reply(ctx, query, query2);
+                    replyText = await CommandHelper.getTDoll2Reply(
+                        ctx,
+                        query,
+                        query2
+                    );
                 } else {
-                    replyText = await CommandHelper.getTDollReply(ctx, query, query2);
-                    if (replyText) {
-                        replyText += '\n 注意: #tdoll2 命令即将在 1 个功能版本后替换 #tdoll 命令, 可尝鲜使用 #tdoll2 命令查询数据, 后续 #tdoll 命令输出调整为 #tdoll2 命令输出格式.';
+                    replyText = await CommandHelper.getTDollReply(
+                        ctx,
+                        query,
+                        query2
+                    );
+                    if (replyText && name === 'tdoll0') {
+                        replyText +=
+                            '\n\n 注意: #tdoll0 命令将在 2 个功能版本后移除, 后续请使用 #tdoll 命令查询数据.';
                     }
                 }
 
@@ -63,14 +79,58 @@ const createTDollCommand = (name: string, alias: string, isV2 = false): IRegiste
                 }
             } catch (error) {
                 await CommandHelper.handleError(ctx, error, name);
-                logger.error(`Command ${name} execution failed`, { error, ctx });
+                logger.error(`Command ${name} execution failed`, {
+                    error,
+                    ctx,
+                });
             }
         },
     };
 };
 
-export const TDollCommandRegister = createTDollCommand('tdoll', 'td');
-export const TDoll2CommandRegister = createTDollCommand('tdoll2', 'td2', true);
+export const TDoll0CommandRegister = createTDollCommand('tdoll0', 'td0');
+export const TDollCommandRegister = createTDollCommand('tdoll', 'td', true);
+
+export const TDollSkin0CommandRegister: IRegister = {
+    name: 'tdollskin0',
+    alias: 'ts0',
+    description: '根据武器编号查询皮肤数据, 需要输入一个编号参数.[10s CD]',
+    hint: ['查询指定 ID 武器皮肤数据: #tdollskin0 2'],
+    timesInterval: 10,
+    isAdmin: false,
+    exec: async (ctx) => {
+        try {
+            if (!(await CommandHelper.validateParams(ctx, 1))) {
+                await ctx.reply('需要1个参数, 示例: #tdollskin0 2');
+                return;
+            }
+
+            const start = Date.now();
+            const [tdollData, tdollSkinData] = await Promise.all([
+                TDollSvc.getData(),
+                TDollSkinSvc.getData(),
+            ]);
+            logger.info('Fetched tdoll & tdollSkinData', {
+                duration: Date.now() - start,
+                tdollCount: tdollData.length,
+                skinCount: Object.keys(tdollSkinData).length,
+            });
+
+            const [query] = CommandHelper.getQueryParams(ctx.params);
+            let replyText = CommandHelper.getTDollSkinReplyText(
+                query,
+                tdollData,
+                tdollSkinData
+            );
+            replyText += `\n${TDOLL_SKIN_END_TEXT}\n\n注意: #tdollskin0 命令即将在 2 个功能版本后移除, 后续请使用 #tdollskin 命令查询数据.`;
+
+            await ctx.reply(`${replyText}\n${TDOLL_SKIN_END_TEXT}`);
+        } catch (error) {
+            await CommandHelper.handleError(ctx, error, 'tdollskin0');
+            logger.error('TDollSkin0 command failed', { error, ctx });
+        }
+    },
+};
 
 export const TDollSkinCommandRegister: IRegister = {
     name: 'tdollskin',
@@ -94,51 +154,14 @@ export const TDollSkinCommandRegister: IRegister = {
             logger.info('Fetched tdoll & tdollSkinData', {
                 duration: Date.now() - start,
                 tdollCount: tdollData.length,
-                skinCount: Object.keys(tdollSkinData).length
-            });
-
-            const [query] = CommandHelper.getQueryParams(ctx.params);
-            let replyText = CommandHelper.getTDollSkinReplyText(query, tdollData, tdollSkinData);
-            replyText += `\n${TDOLL_SKIN_END_TEXT}\n 注意: #tdollskin2 命令即将在 1 个功能版本后替换 #tdollskin 命令, 可尝鲜使用 #tdollskin2 命令查询数据, 后续 #tdollskin 命令输出调整为 #tdollskin2 命令输出格式.`;
-
-            await ctx.reply(`${replyText}\n${TDOLL_SKIN_END_TEXT}`);
-        } catch (error) {
-            await CommandHelper.handleError(ctx, error, 'tdollskin');
-            logger.error('TDollSkin command failed', { error, ctx });
-        }
-    },
-};
-
-export const TDollSkin2CommandRegister: IRegister = {
-    name: 'tdollskin2',
-    alias: 'ts2',
-    description: '根据武器编号查询皮肤数据, 需要输入一个编号参数.[10s CD]',
-    hint: ['查询指定 ID 武器皮肤数据: #tdollskin2 2'],
-    timesInterval: 10,
-    isAdmin: false,
-    exec: async (ctx) => {
-        try {
-            if (!(await CommandHelper.validateParams(ctx, 1))) {
-                await ctx.reply('需要1个参数, 示例: #tdollskin2 2');
-                return;
-            }
-
-            const start = Date.now();
-            const [tdollData, tdollSkinData] = await Promise.all([
-                TDollSvc.getData(),
-                TDollSkinSvc.getData(),
-            ]);
-            logger.info('Fetched tdoll & tdollSkinData for V2', {
-                duration: Date.now() - start,
-                tdollCount: tdollData.length,
-                skinCount: Object.keys(tdollSkinData).length
+                skinCount: Object.keys(tdollSkinData).length,
             });
 
             const [query] = CommandHelper.getQueryParams(ctx.params);
             let replyText = TDOLL_SKIN_NOT_FOUND_MSG;
 
             if (query in tdollSkinData) {
-               await CommandHelper.printTDollSkin2Png(
+                await CommandHelper.printTDollSkin2Png(
                     query,
                     tdollData,
                     tdollSkinData,
@@ -152,8 +175,8 @@ export const TDollSkin2CommandRegister: IRegister = {
 
             await ctx.reply(replyText);
         } catch (error) {
-            await CommandHelper.handleError(ctx, error, 'tdollskin2');
-            logger.error('TDollSkin2 command failed', { error, ctx });
+            await CommandHelper.handleError(ctx, error, 'tdollskin');
+            logger.error('TDollSkin command failed', { error, ctx });
         }
     },
 };
