@@ -175,7 +175,7 @@ abstract class BaseTDollSkinCommand {
             TDollSvc.getData(),
             TDollSkinSvc.getData(),
         ]);
-        
+
         logger.info('Fetched tdoll & tdollSkinData', {
             duration: Date.now() - start,
             tdollCount: tdollData.length,
@@ -188,8 +188,68 @@ abstract class BaseTDollSkinCommand {
     abstract processQuery(ctx: any, query: string, data: any): Promise<string>;
 }
 
-class TDollSkinCommand extends BaseTDollSkinCommand {
-    async processQuery(ctx: any, query: string, { tdollData, tdollSkinData }: any): Promise<string> {
+class V0TDollSkinCommand extends BaseTDollSkinCommand {
+    async processQuery(
+        ctx: any,
+        query: string,
+        { tdollData, tdollSkinData }: any
+    ): Promise<string> {
+        if (!(query in tdollSkinData)) {
+            return TDOLL_SKIN_NOT_FOUND_MSG;
+        }
+
+        const replyText = CommandHelper.getTDollSkinReplyText(
+            query,
+            tdollData,
+            tdollSkinData
+        );
+
+        return replyText;
+    }
+
+    getRegisterInfo(): IRegister {
+        return {
+            name: this.config.name,
+            alias: this.config.alias,
+            description:
+                '根据武器编号查询皮肤数据(旧版), 需要输入一个编号参数.[10s CD]',
+            hint: [`查询指定 ID 武器皮肤数据: #${this.config.name} 2`],
+            timesInterval: 10,
+            isAdmin: false,
+            exec: async (ctx) => {
+                try {
+                    if (!(await this.validateInput(ctx))) return;
+
+                    const data = await this.fetchData();
+                    const [query] = CommandHelper.getQueryParams(ctx.params);
+                    let replyText = await this.processQuery(ctx, query, data);
+                    replyText += `\n${TDOLL_SKIN_END_TEXT}\n${MessageManager.getDeprecationMessage(
+                        this.config.name
+                    )}`;
+
+                    await ctx.reply(replyText);
+                } catch (error) {
+                    await CommandHelper.handleError(
+                        ctx,
+                        error,
+                        this.config.name
+                    );
+                    logger.error(`${this.config.name} command failed`, {
+                        error,
+                        ctx,
+                    });
+                }
+            },
+        };
+    }
+}
+
+class V2TDollSkinCommand extends BaseTDollSkinCommand {
+    async processQuery(
+        ctx: any,
+        query: string,
+        { tdollData, tdollSkinData }: any
+    ): Promise<string> {
         if (!(query in tdollSkinData)) {
             return TDOLL_SKIN_NOT_FOUND_MSG;
         }
@@ -211,36 +271,59 @@ class TDollSkinCommand extends BaseTDollSkinCommand {
         return {
             name: this.config.name,
             alias: this.config.alias,
-            description: '根据武器编号查询皮肤数据, 需要输入一个编号参数.[10s CD]',
+            description:
+                '根据武器编号查询皮肤数据, 需要输入一个编号参数.[10s CD]',
             hint: [`查询指定 ID 武器皮肤数据: #${this.config.name} 2`],
             timesInterval: 10,
             isAdmin: false,
             exec: async (ctx) => {
                 try {
-                    if (!await this.validateInput(ctx)) return;
-                    
+                    if (!(await this.validateInput(ctx))) return;
+
                     const data = await this.fetchData();
                     const [query] = CommandHelper.getQueryParams(ctx.params);
                     let replyText = await this.processQuery(ctx, query, data);
 
                     if (!this.config.isV2) {
-                        replyText += `\n${TDOLL_SKIN_END_TEXT}\n${MessageManager.getDeprecationMessage(this.config.name)}`;
+                        replyText += `\n${TDOLL_SKIN_END_TEXT}\n${MessageManager.getDeprecationMessage(
+                            this.config.name
+                        )}`;
                     }
 
                     await ctx.reply(replyText);
                 } catch (error) {
-                    await CommandHelper.handleError(ctx, error, this.config.name);
-                    logger.error(`${this.config.name} command failed`, { error, ctx });
+                    await CommandHelper.handleError(
+                        ctx,
+                        error,
+                        this.config.name
+                    );
+                    logger.error(`${this.config.name} command failed`, {
+                        error,
+                        ctx,
+                    });
                 }
-            }
+            },
         };
     }
 }
 
-export const createTDollSkinCommand = (name: string, alias: string, isV2 = false): IRegister => {
-    const command = new TDollSkinCommand({ name, alias, isV2 });
+export const createTDollSkinCommand = (
+    name: string,
+    alias: string,
+    isV2 = false
+): IRegister => {
+    const CommandClass = isV2 ? V2TDollSkinCommand : V0TDollSkinCommand;
+    const command = new CommandClass({ name, alias, isV2 });
     return command.getRegisterInfo();
 };
 
-export const TDollSkin0CommandRegister = createTDollSkinCommand('tdollskin0', 'ts0', false);
-export const TDollSkinCommandRegister = createTDollSkinCommand('tdollskin', 'ts', true);
+export const TDollSkin0CommandRegister = createTDollSkinCommand(
+    'tdollskin0',
+    'ts0',
+    false
+);
+export const TDollSkinCommandRegister = createTDollSkinCommand(
+    'tdollskin',
+    'ts',
+    true
+);
