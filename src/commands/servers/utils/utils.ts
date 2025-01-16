@@ -9,7 +9,6 @@ import type {
     IUserMatchedServerItem,
     IMapDataItem,
 } from '../types/types';
-import { QUERY_USER_IN_SERVERS_LIMIT } from '../types/constants';
 import * as fs from 'node:fs/promises';
 
 const SERVER_API_URL = 'http://rwr.runningwithrifles.com/rwr_server_list';
@@ -332,9 +331,7 @@ export const getUserMatchedList = (
         playersList.forEach((player) => {
             if (player.toUpperCase().includes(user.toUpperCase())) {
                 count += 1;
-                if (count > QUERY_USER_IN_SERVERS_LIMIT) {
-                    return;
-                }
+
                 results.push({
                     user: player,
                     server: s,
@@ -395,7 +392,7 @@ export const getWhereisFooterSectionText = (count: number) => {
         return `未查询到结果`;
     }
 
-    return `共计 ${count} 位玩家结果(只展示 ${QUERY_USER_IN_SERVERS_LIMIT} 位玩家列表)`;
+    return `共计 ${count} 位玩家结果`;
 };
 
 export const readMapData = async (
