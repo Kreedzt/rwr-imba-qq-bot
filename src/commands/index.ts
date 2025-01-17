@@ -29,8 +29,6 @@ import { OnePtCommandRegister } from './1pt/register';
 import { NekoCommandRegister } from './neko/register';
 import { WebsiteCommandRegister } from './website/register';
 import {
-    TDoll0CommandRegister,
-    TDollSkin0CommandRegister,
     TDollCommandRegister,
     TDollSkinCommandRegister,
 } from './tdoll/register';
@@ -58,8 +56,6 @@ const allCommands: IRegister[] = [
     OnePtCommandRegister,
     NekoCommandRegister,
     WebsiteCommandRegister,
-    TDoll0CommandRegister,
-    TDollSkin0CommandRegister,
     QACommandRegister,
     QADefineCommandRegister,
     QADeleteCommandRegister,

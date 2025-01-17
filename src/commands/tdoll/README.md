@@ -11,13 +11,6 @@
 -   TDOLL_DATA_FILE: 定义人形数据文件位置
 -   IMGPROXY_URL: imgproxy 图片代理地址, 用于图片裁剪宽高及缩放
 
-## tdoll2
-
-### 环境变量
-
--   TDOLL_DATA_FILE: 定义人形数据文件位置
--   IMGPROXY_URL: imgproxy 图片代理地址, 用于图片裁剪宽高及缩放
-
 ### 数据源获取方式
 
 1. 进入 http://www.gfwiki.org/w/%E6%88%98%E6%9C%AF%E4%BA%BA%E5%BD%A2%E5%9B%BE%E9%89%B4 网站
