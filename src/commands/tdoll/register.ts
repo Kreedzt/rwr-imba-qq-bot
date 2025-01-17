@@ -11,55 +11,30 @@ import {
 import { getStaticHttpPath } from '../../utils/cmdreq';
 import { CommandHelper } from './utils/commandHelper';
 
-// 定义消息常量
-const DEPRECATION_MESSAGES = {
-    TDOLL0: '注意：#tdoll0 命令将在 2 个功能版本后移除, 后续请使用 #tdoll 命令查询数据.',
-    TDOLLSKIN0:
-        '注意: #tdollskin0 命令即将在 2 个功能版本后移除, 后续请使用 #tdollskin 命令查询数据.',
-} as const;
-
-class MessageManager {
-    static getDeprecationMessage(commandName: string): string | null {
-        switch (commandName) {
-            case 'tdoll0':
-                return DEPRECATION_MESSAGES.TDOLL0;
-            case 'tdollskin0':
-                return DEPRECATION_MESSAGES.TDOLLSKIN0;
-            default:
-                return null;
-        }
-    }
-}
-
 interface TDollConfig {
     name: string;
     alias: string;
-    isV2: boolean;
 }
 
 class TDollCommand {
     private readonly config: TDollConfig;
 
     constructor(config: TDollConfig) {
-        this.config = {
-            name: config.name,
-            alias: config.alias,
-            isV2: config.isV2,
-        };
+        // 直接赋值即可，不需要创建新对象
+        this.config = config;
     }
 
-    private async validateParams(ctx: any): Promise<boolean> {
-        return await CommandHelper.validateParams(ctx, 1, 2);
+    private validateParams(ctx: any): Promise<boolean> {
+        return CommandHelper.validateParams(ctx, 1, 2);
     }
 
     private getErrorMessage(): string {
-        return (
-            `参数不正确, 示例:\n` +
-            `#${this.config.name} M4A1\n` +
-            `#${this.config.name} random (随机返回)\n` +
-            `#${this.config.name} m4 ar (查询突击步枪)\n` +
-            `#${this.config.name} random ar (随机突击步枪)`
-        );
+        // 使用模板字符串简化拼接
+        return `参数不正确, 示例:
+#${this.config.name} M4A1
+#${this.config.name} random (随机返回)
+#${this.config.name} m4 ar (查询突击步枪)
+#${this.config.name} random ar (随机突击步枪)`;
     }
 
     private async processQuery(
@@ -67,22 +42,8 @@ class TDollCommand {
         query: string,
         query2: string
     ): Promise<string> {
-        let replyText: string = '';
-
-        if (this.config.isV2) {
-            replyText =
-                (await CommandHelper.getTDoll2Reply(ctx, query, query2)) ?? '';
-        } else {
-            replyText =
-                (await CommandHelper.getTDollReply(ctx, query, query2)) ?? '';
-            const deprecationMessage = MessageManager.getDeprecationMessage(
-                this.config.name
-            );
-            if (replyText && deprecationMessage) {
-                replyText += '\n' + deprecationMessage;
-            }
-        }
-
+        const replyText: string =
+            (await CommandHelper.getTDoll2Reply(ctx, query, query2)) ?? '';
         return replyText;
     }
 
@@ -133,25 +94,18 @@ class TDollCommand {
  * 创建TDoll命令
  * @param name 命令名称
  * @param alias 命令别名
- * @param isV2 是否使用V2版本
  * @returns IRegister
  */
-export const createTDollCommand = (
-    name: string,
-    alias: string,
-    isV2 = false
-): IRegister => {
-    const command = new TDollCommand({ name, alias, isV2 });
+export const createTDollCommand = (name: string, alias: string): IRegister => {
+    const command = new TDollCommand({ name, alias });
     return command.getRegisterInfo();
 };
 
-export const TDoll0CommandRegister = createTDollCommand('tdoll0', 'td0');
-export const TDollCommandRegister = createTDollCommand('tdoll', 'td', true);
+export const TDollCommandRegister = createTDollCommand('tdoll', 'td');
 
 interface TDollSkinConfig {
     name: string;
     alias: string;
-    isV2: boolean;
 }
 
 abstract class BaseTDollSkinCommand {
@@ -186,62 +140,6 @@ abstract class BaseTDollSkinCommand {
     }
 
     abstract processQuery(ctx: any, query: string, data: any): Promise<string>;
-}
-
-class V0TDollSkinCommand extends BaseTDollSkinCommand {
-    async processQuery(
-        ctx: any,
-        query: string,
-        { tdollData, tdollSkinData }: any
-    ): Promise<string> {
-        if (!(query in tdollSkinData)) {
-            return TDOLL_SKIN_NOT_FOUND_MSG;
-        }
-
-        const replyText = CommandHelper.getTDollSkinReplyText(
-            query,
-            tdollData,
-            tdollSkinData
-        );
-
-        return replyText;
-    }
-
-    getRegisterInfo(): IRegister {
-        return {
-            name: this.config.name,
-            alias: this.config.alias,
-            description:
-                '根据武器编号查询皮肤数据(旧版), 需要输入一个编号参数.[10s CD]',
-            hint: [`查询指定 ID 武器皮肤数据: #${this.config.name} 2`],
-            timesInterval: 10,
-            isAdmin: false,
-            exec: async (ctx) => {
-                try {
-                    if (!(await this.validateInput(ctx))) return;
-
-                    const data = await this.fetchData();
-                    const [query] = CommandHelper.getQueryParams(ctx.params);
-                    let replyText = await this.processQuery(ctx, query, data);
-                    replyText += `\n${TDOLL_SKIN_END_TEXT}\n${MessageManager.getDeprecationMessage(
-                        this.config.name
-                    )}`;
-
-                    await ctx.reply(replyText);
-                } catch (error) {
-                    await CommandHelper.handleError(
-                        ctx,
-                        error,
-                        this.config.name
-                    );
-                    logger.error(`${this.config.name} command failed`, {
-                        error,
-                        ctx,
-                    });
-                }
-            },
-        };
-    }
 }
 
 class V2TDollSkinCommand extends BaseTDollSkinCommand {
@@ -284,12 +182,6 @@ class V2TDollSkinCommand extends BaseTDollSkinCommand {
                     const [query] = CommandHelper.getQueryParams(ctx.params);
                     let replyText = await this.processQuery(ctx, query, data);
 
-                    if (!this.config.isV2) {
-                        replyText += `\n${TDOLL_SKIN_END_TEXT}\n${MessageManager.getDeprecationMessage(
-                            this.config.name
-                        )}`;
-                    }
-
                     await ctx.reply(replyText);
                 } catch (error) {
                     await CommandHelper.handleError(
@@ -309,21 +201,14 @@ class V2TDollSkinCommand extends BaseTDollSkinCommand {
 
 export const createTDollSkinCommand = (
     name: string,
-    alias: string,
-    isV2 = false
+    alias: string
 ): IRegister => {
-    const CommandClass = isV2 ? V2TDollSkinCommand : V0TDollSkinCommand;
-    const command = new CommandClass({ name, alias, isV2 });
+    const CommandClass = V2TDollSkinCommand;
+    const command = new CommandClass({ name, alias });
     return command.getRegisterInfo();
 };
 
-export const TDollSkin0CommandRegister = createTDollSkinCommand(
-    'tdollskin0',
-    'ts0',
-    false
-);
 export const TDollSkinCommandRegister = createTDollSkinCommand(
     'tdollskin',
-    'ts',
-    true
+    'ts'
 );

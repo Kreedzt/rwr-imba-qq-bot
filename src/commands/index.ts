@@ -29,8 +29,6 @@ import { OnePtCommandRegister } from './1pt/register';
 import { NekoCommandRegister } from './neko/register';
 import { WebsiteCommandRegister } from './website/register';
 import {
-    TDoll0CommandRegister,
-    TDollSkin0CommandRegister,
     TDollCommandRegister,
     TDollSkinCommandRegister,
 } from './tdoll/register';
@@ -40,7 +38,11 @@ import {
     QADeleteCommandRegister,
 } from './qa/register';
 import { VersionCommandRegister } from './version/register';
-import { LogCommandRegister, LogSelfRegister } from './log/register';
+import {
+    LogCommandRegister,
+    LogSelfRegister,
+    Log7CommandRegister,
+} from './log/register';
 import { AiCommandRegister } from './ai/register';
 import { ClickHouseService } from '../services/clickHouse.service';
 
@@ -58,14 +60,13 @@ const allCommands: IRegister[] = [
     OnePtCommandRegister,
     NekoCommandRegister,
     WebsiteCommandRegister,
-    TDoll0CommandRegister,
-    TDollSkin0CommandRegister,
     QACommandRegister,
     QADefineCommandRegister,
     QADeleteCommandRegister,
     VersionCommandRegister,
     LogCommandRegister,
     LogSelfRegister,
+    Log7CommandRegister,
     AiCommandRegister,
     TDollCommandRegister,
     TDollSkinCommandRegister,
