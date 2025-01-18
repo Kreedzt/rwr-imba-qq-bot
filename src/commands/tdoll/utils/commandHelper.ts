@@ -97,7 +97,7 @@ export class CommandHelper {
         const tdollData = await TDollSvc.getData();
 
         // 2. 根据查询条件获取匹配结果
-        const matchedResults = await this.findMatchingTDolls(
+        const matchedResults = this.findMatchingTDolls(
             tdollData,
             query,
             query2
