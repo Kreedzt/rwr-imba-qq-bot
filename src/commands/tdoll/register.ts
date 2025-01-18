@@ -71,13 +71,7 @@ class TDollCommand {
                     const [query, query2 = ''] = CommandHelper.getQueryParams(
                         ctx.params
                     );
-                    const reply = await this.processQuery(ctx, query, query2);
-
-                    if (reply) {
-                        await ctx.reply(reply);
-                    } else {
-                        await ctx.reply(TDOLL_SKIN_NOT_FOUND_MSG);
-                    }
+                    await this.processQuery(ctx, query, query2);
                 } catch (error) {
                     console.error(
                         `[TDollCommand] Error executing command:`,
