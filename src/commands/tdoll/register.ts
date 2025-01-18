@@ -71,7 +71,9 @@ class TDollCommand {
                     const [query, query2 = ''] = CommandHelper.getQueryParams(
                         ctx.params
                     );
-                    await this.processQuery(ctx, query, query2);
+                    const reply = await this.processQuery(ctx, query, query2);
+
+                    await ctx.reply(reply);
                 } catch (error) {
                     console.error(
                         `[TDollCommand] Error executing command:`,
