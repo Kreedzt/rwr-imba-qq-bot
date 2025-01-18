@@ -103,8 +103,7 @@ export class CommandHelper {
             query2
         );
         if (!matchedResults.length) {
-            await ctx.reply('未找到指定枪名，请检查输入是否有误！');
-            return null;
+            return '未找到指定枪名，请检查输入是否有误！';
         }
 
         // 3. 生成战术人形图片
