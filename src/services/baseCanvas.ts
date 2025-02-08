@@ -9,7 +9,7 @@ import { CanvasImgService } from './canvasImg.service';
 const getFooterText = (cost: number, endTime: dayjs.Dayjs) => {
     return (
         'RWR QQ Bot' +
-        `(cost=${cost}ms, render time=${endTime.format('YYYY-MM-DD HH:mm:ss')})`
+        `(cost=${cost}ms, render time=${endTime.format('YYYY-MM-DD HH:mm:ss.SSS')})`
     );
 };
 
