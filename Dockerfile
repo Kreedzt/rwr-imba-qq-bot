@@ -42,9 +42,6 @@ FROM base AS runner
 # 时区设置
 ENV TZ=Asia/Shanghai
 
-# 创建非 root 用户
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
 # 运行时特有的依赖
 RUN apk add --no-cache \
     tzdata \
@@ -54,26 +51,18 @@ RUN apk add --no-cache \
 
 # 设置工作目录并更改所有权
 WORKDIR /app
-RUN chown -R appuser:appgroup /app
 
 # 复制生产依赖和资源
-COPY --chown=appuser:appgroup package.json pnpm-lock.yaml ./
-COPY --chown=appuser:appgroup consola.ttf ./
+COPY package.json pnpm-lock.yaml ./
+COPY consola.ttf ./
 RUN pnpm install --prod && cd node_modules/canvas && npm run install && cd ../..
-COPY --chown=appuser:appgroup --from=builder /app/dist ./dist
+COPY --from=builder /app/dist ./dist
 
 # 添加元数据
 LABEL maintainer="Kreedzt" \
     version=${TAG_NAME} \
     description="RWR Imba QQ Bot" \
     org.opencontainers.image.source="https://github.com/Kreedzt/rwr-imba-qq-bot"
-
-# 配置安全选项
-RUN mkdir -p /app/logs && \
-    chown -R appuser:appgroup /app/logs
-
-# 切换到非 root 用户
-USER appuser
 
 # 设置健康检查
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
