@@ -73,15 +73,13 @@ const allCommands: IRegister[] = [
 ];
 
 export const initCommands = async (env: GlobalEnv) => {
+    const activeCommands = env.ACTIVE_COMMANDS
+        ? new Set(env.ACTIVE_COMMANDS)
+        : null;
+
     await Promise.all(
         allCommands
-            .filter((cmd) => {
-                if (env.ACTIVE_COMMANDS) {
-                    return env.ACTIVE_COMMANDS.includes(cmd.name);
-                }
-
-                return true;
-            })
+            .filter((cmd) => !activeCommands || activeCommands.has(cmd.name))
             .map(async (cmd) => {
                 await cmd.init?.(env);
             })
@@ -89,10 +87,11 @@ export const initCommands = async (env: GlobalEnv) => {
 };
 
 const quickReply = async (event: MessageEvent, text: string) => {
+    const message = `[CQ:at,qq=${event.user_id}]\n${text}`;
     if (event.group_id) {
         await RemoteService.getInst().sendGroupMsg({
             group_id: event.group_id,
-            message: `[CQ:at,qq=${event.user_id}]\n${text}`,
+            message,
         });
     } else {
         await RemoteService.getInst().sendPrivateMsg({
@@ -135,15 +134,8 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
     // help:
     if (firstCommand === 'help' || firstCommand === 'h') {
         const params = parseIgnoreSpace(['#help', '#h'], msg);
+        const query = params.keys().next().value;
 
-        let query = '';
-        params.forEach((v, k) => {
-            if (!query) {
-                query = k;
-            }
-        });
-
-        // spec cmd help
         let helpText = '';
 
         if (query) {
@@ -164,16 +156,11 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
             helpText = '帮助列表: \n';
 
             avaliableCommands
-                .filter((c) => {
-                    if (
-                        c.isAdmin &&
-                        !env.ADMIN_QQ_LIST.some((qq) => event.user_id === qq)
-                    ) {
-                        return false;
-                    }
-
-                    return true;
-                })
+                .filter(
+                    (c) =>
+                        !c.isAdmin ||
+                        env.ADMIN_QQ_LIST.some((qq) => event.user_id === qq)
+                )
                 .forEach((c) => {
                     helpText += `#${c.name}${c.alias ? `(${c.alias})` : ''}: ${
                         c.description
@@ -220,7 +207,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
                 // Get full seconds part
                 const diffs = Math.floor(timeIntervalRes.amount! / 1000);
                 // Get remaining milliseconds
-                const diffMs = timeIntervalRes.amount! - (diffs * 1000);
+                const diffMs = timeIntervalRes.amount! - diffs * 1000;
                 await quickReply(
                     event,
                     `账号被风控或请求命令频繁, 请稍后再试, CD 剩余${diffs}.${diffMs}s`
@@ -243,7 +230,13 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
                 },
             };
 
-            await hitCommand.exec(ctx);
+            if (hitCommand.exec) {
+                await hitCommand.exec(ctx);
+            } else {
+                logger.warn(`Command ${hitCommand.name} has no exec function`);
+                await quickReply(event, `命令 ${hitCommand.name} 暂未实现`);
+                return;
+            }
             const end = Date.now();
             const endDate = new Date();
             const diff = end - start;
