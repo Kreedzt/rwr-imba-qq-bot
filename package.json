@@ -59,6 +59,7 @@
     "@types/node": "^18.15.0",
     "@vitest/coverage-istanbul": "^2.1.8",
     "@vitest/ui": "^2.1.8",
+    "chalk": "4",
     "prettier": "^2.7.1",
     "rollup": "^4.17.2",
     "typescript": "^5.7.2",
