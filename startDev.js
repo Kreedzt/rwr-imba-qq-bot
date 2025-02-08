@@ -1,6 +1,7 @@
 const rollup = require('rollup');
 const typescript = require('@rollup/plugin-typescript');
 const json = require('@rollup/plugin-json');
+const chalk = require('chalk');
 
 const child_process = require('node:child_process');
 
@@ -10,19 +11,19 @@ function newProcess() {
     const process = child_process.spawn('node', ['dist/app.js']);
 
     process.stdout.on('data', (data) => {
-        console.log(`stdout: ${data}`);
+        console.log(`${chalk.green('[INFO]')}stdout: ${data}`);
     });
 
     process.stderr.on('data', (data) => {
-        console.log(`stderr: ${data}`);
+        console.log(`${chalk.red('[ERROR]')}stderr: ${data}`);
     });
 
     process.on('disconnect', (e) => {
-        console.log('on:disconnect', e);
+        console.log(`${chalk.yellow('[WARN]')}on:disconnect`, e);
     });
 
     process.on('error', (e) => {
-        console.log('on:error', e);
+        console.log(`${chalk.red('[ERROR]')}on:error`, e);
     });
 
     process.on('exit', (e) => {
@@ -30,11 +31,11 @@ function newProcess() {
     });
 
     process.on('message', (e) => {
-        console.log('on:message', e);
+        console.log(`${chalk.green('[INFO]')}on:message`, e);
     });
 
     process.on('spawn', (e) => {
-        console.log('on:spawn', e);
+        console.log(`${chalk.green('[INFO]')}on:spawn`, e);
     });
 
     return process;
@@ -65,7 +66,7 @@ const watcher = rollup.watch({
 });
 
 watcher.on('event', (event) => {
-    console.log('watcher event', event.code);
+    console.log(chalk.cyan('[WACHER EVENT]') + event.code);
 
     switch (event.code) {
         case 'START':
@@ -75,11 +76,14 @@ watcher.on('event', (event) => {
         case 'BUNDLE_END':
             break;
         case 'END':
-            console.log('Bundle completed, restarting...');
+            console.log(
+                chalk.cyan('[WATCHER RESTARED]') +
+                    'Bundle completed, restarting...'
+            );
             startApp();
             break;
         case 'ERROR': {
-            console.log('error', event);
+            console.log(chalk.red('[WATCHER ERROR]') + 'error', event);
             break;
         }
     }
