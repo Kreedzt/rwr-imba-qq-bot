@@ -70,4 +70,8 @@ export class ClickHouseService {
         }
         return ClickHouseService.inst;
     }
+
+    close() {
+        return this.client.close();
+    }
 }
