@@ -217,10 +217,10 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
                 !hitCommand.isAdmin &&
                 !timeIntervalRes.success
             ) {
-                // seconds
-                const diffs = timeIntervalRes.amount! / 1000;
-                // ms
-                const diffMs = timeIntervalRes.amount! % 1000;
+                // Get full seconds part
+                const diffs = Math.floor(timeIntervalRes.amount! / 1000);
+                // Get remaining milliseconds
+                const diffMs = timeIntervalRes.amount! - (diffs * 1000);
                 await quickReply(
                     event,
                     `账号被风控或请求命令频繁, 请稍后再试, CD 剩余${diffs}.${diffMs}s`
