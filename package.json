@@ -65,7 +65,7 @@
     "typescript": "^5.7.2",
     "vite": "^5.4.11",
     "vite-plugin-node": "^4.0.0",
-    "vitest": "^2.1.8",
+    "vitest": "^2.1.9",
     "vitest-sonar-reporter": "^2.0.0"
   },
   "volta": {
