@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { createCanvas } from 'canvas';
+import { createCanvas, Canvas } from 'canvas';
 import * as echarts from 'echarts';
 import { IAnalysisData } from '../types/types';
 import {
@@ -31,7 +31,8 @@ const readData = () => {
 
 export const printChartPng = async () => {
     // echarts:
-    const canvas = createCanvas(800, 400); /* @ts-ignore
+    const canvas = createCanvas(800, 400);
+    // @ts-ignore
     const chart = echarts.init(canvas as any);
     const data = readData();
     chart.setOption({
@@ -81,7 +82,7 @@ export const printChartPng = async () => {
 
     const buffer = canvas.toBuffer('image/png', {
         compressionLevel: 0,
-        filters: Canvas.Canvas.PNG_FILTER_NONE,
+        filters: Canvas.PNG_FILTER_NONE,
     });
 
     const outputPath = path.join(
@@ -117,7 +118,8 @@ const readHoursData = () => {
 
 export const printHoursChartPng = async () => {
     // echarts:
-    const canvas = createCanvas(800, 400); /* @ts-ignore
+    const canvas = createCanvas(800, 400);
+    // @ts-ignore
     const chart = echarts.init(canvas as any);
     const data = readHoursData();
     chart.setOption({
@@ -167,7 +169,7 @@ export const printHoursChartPng = async () => {
 
     const buffer = canvas.toBuffer('image/png', {
         compressionLevel: 0,
-        filters: Canvas.Canvas.PNG_FILTER_NONE,
+        filters: Canvas.PNG_FILTER_NONE,
     });
 
     const outputPath = path.join(

@@ -50,18 +50,14 @@ async function startServer() {
 
     registerRoutes(app, env);
 
-    app.listen(
-        {
-            host: env.HOSTNAME,
-            port: env.PORT,
-        },
-        async (err, address) => {
-            if (err) throw err;
-            logger.info('initing Commands...', env);
-            await initCommands(env);
-            logger.info(`App listening on ${address}`);
-        }
-    );
+    const address = await app.listen({
+        host: env.HOSTNAME,
+        port: env.PORT,
+    });
+
+    logger.info('initing Commands...', env);
+    await initCommands(env);
+    logger.info(`App listening on ${address}`);
 
     // 注册优雅停机的信号处理
     const signals = ['SIGTERM', 'SIGINT', 'SIGUSR2'];
