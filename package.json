@@ -34,7 +34,7 @@
   "license": "MIT",
   "dependencies": {
     "@clickhouse/client": "^1.0.1",
-    "@fastify/static": "^8.0.3",
+    "@fastify/static": "^9.0.0",
     "axios": "1.13.3",
     "canvas": "3.1.0",
     "cron": "^3.1.6",
@@ -42,7 +42,7 @@
     "dotenv": "^16.0.3",
     "echarts": "^5.5.1",
     "fast-xml-parser": "^4.0.11",
-    "fastify": "^5.1.0",
+    "fastify": "^5.7.2",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "pinyin-match": "^1.2.4",
