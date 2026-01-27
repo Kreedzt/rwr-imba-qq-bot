@@ -24,27 +24,18 @@ jobs:
               uses: actions/setup-node@v4
               with:
                 node-version: '22.11.0'
+                cache: 'pnpm'
             - name: Install canvas dependencies
               run: |
                 sudo apt-get update
                 sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
             - name: Install dependencies
               run: pnpm install
-            - name: Build canvas manually
-              run: |
-                cd node_modules/.pnpm/canvas@3.2.1/node_modules/canvas
-                npm run install
-            - name: Verify canvas build
-              run: |
-                echo "Checking if canvas.node exists..."
-                find node_modules/.pnpm/canvas* -name "canvas.node" || echo "canvas.node not found!"
-                ls -la node_modules/.pnpm/canvas*/node_modules/canvas/build/ || echo "build folder not found!"
             - name: Test coverage
               run: pnpm run coverage
             - name: Upload coverage reports to Codecov
               uses: codecov/codecov-action@v3
             - name: SonarCloud Scan
-              uses: sonarsource/sonarcloud-github-action@master
+              uses: sonarsource/sonarqube-scan-action@7
               env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
