@@ -37,7 +37,7 @@
     "@fastify/static": "^9.0.0",
     "axios": "1.13.3",
     "canvas": "3.1.0",
-    "cron": "^3.1.6",
+    "cron": "^4.4.0",
     "dayjs": "^1.11.7",
     "dotenv": "^16.0.3",
     "echarts": "^5.5.1",
