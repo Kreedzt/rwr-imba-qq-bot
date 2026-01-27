@@ -59,10 +59,17 @@ const watcher = rollup.watch({
     input: 'src/index.ts',
     output: {
         file: 'dist/app.js',
-        format: 'cjs',
+        format: 'esm',
         sourcemap: true,
     },
-    plugins: [typescript(), json()],
+    plugins: [
+        typescript({
+            tsconfig: './tsconfig.json',
+            module: 'ESNext',
+            target: 'ESNext'
+        }),
+        json()
+    ],
 });
 
 watcher.on('event', (event) => {

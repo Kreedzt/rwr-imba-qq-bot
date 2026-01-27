@@ -6,8 +6,15 @@ module.exports = defineConfig({
   input: 'src/index.ts',
   output: {
     file: 'dist/app.js',
-    format: 'cjs',
+    format: 'esm',
     sourcemap: true
   },
-  plugins: [typescript(), json()]
+  plugins: [
+    typescript({
+      tsconfig: './tsconfig.json',
+      module: 'ESNext',
+      target: 'ESNext'
+    }),
+    json()
+  ]
 });

@@ -1,7 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { NoticeExecCtx } from "../types";
+import { getDirname } from '../utils/esm';
 
+const __dirname = getDirname(import.meta.url);
 let template = '';
 
 export const welcomeNewMember = async (ctx: NoticeExecCtx) => {

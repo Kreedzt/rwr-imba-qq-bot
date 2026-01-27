@@ -7,9 +7,12 @@ import { initCommands } from './commands';
 import { registerRoutes } from './routes';
 import { gracefulShutdown } from './shutdown';
 import { loadEnv } from './utils/env';
+import { getDirname } from './utils/esm';
 
 // 创建一个启动函数
 async function startServer() {
+    const __dirname = getDirname(import.meta.url);
+
     const app = Fastify({
         logger: {
             serializers: {

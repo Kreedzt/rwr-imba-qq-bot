@@ -2,6 +2,7 @@
   "name": "rwr-imba-qq-bot",
   "version": "0.2.5",
   "description": "适用于 RWR 服务器数据查询的 QQ 机器人",
+  "type": "module",
   "main": "index.js",
   "repository": {
     "url": "https://github.com/Kreedzt/rwr-imba-qq-bot.git",
@@ -12,8 +13,8 @@
     "url": "https://github.com/Kreedzt/rwr-imba-qq-bot/issues"
   },
   "scripts": {
-    "start": "node postbuild.js && node startDev.js",
-    "build": "node postbuild.js && rollup --environment NODE_ENV:production,BUILD:production --config rollup.config.js",
+    "start": "node postbuild.cjs && node startDev.cjs",
+    "build": "node postbuild.cjs && rollup --environment NODE_ENV:production,BUILD:production --config rollup.config.cjs",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "coverage": "vitest --coverage"
