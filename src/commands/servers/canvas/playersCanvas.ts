@@ -1,4 +1,4 @@
-import { createCanvas, CanvasRenderingContext2D } from 'canvas';
+import { createCanvas, Canvas2DContext } from '../../../services/canvasBackend';
 import { OnlineServerItem } from '../types/types';
 import {
     getServersHeaderDisplaySectionText,
@@ -78,16 +78,12 @@ export class PlayersCanvas extends BaseCanvas {
         this.renderHeight = 120 + this.contentLines * 40;
     }
 
-    renderLayout(
-        context: CanvasRenderingContext2D,
-        width: number,
-        height: number
-    ) {
+    renderLayout(context: Canvas2DContext, width: number, height: number) {
         context.fillStyle = '#451a03';
         context.fillRect(0, 0, width, height);
     }
 
-    renderTitle(context: CanvasRenderingContext2D) {
+    renderTitle(context: Canvas2DContext) {
         context.font = 'bold 20pt Consolas';
         context.textAlign = 'left';
         context.textBaseline = 'top';
@@ -96,33 +92,33 @@ export class PlayersCanvas extends BaseCanvas {
             this.titleData.serversTotalSection +
                 this.titleData.playersTotalStaticSection,
             10,
-            10
+            10,
         );
 
         const titleStaticSectionWidth = context.measureText(
             this.titleData.serversTotalSection +
-                this.titleData.playersTotalStaticSection
+                this.titleData.playersTotalStaticSection,
         ).width;
         // count
         const allServersCapacity = this.serverList.reduce(
             (acc, cur) => acc + cur.max_players,
-            0
+            0,
         );
         const allPlayersCount = this.serverList.reduce(
             (acc, cur) => acc + cur.current_players,
-            0
+            0,
         );
         context.fillStyle = getCountColor(allPlayersCount, allServersCapacity);
         context.fillText(
             this.titleData.playersCountSection,
             10 + titleStaticSectionWidth,
-            10
+            10,
         );
 
         this.renderStartY = 10 + 40 + 10;
     }
 
-    renderList(context: CanvasRenderingContext2D) {
+    renderList(context: Canvas2DContext) {
         context.font = 'bold 20pt Consolas';
         context.textAlign = 'left';
         context.textBaseline = 'top';
@@ -150,10 +146,10 @@ export class PlayersCanvas extends BaseCanvas {
             context.fillText(
                 outputSectionText.serverSection,
                 20,
-                10 + this.renderStartY
+                10 + this.renderStartY,
             );
             const serverSectionWidth = context.measureText(
-                outputSectionText.serverSection
+                outputSectionText.serverSection,
             ).width;
 
             // count section
@@ -161,10 +157,10 @@ export class PlayersCanvas extends BaseCanvas {
             context.fillText(
                 outputSectionText.playersSection,
                 20 + serverSectionWidth,
-                10 + this.renderStartY
+                10 + this.renderStartY,
             );
             const playersSectionWidth = context.measureText(
-                outputSectionText.playersSection
+                outputSectionText.playersSection,
             ).width;
 
             // map section
@@ -172,7 +168,7 @@ export class PlayersCanvas extends BaseCanvas {
             context.fillText(
                 outputSectionText.mapSection,
                 20 + serverSectionWidth + playersSectionWidth,
-                10 + this.renderStartY
+                10 + this.renderStartY,
             );
 
             // render players
@@ -187,13 +183,13 @@ export class PlayersCanvas extends BaseCanvas {
         });
     }
 
-    renderRect(context: CanvasRenderingContext2D) {
+    renderRect(context: Canvas2DContext) {
         context.strokeStyle = '#f48225';
         context.rect(
             10,
             this.renderStartY + 10,
             this.maxRectWidth + 20,
-            this.contentLines * 40 + 10
+            this.contentLines * 40 + 10,
         );
         context.stroke();
         this.renderStartY += 10;

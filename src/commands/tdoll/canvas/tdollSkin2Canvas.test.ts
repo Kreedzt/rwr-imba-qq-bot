@@ -3,58 +3,84 @@ import { TDollSkin2Canvas } from './tdollSkin2Canvas';
 import { ITDollDataItem, ITDollSkinDataItem } from '../types/types';
 import { CANVAS_STYLE } from '../types/constants';
 
-// Mock canvas and image loading
-vi.mock('canvas', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('canvas')>();
-    return {
-        ...actual,
-        createCanvas: vi
-            .fn()
-            .mockImplementation((width: number, height: number) => ({
-                getContext: vi.fn().mockReturnValue({
-                    fillStyle: '',
-                    fillRect: vi.fn(),
-                    fillText: vi.fn(),
-                    measureText: vi.fn().mockReturnValue({ width: 100 }),
-                    strokeStyle: '',
-                    rect: vi.fn(),
-                    stroke: vi.fn(),
-                    drawImage: vi.fn(),
-                }),
-                toBuffer: vi.fn().mockReturnValue(Buffer.from('test')),
-            })),
-        loadImage: vi.fn().mockImplementation((src: string) =>
-            Promise.resolve({
-                width: CANVAS_STYLE.IMAGE_SIZE,
-                height: CANVAS_STYLE.IMAGE_SIZE,
-            })
-        ),
-    };
-});
+// Mock canvas backend to avoid loading native renderer.
+vi.mock('../../../services/canvasBackend', () => ({
+    // Avoid referencing imported constants here; vi.mock is hoisted.
+    createCanvas: vi.fn().mockImplementation(() => ({
+        getContext: vi.fn().mockReturnValue({
+            fillStyle: '',
+            fillRect: vi.fn(),
+            fillText: vi.fn(),
+            measureText: vi.fn().mockReturnValue({ width: 100 }),
+            strokeStyle: '',
+            rect: vi.fn(),
+            stroke: vi.fn(),
+            drawImage: vi.fn(),
+        }),
+        toBufferSync: vi.fn().mockReturnValue(Buffer.from('test')),
+    })),
+    loadImageFrom: vi.fn().mockResolvedValue({ width: 100, height: 100 }),
+    toPngBuffer: vi
+        .fn()
+        .mockImplementation((canvas: any) => canvas.toBufferSync('png')),
+}));
 
 // Test helper class to access protected members
 class TestTDollSkin2Canvas extends TDollSkin2Canvas {
-    constructor(query: string, tdolls: ITDollDataItem[], record: Record<string, ITDollSkinDataItem>, fileName: string) {
+    constructor(
+        query: string,
+        tdolls: ITDollDataItem[],
+        record: Record<string, ITDollSkinDataItem>,
+        fileName: string,
+    ) {
         super(query, tdolls, record, fileName);
     }
 
     // Expose protected members for testing
-    get testQuery() { return this.query; }
-    get testTDolls() { return this.tdolls; }
-    get testFileName() { return this.fileName; }
-    get testTDoll() { return this.tdoll; }
-    get testSkinsRecord() { return this.skinsRecord; }
-    get testSkinList() { return this.skinList; }
-    get testTDollImgMap() { return this.tdollImgMap; }
-    get testTDollSkinImgMap() { return this.tdollSkinImgMap; }
+    get testQuery() {
+        return this.query;
+    }
+    get testTDolls() {
+        return this.tdolls;
+    }
+    get testFileName() {
+        return this.fileName;
+    }
+    get testTDoll() {
+        return this.tdoll;
+    }
+    get testSkinsRecord() {
+        return this.skinsRecord;
+    }
+    get testSkinList() {
+        return this.skinList;
+    }
+    get testTDollImgMap() {
+        return this.tdollImgMap;
+    }
+    get testTDollSkinImgMap() {
+        return this.tdollSkinImgMap;
+    }
 
     // Expose protected methods for testing
-    async testLoadAllImg() { return this.loadAllImg(); }
-    testGetTitleSection() { return this.getTitleSection(); }
-    testGetTDollSection() { return this.getTDollSection(); }
-    testMeasureTitle() { return this.measureTitle(); }
-    testMeasureContent() { return this.measureContent(); }
-    testGetSkinsHeight() { return this.getSkinsHeight(); }
+    async testLoadAllImg() {
+        return this.loadAllImg();
+    }
+    testGetTitleSection() {
+        return this.getTitleSection();
+    }
+    testGetTDollSection() {
+        return this.getTDollSection();
+    }
+    testMeasureTitle() {
+        return this.measureTitle();
+    }
+    testMeasureContent() {
+        return this.measureContent();
+    }
+    testGetSkinsHeight() {
+        return this.getSkinsHeight();
+    }
 }
 
 describe('TDollSkin2Canvas', () => {
@@ -70,24 +96,31 @@ describe('TDollSkin2Canvas', () => {
     ] as ITDollDataItem[];
 
     const mockSkinRecord: Record<string, ITDollSkinDataItem> = {
-        '1': [{
-            index: 0,
-            value: 'skin1',
-            title: 'Test Skin',
-            image: {
-                anime: 'test-anime.gif',
-                line: 'test-line.png',
-                name: 'Test Skin',
-                pic: 'test-skin.jpg',
-                pic_d: 'test-skin-d.jpg',
-                pic_d_h: 'test-skin-d-h.jpg',
-                pic_h: 'test-skin-h.jpg'
-            }
-        }]
+        '1': [
+            {
+                index: 0,
+                value: 'skin1',
+                title: 'Test Skin',
+                image: {
+                    anime: 'test-anime.gif',
+                    line: 'test-line.png',
+                    name: 'Test Skin',
+                    pic: 'test-skin.jpg',
+                    pic_d: 'test-skin-d.jpg',
+                    pic_d_h: 'test-skin-d-h.jpg',
+                    pic_h: 'test-skin-h.jpg',
+                },
+            },
+        ],
     };
 
     beforeEach(() => {
-        tdollSkinCanvas = new TestTDollSkin2Canvas('1', mockTDolls, mockSkinRecord, 'test.png');
+        tdollSkinCanvas = new TestTDollSkin2Canvas(
+            '1',
+            mockTDolls,
+            mockSkinRecord,
+            'test.png',
+        );
     });
 
     it('should initialize correctly', () => {
@@ -101,15 +134,24 @@ describe('TDollSkin2Canvas', () => {
 
     describe('loadAllImg', () => {
         it('should load images successfully', async () => {
-            await expect(tdollSkinCanvas.testLoadAllImg()).resolves.not.toThrow();
+            await expect(
+                tdollSkinCanvas.testLoadAllImg(),
+            ).resolves.not.toThrow();
             expect(tdollSkinCanvas.testTDollImgMap.size).toBe(1);
             expect(tdollSkinCanvas.testTDollSkinImgMap.size).toBe(1);
         });
 
         it('should handle missing tdoll gracefully', async () => {
             // Create a new instance with empty tdolls array to ensure no tdoll is found
-            tdollSkinCanvas = new TestTDollSkin2Canvas('1', [], mockSkinRecord, 'test.png');
-            await expect(tdollSkinCanvas.testLoadAllImg()).resolves.not.toThrow();
+            tdollSkinCanvas = new TestTDollSkin2Canvas(
+                '1',
+                [],
+                mockSkinRecord,
+                'test.png',
+            );
+            await expect(
+                tdollSkinCanvas.testLoadAllImg(),
+            ).resolves.not.toThrow();
             expect(tdollSkinCanvas.testTDollImgMap.size).toBe(0);
         });
     });
@@ -133,7 +175,12 @@ describe('TDollSkin2Canvas', () => {
 
         it('should handle missing tdoll gracefully', async () => {
             // Create a new instance with empty tdolls array to ensure no tdoll is found
-            tdollSkinCanvas = new TestTDollSkin2Canvas('1', [], mockSkinRecord, 'test.png');
+            tdollSkinCanvas = new TestTDollSkin2Canvas(
+                '1',
+                [],
+                mockSkinRecord,
+                'test.png',
+            );
             const sections = tdollSkinCanvas.testGetTDollSection();
             expect(sections.noSection).toBe('');
             expect(sections.staticSection2).toBe('  ');
@@ -148,7 +195,12 @@ describe('TDollSkin2Canvas', () => {
 
         it('should return 0 when no skins', () => {
             // Create a new instance with empty skin record to ensure no skins are found
-            tdollSkinCanvas = new TestTDollSkin2Canvas('1', mockTDolls, {}, 'test.png');
+            tdollSkinCanvas = new TestTDollSkin2Canvas(
+                '1',
+                mockTDolls,
+                {},
+                'test.png',
+            );
             const height = tdollSkinCanvas.testGetSkinsHeight();
             expect(height).toBe(0);
         });

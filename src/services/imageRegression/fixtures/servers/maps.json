@@ -1,0 +1,16 @@
+{
+    "servers": [
+        {
+            "name": "Test Server",
+            "map_id": "maps/test_map",
+            "current_players": 10,
+            "max_players": 20
+        }
+    ],
+    "maps": [
+        {
+            "id": "test_map",
+            "name": "Test Map"
+        }
+    ]
+}

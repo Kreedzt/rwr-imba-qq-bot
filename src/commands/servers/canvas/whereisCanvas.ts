@@ -1,4 +1,4 @@
-import { createCanvas, CanvasRenderingContext2D } from 'canvas';
+import { createCanvas, Canvas2DContext } from '../../../services/canvasBackend';
 import { IUserMatchedServerItem } from '../types/types';
 import {
     calcCanvasTextWidth,
@@ -39,7 +39,7 @@ export class WhereisCanvas extends BaseCanvas {
         matchList: IUserMatchedServerItem[],
         query: string,
         count: number,
-        fileName: string
+        fileName: string,
     ) {
         super();
         this.matchList = matchList;
@@ -81,16 +81,12 @@ export class WhereisCanvas extends BaseCanvas {
         this.renderHeight = 120 + 40 + this.matchList.length * 40;
     }
 
-    renderLayout(
-        context: CanvasRenderingContext2D,
-        width: number,
-        height: number
-    ) {
+    renderLayout(context: Canvas2DContext, width: number, height: number) {
         context.fillStyle = '#451a03';
         context.fillRect(0, 0, width, height);
     }
 
-    renderTitle(context: CanvasRenderingContext2D) {
+    renderTitle(context: Canvas2DContext) {
         context.font = 'bold 20pt Consolas';
         context.textAlign = 'left';
         context.textBaseline = 'top';
@@ -99,7 +95,7 @@ export class WhereisCanvas extends BaseCanvas {
         context.fillStyle = '#fff';
         context.fillText(this.titleData.staticSection, 10, 10);
         const titleStaticSectionWidth = context.measureText(
-            this.titleData.staticSection
+            this.titleData.staticSection,
         ).width;
 
         // user section
@@ -107,10 +103,10 @@ export class WhereisCanvas extends BaseCanvas {
         context.fillText(
             this.titleData.userSection,
             10 + titleStaticSectionWidth,
-            10
+            10,
         );
         const titleUserSectionWidth = context.measureText(
-            this.titleData.userSection
+            this.titleData.userSection,
         ).width;
 
         // static section 2
@@ -118,13 +114,13 @@ export class WhereisCanvas extends BaseCanvas {
         context.fillText(
             this.titleData.staticSection2,
             10 + titleStaticSectionWidth + titleUserSectionWidth,
-            10
+            10,
         );
 
         this.renderStartY = 10 + 40 + 10;
     }
 
-    renderList(context: CanvasRenderingContext2D) {
+    renderList(context: Canvas2DContext) {
         context.font = 'bold 20pt Consolas';
         context.textAlign = 'left';
         context.textBaseline = 'top';
@@ -152,10 +148,10 @@ export class WhereisCanvas extends BaseCanvas {
             context.fillText(
                 outputSectionText.userSection,
                 20,
-                10 + this.renderStartY
+                10 + this.renderStartY,
             );
             const userSectionWidth = context.measureText(
-                outputSectionText.userSection
+                outputSectionText.userSection,
             ).width;
 
             // user + server static section(xxx is playing server1)
@@ -163,24 +159,24 @@ export class WhereisCanvas extends BaseCanvas {
             context.fillText(
                 outputSectionText.staticSection,
                 20 + userSectionWidth,
-                10 + this.renderStartY
+                10 + this.renderStartY,
             );
             const staticSectionWidth = context.measureText(
-                outputSectionText.staticSection
+                outputSectionText.staticSection,
             ).width;
 
             // server capacity count section
             context.fillStyle = getCountColor(
                 m.server.current_players,
-                m.server.max_players
+                m.server.max_players,
             );
             context.fillText(
                 outputSectionText.serverCount,
                 20 + userSectionWidth + staticSectionWidth,
-                10 + this.renderStartY
+                10 + this.renderStartY,
             );
             const serverCountWidth = context.measureText(
-                outputSectionText.serverCount
+                outputSectionText.serverCount,
             ).width;
 
             // server map section
@@ -188,14 +184,14 @@ export class WhereisCanvas extends BaseCanvas {
             context.fillText(
                 outputSectionText.mapSection,
                 20 + userSectionWidth + staticSectionWidth + serverCountWidth,
-                10 + this.renderStartY
+                10 + this.renderStartY,
             );
 
             this.renderStartY += 40;
         });
     }
 
-    renderFooterExtra(context: CanvasRenderingContext2D) {
+    renderFooterExtra(context: Canvas2DContext) {
         const footerData = getWhereisFooterSectionText(this.count);
         context.fillStyle = '#fff';
         context.font = 'bold 10pt Consolas';
@@ -204,13 +200,13 @@ export class WhereisCanvas extends BaseCanvas {
         this.renderStartY += 40;
     }
 
-    renderRect(context: CanvasRenderingContext2D) {
+    renderRect(context: Canvas2DContext) {
         context.strokeStyle = '#f48225';
         context.rect(
             10,
             this.renderStartY + 10,
             this.maxRectWidth + 20,
-            this.contentLines * 40 + 10
+            this.contentLines * 40 + 10,
         );
         context.stroke();
         this.renderStartY += 10;

@@ -1,0 +1,107 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { createCanvas, toPngBuffer } from '../canvasBackend';
+
+import { TDoll2Canvas } from '../../commands/tdoll/canvas/tdoll2Canvas';
+import { MapsCanvas } from '../../commands/servers/canvas/mapsCanvas';
+import { printChartPng } from '../../commands/servers/charts/chart';
+import {
+    ANALYSIS_DATA_FILE,
+    ANALYSIS_OUTPUT_FILE,
+    OUTPUT_FOLDER,
+} from '../../commands/servers/types/constants';
+
+export type ImageScenario = {
+    id: string;
+    name: string;
+    run: () => Promise<string>; // returns absolute PNG path
+};
+
+const fixturesDir = path.join(
+    process.cwd(),
+    'src/services/imageRegression/fixtures',
+);
+
+function readJson<T>(relative: string): T {
+    const full = path.join(fixturesDir, relative);
+    const raw = fs.readFileSync(full, 'utf-8');
+    return JSON.parse(raw) as T;
+}
+
+function ensureOutDir() {
+    const outDir = path.join(process.cwd(), OUTPUT_FOLDER);
+    if (!fs.existsSync(outDir)) {
+        fs.mkdirSync(outDir, { recursive: true });
+    }
+    return outDir;
+}
+
+async function ensureFixturePng(filePath: string) {
+    if (fs.existsSync(filePath)) {
+        return;
+    }
+    const canvas = createCanvas(64, 64);
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#111827';
+    ctx.fillRect(0, 0, 64, 64);
+    ctx.fillStyle = '#22c55e';
+    ctx.fillRect(8, 8, 48, 48);
+    fs.writeFileSync(filePath, toPngBuffer(canvas));
+}
+
+export const scenarios: ImageScenario[] = [
+    {
+        id: 'tdoll-basic',
+        name: 'TDoll2 basic render',
+        run: async () => {
+            const outDir = ensureOutDir();
+            const avatarPath = path.join(outDir, 'fixture-tdoll-avatar.png');
+            await ensureFixturePng(avatarPath);
+
+            const fileName = `reg-tdoll-${Date.now()}.png`;
+            const [tdoll] = readJson<any[]>('tdoll/tdolls.json');
+            tdoll.avatar = avatarPath;
+
+            const canvas = new TDoll2Canvas('test', [tdoll], fileName);
+            await canvas.loadAllImg();
+            const outPath = await canvas.render();
+            return path.resolve(outPath);
+        },
+    },
+    {
+        id: 'servers-maps-basic',
+        name: 'Servers maps basic render',
+        run: async () => {
+            ensureOutDir();
+            const fileName = `reg-maps-${Date.now()}.png`;
+
+            const { servers, maps } = readJson<any>('servers/maps.json');
+
+            const canvas = new MapsCanvas(servers, maps, fileName);
+            const outPath = canvas.render();
+            return path.resolve(outPath);
+        },
+    },
+    {
+        id: 'echarts-analysis-basic',
+        name: 'ECharts analysis basic render',
+        run: async () => {
+            const outDir = ensureOutDir();
+
+            // Provide deterministic input data.
+            const dataPath = path.join(outDir, ANALYSIS_DATA_FILE);
+            const data = readJson<any[]>('charts/analysis.json');
+            fs.writeFileSync(dataPath, JSON.stringify(data));
+
+            const fileName = await printChartPng();
+            if (fileName !== ANALYSIS_OUTPUT_FILE) {
+                throw new Error(
+                    `Unexpected output file: ${fileName} (expected ${ANALYSIS_OUTPUT_FILE})`,
+                );
+            }
+
+            const outPath = path.join(outDir, ANALYSIS_OUTPUT_FILE);
+            return path.resolve(outPath);
+        },
+    },
+];

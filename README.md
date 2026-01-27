@@ -9,6 +9,7 @@
 ## 环境变量
 
 通用配置:
+
 - PORT: 监听的 HTTP 端口号, 类型为 `number`, eg: `6768`
 - REMOTE_URL: go-cqhttp 的服务监听的 HTTP 地址, 类型为 `string`, eg: `http://127.0.0.1:5701`
 - START_MATCH: 机器人命令触发前缀, 类型为 `string`, eg: `#`
@@ -19,6 +20,7 @@
 - WELCOME_TEMPLATE: TODO
 
 命令配置:
+
 - SERVERS_MATCH_REGEX: RWR 服务器筛选正则表达式, 类型为 `string`
 - WEBSITE_DATA_FILE: 指定的网站文件路径
 - TDOLL_DATA_FILE: 战术人形数据文件路径
@@ -33,6 +35,7 @@
 ### Docker
 
 可选挂载目录
+
 - logs: 日志输出目录
 
 ```sh
@@ -54,9 +57,17 @@ docker run --name my-rwr-qq-bot \
 
 参考 `docker-compose-example.yaml` 文件
 
+## 图像渲染
+
+- 项目图片生成依赖使用 `skia-canvas`（替代 `canvas`/node-canvas），以提升 CI 与本地安装稳定性。
+- 图片回归样例（用于验证迁移后输出可用）：
+
+```sh
+pnpm run test:image
+```
+
 ## License
 
 - [MIT](https://opensource.org/licenses/MIT)
-
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FKreedzt%2Frwr-imba-qq-bot.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FKreedzt%2Frwr-imba-qq-bot?ref=badge_large)

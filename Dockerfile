@@ -9,12 +9,7 @@ ENV NODE_ENV=production
 
 # 安装基础依赖
 RUN apk add --no-cache \
-    pango-dev \
-    g++ \
-    make \
-    jpeg-dev \
-    giflib-dev \
-    librsvg-dev \
+    fontconfig \
     && npm install -g pnpm@${PNPM_VERSION} \
     && pnpm config set store-dir /root/.local/share/pnpm/store \
     && rm -rf /var/cache/apk/* /tmp/* ~/.npm
@@ -55,7 +50,7 @@ WORKDIR /app
 # 复制生产依赖和资源
 COPY package.json pnpm-lock.yaml ./
 COPY consola.ttf ./
-RUN pnpm install --prod && cd node_modules/canvas && npm run install && cd ../..
+RUN pnpm install --prod
 COPY --from=builder /app/dist ./dist
 
 # 添加元数据

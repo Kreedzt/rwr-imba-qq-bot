@@ -24,3 +24,9 @@ src/info.json
 *.sh
 website_list.json
 ecosystem.config.js
+
+# ai
+.opencode/
+.kilocode/
+.claude/
+.specify/

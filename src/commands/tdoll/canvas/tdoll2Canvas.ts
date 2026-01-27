@@ -1,14 +1,16 @@
 import {
     createCanvas,
-    CanvasRenderingContext2D,
-    loadImage,
-    Image,
-} from 'canvas';
+    Canvas2DContext,
+    ImageLike,
+    loadImageFrom,
+} from '../../../services/canvasBackend';
 import { BaseCanvas } from '../../../services/baseCanvas';
 import { ITDollDataItem } from '../types/types';
 import { resizeImg } from '../../../utils/imgproxy';
 import { CANVAS_STYLE } from '../types/constants';
 import { replacedQueryMatch } from '../utils/utils';
+import { asImageRenderError } from '../../../services/imageRenderErrors';
+import { logImageRenderError } from '../../../services/imageRenderLogger';
 
 export class TDoll2Canvas extends BaseCanvas {
     renderStartY: number = 0;
@@ -23,7 +25,7 @@ export class TDoll2Canvas extends BaseCanvas {
 
     maxLengthStr: string = '';
     contentLines = 0;
-    imgMap: Map<string, Image> = new Map();
+    imgMap: Map<string, ImageLike> = new Map();
 
     fileName: string;
     query: string;
@@ -36,7 +38,7 @@ export class TDoll2Canvas extends BaseCanvas {
         this.tdolls = tdolls;
     }
 
-    private applyBaseStyle(context: CanvasRenderingContext2D) {
+    private applyBaseStyle(context: Canvas2DContext) {
         this.setContextStyle(context, {
             font: CANVAS_STYLE.FONT,
             textAlign: 'left',
@@ -46,13 +48,13 @@ export class TDoll2Canvas extends BaseCanvas {
     }
 
     private setContextStyle(
-        context: CanvasRenderingContext2D,
+        context: Canvas2DContext,
         style: {
             font?: string;
             textAlign?: CanvasTextAlign;
             textBaseline?: CanvasTextBaseline;
             fillStyle?: string | CanvasGradient | CanvasPattern;
-        }
+        },
     ) {
         if (style.font) context.font = style.font;
         if (style.textAlign) context.textAlign = style.textAlign;
@@ -68,32 +70,43 @@ export class TDoll2Canvas extends BaseCanvas {
                         const avatarUrl = resizeImg(
                             tdoll.avatar,
                             CANVAS_STYLE.IMAGE_SIZE,
-                            CANVAS_STYLE.IMAGE_SIZE
+                            CANVAS_STYLE.IMAGE_SIZE,
                         );
-                        const avatarImg = await loadImage(avatarUrl);
+                        const avatarImg = await loadImageFrom(avatarUrl);
                         this.imgMap.set(tdoll.id, avatarImg);
 
                         if (tdoll.mod === '1') {
-                            const avatarModImg = await loadImage(
+                            const avatarModImg = await loadImageFrom(
                                 resizeImg(
                                     tdoll.avatarMod,
                                     CANVAS_STYLE.IMAGE_SIZE,
-                                    CANVAS_STYLE.IMAGE_SIZE
-                                )
+                                    CANVAS_STYLE.IMAGE_SIZE,
+                                ),
                             );
                             this.imgMap.set(`${tdoll.id}__mod`, avatarModImg);
                         }
                     } catch (error) {
-                        console.error(
-                            `Failed to load image for tdoll ${tdoll.id}:`,
-                            error
+                        logImageRenderError(
+                            asImageRenderError(error, {
+                                code: 'IMAGE_LOAD_FAILED',
+                                message: `Failed to load image for tdoll ${tdoll.id}`,
+                                context: {
+                                    scene: 'tdoll2:loadAllImg',
+                                    inputSummary: tdoll.id,
+                                },
+                            }),
                         );
                     }
-                })
+                }),
             );
         } catch (error) {
-            console.error('Error loading images:', error);
-            throw new Error('Failed to load images');
+            const wrapped = asImageRenderError(error, {
+                code: 'IMAGE_LOAD_FAILED',
+                message: 'Failed to load images',
+                context: { scene: 'tdoll2:loadAllImg' },
+            });
+            logImageRenderError(wrapped);
+            throw wrapped;
         }
     }
 
@@ -143,7 +156,7 @@ export class TDoll2Canvas extends BaseCanvas {
             }`;
             const sectionTitleWidth = this.calcCanvasTextWidth(
                 sectionTitle,
-                20
+                20,
             );
 
             if (sectionTitleWidth > this.measureMaxWidth) {
@@ -155,11 +168,7 @@ export class TDoll2Canvas extends BaseCanvas {
         this.renderHeight = 120 + this.tdolls.length * (40 + 40 + 10);
     }
 
-    renderLayout(
-        context: CanvasRenderingContext2D,
-        width: number,
-        height: number
-    ) {
+    renderLayout(context: Canvas2DContext, width: number, height: number) {
         context.fillStyle = '#451a03';
         context.fillRect(0, 0, width, height);
     }
@@ -168,23 +177,23 @@ export class TDoll2Canvas extends BaseCanvas {
      * Renders the main title at the top of the canvas
      * @param context - The canvas rendering context
      */
-    renderTitle(context: CanvasRenderingContext2D) {
+    renderTitle(context: Canvas2DContext) {
         this.applyBaseStyle(context);
         const section = this.getTitleSection();
         context.fillText(
             section.staticSection,
             CANVAS_STYLE.PADDING,
-            CANVAS_STYLE.PADDING
+            CANVAS_STYLE.PADDING,
         );
         const staticSectionWidth = context.measureText(
-            section.staticSection
+            section.staticSection,
         ).width;
 
         context.fillStyle = '#22d3ee';
         context.fillText(
             section.userSection,
             CANVAS_STYLE.PADDING + staticSectionWidth,
-            CANVAS_STYLE.PADDING
+            CANVAS_STYLE.PADDING,
         );
         const userSectionWidth = context.measureText(section.userSection).width;
 
@@ -192,14 +201,14 @@ export class TDoll2Canvas extends BaseCanvas {
         context.fillText(
             section.staticSection2,
             CANVAS_STYLE.PADDING + userSectionWidth + staticSectionWidth,
-            CANVAS_STYLE.PADDING
+            CANVAS_STYLE.PADDING,
         );
         this.renderStartY = CANVAS_STYLE.TITLE_OFFSET;
     }
 
     private renderTdollTitle(
-        context: CanvasRenderingContext2D,
-        tdoll: ITDollDataItem
+        context: Canvas2DContext,
+        tdoll: ITDollDataItem,
     ): number {
         const section = this.getTDollSection(tdoll);
 
@@ -208,10 +217,10 @@ export class TDoll2Canvas extends BaseCanvas {
         context.fillText(
             section.staticSection,
             CANVAS_STYLE.PADDING * 2,
-            this.renderStartY
+            this.renderStartY,
         );
         const staticSectionWidth = context.measureText(
-            section.staticSection
+            section.staticSection,
         ).width;
 
         // id number
@@ -219,29 +228,33 @@ export class TDoll2Canvas extends BaseCanvas {
         context.fillText(
             section.noSection,
             CANVAS_STYLE.PADDING * 2 + staticSectionWidth,
-            this.renderStartY
+            this.renderStartY,
         );
         const idSectionWidth = context.measureText(section.noSection).width;
 
         // name with highlight if needed
-        const startX = CANVAS_STYLE.PADDING * 2 + staticSectionWidth + idSectionWidth;
+        const startX =
+            CANVAS_STYLE.PADDING * 2 + staticSectionWidth + idSectionWidth;
         if (this.query && this.query !== 'random') {
             const name = section.staticSection2;
             const processedName = replacedQueryMatch(name);
             const processedQuery = replacedQueryMatch(this.query);
             const queryIndex = processedName.indexOf(processedQuery);
-            
+
             if (queryIndex !== -1) {
                 let matchStartIndex = 0;
                 let matchEndIndex = 0;
                 let currentProcessedIndex = 0;
-                
+
                 // 找到实际要高亮的字符位置
                 for (let i = 0; i < name.length; i++) {
                     if (currentProcessedIndex === queryIndex) {
                         matchStartIndex = i;
                     }
-                    if (currentProcessedIndex === queryIndex + processedQuery.length) {
+                    if (
+                        currentProcessedIndex ===
+                        queryIndex + processedQuery.length
+                    ) {
                         matchEndIndex = i;
                         break;
                     }
@@ -260,11 +273,19 @@ export class TDoll2Canvas extends BaseCanvas {
                 const beforeWidth = context.measureText(before).width;
 
                 context.fillStyle = '#22d3ee';
-                context.fillText(match, startX + beforeWidth, this.renderStartY);
+                context.fillText(
+                    match,
+                    startX + beforeWidth,
+                    this.renderStartY,
+                );
                 const matchWidth = context.measureText(match).width;
 
                 context.fillStyle = '#fff';
-                context.fillText(after, startX + beforeWidth + matchWidth, this.renderStartY);
+                context.fillText(
+                    after,
+                    startX + beforeWidth + matchWidth,
+                    this.renderStartY,
+                );
             } else {
                 context.fillStyle = '#fff';
                 context.fillText(name, startX, this.renderStartY);
@@ -284,20 +305,20 @@ export class TDoll2Canvas extends BaseCanvas {
     }
 
     private renderTdollImages(
-        context: CanvasRenderingContext2D,
-        tdoll: ITDollDataItem
+        context: Canvas2DContext,
+        tdoll: ITDollDataItem,
     ): number {
         let maxWidth = 0;
         let offsetX = CANVAS_STYLE.PADDING * 2;
 
-        const renderImage = (image: Image | undefined) => {
+        const renderImage = (image: ImageLike | undefined) => {
             if (image) {
                 context.drawImage(
                     image,
                     offsetX,
                     this.renderStartY,
                     CANVAS_STYLE.IMAGE_SIZE,
-                    CANVAS_STYLE.IMAGE_SIZE
+                    CANVAS_STYLE.IMAGE_SIZE,
                 );
                 offsetX += CANVAS_STYLE.IMAGE_SIZE;
                 maxWidth = Math.max(maxWidth, offsetX);
@@ -313,7 +334,7 @@ export class TDoll2Canvas extends BaseCanvas {
         return maxWidth;
     }
 
-    renderList(context: CanvasRenderingContext2D) {
+    renderList(context: Canvas2DContext) {
         this.applyBaseStyle(context);
         this.maxRectWidth = 0;
 
@@ -327,14 +348,14 @@ export class TDoll2Canvas extends BaseCanvas {
         });
     }
 
-    renderRect(context: CanvasRenderingContext2D) {
+    renderRect(context: Canvas2DContext) {
         context.strokeStyle = '#f48225';
         context.rect(
             10,
             this.renderStartY + 10,
             this.maxRectWidth + 20,
             // plus end offset
-            this.contentLines * (40 + 40 + 10) + 10
+            this.contentLines * (40 + 40 + 10) + 10,
         );
         context.stroke();
         // start offset

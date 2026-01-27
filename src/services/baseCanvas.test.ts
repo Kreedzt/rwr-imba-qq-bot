@@ -1,49 +1,29 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BaseCanvas } from './baseCanvas';
-import { CanvasRenderingContext2D, Canvas } from 'canvas';
 import * as fs from 'fs';
-
-// Mock canvas and fs
-vi.mock('canvas', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('canvas')>();
-    return {
-        ...actual,
-        createCanvas: vi
-            .fn()
-            .mockImplementation((width: number, height: number) => ({
-                getContext: vi.fn().mockReturnValue({
-                    fillStyle: '',
-                    fillRect: vi.fn(),
-                    fillText: vi.fn(), // 确保 fillText 是 spy
-                    measureText: vi.fn(),
-                    // drawImage: vi.fn(), // 确保 drawImage 是 spy
-                }),
-                toBuffer: vi.fn().mockReturnValue(Buffer.from('test')),
-            })),
-    };
-});
-
-vi.mock('fs', () => ({
-    writeFileSync: vi.fn(),
-    existsSync: vi.fn().mockReturnValue(true),
-}));
-
-vi.mock('path', () => ({
-    join: vi.fn().mockImplementation((...args) => args.join('/')),
-}));
+import type { Canvas2DContext, CanvasLike } from './canvasBackend';
 
 describe('BaseCanvas', () => {
     let baseCanvas: BaseCanvas;
-    let mockCtx: CanvasRenderingContext2D;
-    let mockCanvas: Canvas;
+    let mockCtx: Canvas2DContext;
+    let mockCanvas: CanvasLike;
 
     beforeEach(async () => {
         baseCanvas = new BaseCanvas();
-        const mockedCanvas = await vi.importMock<typeof import('canvas')>(
-            'canvas'
-        );
-        mockCanvas = vi.mocked(mockedCanvas.createCanvas(100, 100));
-        mockCtx = mockCanvas.getContext('2d') as CanvasRenderingContext2D;
+
+        mockCtx = {
+            fillStyle: '',
+            font: '',
+            textAlign: 'left',
+            fillRect: vi.fn(),
+            fillText: vi.fn(),
+            measureText: vi.fn().mockReturnValue({ width: 0 }),
+        } as any;
+
+        mockCanvas = {
+            toBufferSync: vi.fn().mockReturnValue(Buffer.from('test')),
+            getContext: vi.fn().mockReturnValue(mockCtx),
+        } as any;
     });
 
     it('should initialize correctly', () => {
@@ -90,9 +70,11 @@ describe('BaseCanvas', () => {
 
     describe('writeFile', () => {
         it('should write file correctly', () => {
-            const result = baseCanvas.writeFile(mockCanvas, 'test.png');
-            expect(fs.writeFileSync).toHaveBeenCalled();
-            expect(result).toContain('test.png');
+            const fileName = `baseCanvas-test-${Date.now()}.png`;
+            const result = baseCanvas.writeFile(mockCanvas, fileName);
+            expect(result).toContain(fileName);
+            expect(fs.existsSync(result)).toBe(true);
+            fs.unlinkSync(result);
         });
     });
 });
