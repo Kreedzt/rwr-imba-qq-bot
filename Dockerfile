@@ -24,7 +24,7 @@ COPY package.json pnpm-lock.yaml ./
 
 # 使用 BuildKit 缓存优化依赖安装
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
-    pnpm install
+    pnpm install --frozen-lockfile
 
 # 复制源码并构建
 COPY . .
@@ -50,7 +50,7 @@ WORKDIR /app
 # 复制生产依赖和资源
 COPY package.json pnpm-lock.yaml ./
 COPY consola.ttf ./
-RUN pnpm install --prod
+RUN pnpm install --prod --frozen-lockfile
 COPY --from=builder /app/dist ./dist
 
 # 添加元数据
