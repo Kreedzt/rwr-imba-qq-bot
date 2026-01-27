@@ -31,7 +31,7 @@ const readData = () => {
 
 export const printChartPng = async () => {
     // echarts:
-    const canvas = createCanvas(800, 400);
+    const canvas = createCanvas(800, 400); /* @ts-ignore
     const chart = echarts.init(canvas as any);
     const data = readData();
     chart.setOption({
@@ -81,7 +81,7 @@ export const printChartPng = async () => {
 
     const buffer = canvas.toBuffer('image/png', {
         compressionLevel: 0,
-        filters: canvas.PNG_FILTER_NONE,
+        filters: Canvas.Canvas.PNG_FILTER_NONE,
     });
 
     const outputPath = path.join(
@@ -117,7 +117,7 @@ const readHoursData = () => {
 
 export const printHoursChartPng = async () => {
     // echarts:
-    const canvas = createCanvas(800, 400);
+    const canvas = createCanvas(800, 400); /* @ts-ignore
     const chart = echarts.init(canvas as any);
     const data = readHoursData();
     chart.setOption({
@@ -167,7 +167,7 @@ export const printHoursChartPng = async () => {
 
     const buffer = canvas.toBuffer('image/png', {
         compressionLevel: 0,
-        filters: canvas.PNG_FILTER_NONE,
+        filters: Canvas.Canvas.PNG_FILTER_NONE,
     });
 
     const outputPath = path.join(

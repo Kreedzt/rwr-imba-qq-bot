@@ -85,7 +85,7 @@ export class BaseCanvas {
     writeFile(canvas: Canvas, fileName: string) {
         const buffer = canvas.toBuffer('image/png', {
             compressionLevel: 3,
-            filters: canvas.PNG_FILTER_NONE,
+            filters: Canvas.Canvas.PNG_FILTER_NONE,
         });
 
         if (!fs.existsSync(OUTPUT_FOLDER)) {

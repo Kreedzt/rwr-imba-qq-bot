@@ -10,21 +10,11 @@
         "allowSyntheticDefaultImports": true,
         "target": "esnext",
         "module": "ES6",
-        "lib": [
-            "es2020",
-            "es2021",
-            "dom"
-        ],
+        "lib": ["es2020", "es2021", "dom"],
         "strict": true,
-        "rootDir": "./src"
+        "rootDir": "./src",
+        "skipLibCheck": true
     },
-    "include": [
-        "vitest/globals",
-        "./types/*.d.ts",
-        "src"
-    ],
-    "exclude": [
-        "node_modules",
-        "**/*.spec.ts"
-    ]
+    "include": ["vitest/globals", "./types/*.d.ts", "src"],
+    "exclude": ["node_modules", "**/*.spec.ts"]
 }
