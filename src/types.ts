@@ -20,6 +20,7 @@ export interface GlobalEnv {
     DIFY_AI_URL: string;
     IMGPROXY_URL: string;
     OUTPUT_BG_IMG: string;
+    TOKEN: string;
 }
 
 export interface BaseEvent {

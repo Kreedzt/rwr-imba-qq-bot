@@ -105,7 +105,7 @@ const handlingRequestSet = new Set<number>();
 const activeCommandSet = new Set<string>();
 
 export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
-    const msg = event.message;
+    const msg = event.message.trim();
 
     if (!msg.startsWith(env.START_MATCH)) {
         return;

@@ -7,7 +7,7 @@ export async function registerRoutes(app: FastifyInstance, env: GlobalEnv) {
     app.post('/in', async (req, res) => {
         const bodyData = req.body as any;
         await eventHandler(env, bodyData);
-        res.send('OK');
+        res.send({ status: 'ok' });
     });
 
     app.get('/ping', async (req, res) => {
