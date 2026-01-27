@@ -31,6 +31,8 @@ jobs:
                 sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
             - name: Install dependencies
               run: pnpm install
+            - name: Rebuild canvas (ensure native module is compiled with system deps)
+              run: pnpm rebuild canvas
             - name: Test coverage
               run: pnpm run coverage
             - name: Upload coverage reports to Codecov
