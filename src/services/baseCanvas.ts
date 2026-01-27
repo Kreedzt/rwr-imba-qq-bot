@@ -1,16 +1,30 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { CanvasRenderingContext2D, Canvas } from 'canvas';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { GlobalEnv } from '../types';
 import { CanvasImgService } from './canvasImg.service';
+import { Canvas2DContext, CanvasLike, toPngBuffer } from './canvasBackend';
+import { asImageRenderError } from './imageRenderErrors';
+import { logImageRenderError } from './imageRenderLogger';
 
 const getFooterText = (cost: number, endTime: dayjs.Dayjs) => {
     return (
         'RWR QQ Bot' +
         `(cost=${cost}ms, render time=${endTime.format('YYYY-MM-DD HH:mm:ss.SSS')})`
     );
+};
+
+const getFixedFooterTime = () => {
+    const fixed = process.env.CANVAS_FOOTER_FIXED_TIME;
+    if (!fixed) {
+        return null;
+    }
+    const parsed = dayjs(fixed);
+    if (!parsed.isValid()) {
+        return null;
+    }
+    return parsed;
 };
 
 const OUTPUT_FOLDER = 'out';
@@ -38,7 +52,7 @@ export class BaseCanvas {
         return countWidth;
     }
 
-    renderBgImg(ctx: CanvasRenderingContext2D, width: number, height: number) {
+    renderBgImg(ctx: Canvas2DContext, width: number, height: number) {
         const path = (process.env as unknown as GlobalEnv).OUTPUT_BG_IMG;
         if (!path) {
             return;
@@ -66,13 +80,19 @@ export class BaseCanvas {
         ctx.fillRect(0, 0, width, height); // 绘制蒙层
     }
 
-    renderFooter(context: CanvasRenderingContext2D) {
+    renderFooter(context: Canvas2DContext) {
+        if (process.env.CANVAS_FOOTER_DISABLE === '1') {
+            return;
+        }
+
         context.fillStyle = '#fff';
         context.font = 'bold 10pt Consolas';
         context.textAlign = 'left';
-        const endTime = dayjs();
 
-        const calcCost = endTime.diff(this.startTime);
+        const fixedTime = getFixedFooterTime();
+        const endTime = fixedTime ?? dayjs();
+
+        const calcCost = fixedTime ? 0 : endTime.diff(this.startTime);
         const footerText = getFooterText(calcCost, endTime);
         this.totalFooter = footerText;
         context.fillText(footerText, 10, this.renderStartY + 20);
@@ -82,11 +102,19 @@ export class BaseCanvas {
         this.startTime = dayjs();
     }
 
-    writeFile(canvas: Canvas, fileName: string) {
-        const buffer = canvas.toBuffer('image/png', {
-            compressionLevel: 3,
-            filters: Canvas.PNG_FILTER_NONE,
-        });
+    writeFile(canvas: CanvasLike, fileName: string) {
+        let buffer: Buffer;
+        try {
+            buffer = toPngBuffer(canvas);
+        } catch (err) {
+            const wrapped = asImageRenderError(err, {
+                code: 'IMAGE_ENCODE_FAILED',
+                message: 'Failed to encode canvas to PNG',
+                context: { scene: 'baseCanvas:encode', fileName },
+            });
+            logImageRenderError(wrapped);
+            throw wrapped;
+        }
 
         if (!fs.existsSync(OUTPUT_FOLDER)) {
             fs.mkdirSync(OUTPUT_FOLDER);
@@ -95,10 +123,20 @@ export class BaseCanvas {
         const outputPath = path.join(
             process.cwd(),
             OUTPUT_FOLDER,
-            `./${fileName}`
+            `./${fileName}`,
         );
 
-        fs.writeFileSync(outputPath, buffer);
+        try {
+            fs.writeFileSync(outputPath, buffer);
+        } catch (err) {
+            const wrapped = asImageRenderError(err, {
+                code: 'IMAGE_WRITE_FAILED',
+                message: 'Failed to write PNG output',
+                context: { scene: 'baseCanvas:write', fileName },
+            });
+            logImageRenderError(wrapped);
+            throw wrapped;
+        }
 
         return outputPath;
     }

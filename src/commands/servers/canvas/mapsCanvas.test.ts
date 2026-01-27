@@ -2,34 +2,23 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MapsCanvas } from './mapsCanvas';
 import { OnlineServerItem, IMapDataItem } from '../types/types';
 
-// Mock canvas and image loading
-vi.mock('canvas', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('canvas')>();
-    return {
-        ...actual,
-        createCanvas: vi
-            .fn()
-            .mockImplementation((width: number, height: number) => ({
-                getContext: vi.fn().mockReturnValue({
-                    fillStyle: '',
-                    fillRect: vi.fn(),
-                    fillText: vi.fn(),
-                    measureText: vi.fn().mockReturnValue({ width: 100 }),
-                    strokeStyle: '',
-                    rect: vi.fn(),
-                    stroke: vi.fn(),
-                    drawImage: vi.fn(),
-                }),
-                toBuffer: vi.fn().mockReturnValue(Buffer.from('test')),
-            })),
-        loadImage: vi.fn().mockImplementation((src: string) =>
-            Promise.resolve({
-                width: 200, // Mock image size
-                height: 200, // Mock image size
-            })
-        ),
-    };
-});
+// Mock canvas backend to avoid loading native renderer.
+vi.mock('../../../services/canvasBackend', () => ({
+    createCanvas: vi.fn().mockImplementation(() => ({
+        getContext: vi.fn().mockReturnValue({
+            fillStyle: '',
+            fillRect: vi.fn(),
+            fillText: vi.fn(),
+            measureText: vi.fn().mockReturnValue({ width: 100 }),
+            strokeStyle: '',
+            rect: vi.fn(),
+            stroke: vi.fn(),
+            drawImage: vi.fn(),
+        }),
+        toBufferSync: vi.fn().mockReturnValue(Buffer.from('test')),
+    })),
+    loadImageFrom: vi.fn().mockResolvedValue({ width: 200, height: 200 }),
+}));
 
 describe('MapsCanvas', () => {
     let mapsCanvas: MapsCanvas;

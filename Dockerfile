@@ -9,12 +9,7 @@ ENV NODE_ENV=production
 
 # 安装基础依赖
 RUN apk add --no-cache \
-    pango-dev \
-    g++ \
-    make \
-    jpeg-dev \
-    giflib-dev \
-    librsvg-dev \
+    fontconfig \
     && npm install -g pnpm@${PNPM_VERSION} \
     && pnpm config set store-dir /root/.local/share/pnpm/store \
     && rm -rf /var/cache/apk/* /tmp/* ~/.npm
@@ -29,7 +24,7 @@ COPY package.json pnpm-lock.yaml ./
 
 # 使用 BuildKit 缓存优化依赖安装
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
-    pnpm install
+    pnpm install --frozen-lockfile
 
 # 复制源码并构建
 COPY . .
@@ -55,7 +50,7 @@ WORKDIR /app
 # 复制生产依赖和资源
 COPY package.json pnpm-lock.yaml ./
 COPY consola.ttf ./
-RUN pnpm install --prod && cd node_modules/canvas && npm run install && cd ../..
+RUN pnpm install --prod --frozen-lockfile
 COPY --from=builder /app/dist ./dist
 
 # 添加元数据

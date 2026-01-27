@@ -1,9 +1,9 @@
 import {
     createCanvas,
-    CanvasRenderingContext2D,
-    loadImage,
-    Image,
-} from 'canvas';
+    Canvas2DContext,
+    ImageLike,
+    loadImageFrom,
+} from '../../../services/canvasBackend';
 import { BaseCanvas } from '../../../services/baseCanvas';
 import {
     ITDollDataItem,
@@ -13,6 +13,8 @@ import {
 import { resizeImg } from '../../../utils/imgproxy';
 import { CANVAS_STYLE, TDOLL_URL_PREFIX } from '../types/constants';
 import { calcCanvasTextWidth } from '../../servers/utils/utils';
+import { asImageRenderError } from '../../../services/imageRenderErrors';
+import { logImageRenderError } from '../../../services/imageRenderLogger';
 
 interface RenderDimensions {
     width: number;
@@ -53,8 +55,8 @@ export class TDollSkin2Canvas extends BaseCanvas {
     };
 
     // Image caches
-    protected tdollImgMap: Map<string, Image> = new Map(); // key: tdoll id
-    protected tdollSkinImgMap: Map<string, Image> = new Map(); // key: tdollskin id
+    protected tdollImgMap: Map<string, ImageLike> = new Map(); // key: tdoll id
+    protected tdollSkinImgMap: Map<string, ImageLike> = new Map(); // key: tdollskin id
 
     protected readonly fileName: string;
     protected readonly query: string;
@@ -74,7 +76,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
         query: string,
         tdolls: ITDollDataItem[],
         record: Record<string, ITDollSkinDataItem>,
-        fileName: string
+        fileName: string,
     ) {
         super();
         this.fileName = fileName;
@@ -89,12 +91,12 @@ export class TDollSkin2Canvas extends BaseCanvas {
                 (skin): skin is Required<SkinItem> => {
                     return Boolean(
                         skin &&
-                            skin.image &&
-                            skin.index !== undefined &&
-                            skin.title &&
-                            skin.value
+                        skin.image &&
+                        skin.index !== undefined &&
+                        skin.title &&
+                        skin.value,
                     );
-                }
+                },
             );
         }
     }
@@ -103,7 +105,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
     /**
      * Applies the base canvas style settings
      */
-    private applyBaseStyle(context: CanvasRenderingContext2D): void {
+    private applyBaseStyle(context: Canvas2DContext): void {
         context.font = CANVAS_STYLE.FONT;
         context.textAlign = 'left';
         context.textBaseline = 'top';
@@ -122,9 +124,9 @@ export class TDollSkin2Canvas extends BaseCanvas {
             const avatarUrl = resizeImg(
                 this.tdoll.avatar,
                 CANVAS_STYLE.IMAGE_SIZE,
-                CANVAS_STYLE.IMAGE_SIZE
+                CANVAS_STYLE.IMAGE_SIZE,
             );
-            const avatarImg = await loadImage(avatarUrl);
+            const avatarImg = await loadImageFrom(avatarUrl);
             this.tdollImgMap.set(this.tdoll.id, avatarImg);
 
             // Load skin images
@@ -135,16 +137,23 @@ export class TDollSkin2Canvas extends BaseCanvas {
 
                         const imgRawUrl = this.getFullImageUrl(skin.image.pic);
                         const imgResizeUrl = resizeImg(imgRawUrl, 150, 150);
-                        const skinImg = await loadImage(imgResizeUrl);
+                        const skinImg = await loadImageFrom(imgResizeUrl);
 
                         this.tdollSkinImgMap.set(skin.value, skinImg);
-                    })
+                    }),
                 );
             }
         } catch (error) {
-            const errorMsg = `Failed to load image for tdoll ${this.tdoll.id}`;
-            console.error(errorMsg, error);
-            throw new Error(errorMsg);
+            const wrapped = asImageRenderError(error, {
+                code: 'IMAGE_LOAD_FAILED',
+                message: `Failed to load image for tdoll ${this.tdoll.id}`,
+                context: {
+                    scene: 'tdollSkin:loadAllImg',
+                    inputSummary: this.tdoll.id,
+                },
+            });
+            logImageRenderError(wrapped);
+            throw wrapped;
         }
     }
 
@@ -203,7 +212,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
         const titleWidth = this.calcCanvasTextWidth(title, 20) + 20;
         this.dimensions.maxWidth = Math.max(
             this.dimensions.maxWidth,
-            titleWidth
+            titleWidth,
         );
     }
 
@@ -219,11 +228,11 @@ export class TDollSkin2Canvas extends BaseCanvas {
             tDollSection.staticSection +
                 tDollSection.noSection +
                 tDollSection.staticSection2,
-            20
+            20,
         );
         this.dimensions.maxWidth = Math.max(
             this.dimensions.maxWidth,
-            totalTitle
+            totalTitle,
         );
 
         // Measure skin sections
@@ -233,7 +242,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
             this.dimensions.maxWidth = Math.max(
                 this.dimensions.maxWidth,
                 skinTitleWidth,
-                150 // minimum width for images
+                150, // minimum width for images
             );
         });
 
@@ -251,9 +260,9 @@ export class TDollSkin2Canvas extends BaseCanvas {
      * Renders the background layout
      */
     private renderLayout(
-        context: CanvasRenderingContext2D,
+        context: Canvas2DContext,
         width: number,
-        height: number
+        height: number,
     ): void {
         context.fillStyle = '#451a03';
         context.fillRect(0, 0, width, height);
@@ -262,7 +271,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
     /**
      * Renders the main title at the top of the canvas
      */
-    private renderTitle(context: CanvasRenderingContext2D): void {
+    private renderTitle(context: Canvas2DContext): void {
         this.applyBaseStyle(context);
         const section = this.getTitleSection();
         let currentX = CANVAS_STYLE.PADDING;
@@ -282,7 +291,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
         context.fillText(
             section.staticSection2,
             currentX,
-            CANVAS_STYLE.PADDING
+            CANVAS_STYLE.PADDING,
         );
 
         this.state.startY = CANVAS_STYLE.TITLE_OFFSET;
@@ -292,7 +301,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
      * Renders the T-Doll title section
      * @returns The total width of the rendered title
      */
-    private renderTdollTitle(context: CanvasRenderingContext2D): number {
+    private renderTdollTitle(context: Canvas2DContext): number {
         const section = this.getTDollSection();
         let currentX = CANVAS_STYLE.PADDING * 2;
         const y = this.state.startY;
@@ -311,7 +320,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
         context.fillStyle = CANVAS_STYLE.TEXT_COLOR;
         context.fillText(section.staticSection2, currentX, y);
         const nameSectionWidth = context.measureText(
-            section.staticSection2
+            section.staticSection2,
         ).width;
 
         this.state.startY += CANVAS_STYLE.PADDING * 3;
@@ -323,7 +332,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
      * Renders the T-Doll avatar image
      * @returns The width of the rendered image
      */
-    private renderTdollImage(context: CanvasRenderingContext2D): number {
+    private renderTdollImage(context: Canvas2DContext): number {
         if (!this.tdoll) return 0;
 
         const image = this.tdollImgMap.get(this.tdoll.id);
@@ -335,7 +344,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
             x,
             this.state.startY,
             CANVAS_STYLE.IMAGE_SIZE,
-            CANVAS_STYLE.IMAGE_SIZE
+            CANVAS_STYLE.IMAGE_SIZE,
         );
 
         this.state.startY += CANVAS_STYLE.IMAGE_SIZE + CANVAS_STYLE.PADDING;
@@ -354,7 +363,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
      * Renders the T-Doll skin sections
      * @returns The maximum width of the rendered skin sections
      */
-    private renderTdollSkins(context: CanvasRenderingContext2D): number {
+    private renderTdollSkins(context: Canvas2DContext): number {
         if (!this.tdoll || !this.skinList?.length) return 0;
 
         let maxWidth = 0;
@@ -363,21 +372,22 @@ export class TDollSkin2Canvas extends BaseCanvas {
         this.skinList.forEach((skin, index) => {
             // Render skin title
             this.state.startY += CANVAS_STYLE.PADDING;
-            
+
             // 分段渲染标题文本
             context.fillStyle = CANVAS_STYLE.TEXT_COLOR;
             const prefix = `${index + 1}. ${skin.title} ID:`;
             context.fillText(prefix, x, this.state.startY);
-            
+
             // 计算前缀宽度
             const prefixWidth = context.measureText(prefix).width;
-            
+
             // 高亮渲染 skin.value
             context.fillStyle = '#059669';
             context.fillText(skin.value, x + prefixWidth, this.state.startY);
-            
+
             // 计算总宽度
-            const totalWidth = prefixWidth + context.measureText(skin.value).width;
+            const totalWidth =
+                prefixWidth + context.measureText(skin.value).width;
             maxWidth = Math.max(maxWidth, totalWidth);
 
             // Render skin image
@@ -399,7 +409,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
     /**
      * Renders all content sections
      */
-    private renderContent(context: CanvasRenderingContext2D): void {
+    private renderContent(context: Canvas2DContext): void {
         this.applyBaseStyle(context);
         this.dimensions.maxRectWidth = 0;
 
@@ -418,7 +428,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
     /**
      * Renders the border rectangle around the content
      */
-    private renderRect(context: CanvasRenderingContext2D): void {
+    private renderRect(context: Canvas2DContext): void {
         const rectHeight =
             20 + // title height
             10 + // title spacing
@@ -432,7 +442,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
             CANVAS_STYLE.PADDING,
             this.state.startY + 10,
             this.dimensions.maxRectWidth + CANVAS_STYLE.PADDING * 2,
-            rectHeight
+            rectHeight,
         );
         context.stroke();
 
@@ -448,7 +458,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
 
         const canvas = createCanvas(
             this.dimensions.maxWidth,
-            this.dimensions.height
+            this.dimensions.height,
         );
         const context = canvas.getContext('2d');
 
@@ -478,7 +488,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
 
             const canvas = createCanvas(
                 this.dimensions.width,
-                this.dimensions.height
+                this.dimensions.height,
             );
             const context = canvas.getContext('2d');
 
@@ -486,12 +496,12 @@ export class TDollSkin2Canvas extends BaseCanvas {
             this.renderLayout(
                 context,
                 this.dimensions.width,
-                this.dimensions.height
+                this.dimensions.height,
             );
             this.renderBgImg(
                 context,
                 this.dimensions.width,
-                this.dimensions.height
+                this.dimensions.height,
             );
             this.renderTitle(context);
             this.renderRect(context);
@@ -500,8 +510,13 @@ export class TDollSkin2Canvas extends BaseCanvas {
 
             return super.writeFile(canvas, this.fileName);
         } catch (error) {
-            console.error('Failed to render canvas:', error);
-            throw error;
+            const wrapped = asImageRenderError(error, {
+                code: 'IMAGE_RENDER_FAILED',
+                message: 'Failed to render tdoll skin canvas',
+                context: { scene: 'tdollSkin:render', fileName: this.fileName },
+            });
+            logImageRenderError(wrapped);
+            throw wrapped;
         }
     }
 }

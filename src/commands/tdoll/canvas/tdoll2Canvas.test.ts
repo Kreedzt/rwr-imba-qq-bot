@@ -3,34 +3,27 @@ import { TDoll2Canvas } from './tdoll2Canvas';
 import { ITDollDataItem } from '../types/types';
 import { CANVAS_STYLE } from '../types/constants';
 
-// Mock canvas and image loading
-vi.mock('canvas', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('canvas')>();
-    return {
-        ...actual,
-        createCanvas: vi
-            .fn()
-            .mockImplementation((width: number, height: number) => ({
-                getContext: vi.fn().mockReturnValue({
-                    fillStyle: '',
-                    fillRect: vi.fn(),
-                    fillText: vi.fn(),
-                    measureText: vi.fn().mockReturnValue({ width: 100 }),
-                    strokeStyle: '',
-                    rect: vi.fn(),
-                    stroke: vi.fn(),
-                    drawImage: vi.fn(),
-                }),
-                toBuffer: vi.fn().mockReturnValue(Buffer.from('test')),
-            })),
-        loadImage: vi.fn().mockImplementation((src: string) =>
-            Promise.resolve({
-                width: CANVAS_STYLE.IMAGE_SIZE,
-                height: CANVAS_STYLE.IMAGE_SIZE,
-            })
-        ),
-    };
-});
+// Mock canvas backend to avoid loading native renderer.
+vi.mock('../../../services/canvasBackend', () => ({
+    // Avoid referencing imported constants here; vi.mock is hoisted.
+    createCanvas: vi.fn().mockImplementation(() => ({
+        getContext: vi.fn().mockReturnValue({
+            fillStyle: '',
+            fillRect: vi.fn(),
+            fillText: vi.fn(),
+            measureText: vi.fn().mockReturnValue({ width: 100 }),
+            strokeStyle: '',
+            rect: vi.fn(),
+            stroke: vi.fn(),
+            drawImage: vi.fn(),
+        }),
+        toBufferSync: vi.fn().mockReturnValue(Buffer.from('test')),
+    })),
+    loadImageFrom: vi.fn().mockResolvedValue({ width: 100, height: 100 }),
+    toPngBuffer: vi
+        .fn()
+        .mockImplementation((canvas: any) => canvas.toBufferSync('png')),
+}));
 
 describe('TDoll2Canvas', () => {
     let tdollCanvas: TDoll2Canvas;

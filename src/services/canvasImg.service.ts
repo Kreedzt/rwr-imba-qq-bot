@@ -1,8 +1,8 @@
-import { Image, loadImage } from 'canvas';
+import { ImageLike, loadImageFrom } from './canvasBackend';
 
 export class CanvasImgService {
     private static instance: CanvasImgService;
-    private imgMap = new Map<string, Image>();
+    private imgMap = new Map<string, ImageLike>();
     private imgReady = new Map<string, boolean>();
 
     private constructor() {}
@@ -14,8 +14,8 @@ export class CanvasImgService {
         return CanvasImgService.instance;
     }
 
-    private async loadImageAsync(path: string): Promise<Image> {
-        const image = await loadImage(path);
+    private async loadImageAsync(path: string): Promise<ImageLike> {
+        const image = await loadImageFrom(path);
         this.imgMap.set(path, image);
         this.imgReady.set(path, true);
         return image;
@@ -29,7 +29,7 @@ export class CanvasImgService {
         await this.loadImageAsync(path);
     }
 
-    getImg(path: string): Image | undefined {
+    getImg(path: string): ImageLike | undefined {
         if (this.imgMap.has(path)) {
             if (this.imgReady.get(path)) {
                 return this.imgMap.get(path);

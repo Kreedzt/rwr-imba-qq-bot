@@ -1,4 +1,4 @@
-import { createCanvas, CanvasRenderingContext2D } from 'canvas';
+import { createCanvas, Canvas2DContext } from '../../../services/canvasBackend';
 import { IMapDataItem, OnlineServerItem } from '../types/types';
 import {
     calcCanvasTextWidth,
@@ -34,7 +34,7 @@ export class MapsCanvas extends BaseCanvas {
     constructor(
         serverList: OnlineServerItem[],
         mapData: IMapDataItem[],
-        fileName: string
+        fileName: string,
     ) {
         super();
         this.serverList = serverList;
@@ -98,16 +98,12 @@ export class MapsCanvas extends BaseCanvas {
         this.renderHeight = 120 + this.contentLines * 40;
     }
 
-    renderLayout(
-        context: CanvasRenderingContext2D,
-        width: number,
-        height: number
-    ) {
+    renderLayout(context: Canvas2DContext, width: number, height: number) {
         context.fillStyle = '#451a03';
         context.fillRect(0, 0, width, height);
     }
 
-    renderTitle(context: CanvasRenderingContext2D) {
+    renderTitle(context: Canvas2DContext) {
         context.font = 'bold 20pt Consolas';
         context.textAlign = 'left';
         context.textBaseline = 'top';
@@ -119,7 +115,7 @@ export class MapsCanvas extends BaseCanvas {
         this.renderStartY = 10 + 40 + 10;
     }
 
-    renderList(context: CanvasRenderingContext2D) {
+    renderList(context: Canvas2DContext) {
         context.font = 'bold 20pt Consolas';
         context.textAlign = 'left';
         context.textBaseline = 'top';
@@ -150,32 +146,32 @@ export class MapsCanvas extends BaseCanvas {
                     context.fillText(
                         serverText.serverSection,
                         20 + UNDER_MAP_SERVER_SPACING,
-                        10 + this.renderStartY
+                        10 + this.renderStartY,
                     );
                     const serverSectionWidth = context.measureText(
-                        serverText.serverSection
+                        serverText.serverSection,
                     ).width;
 
                     // count section
                     context.fillStyle = getCountColor(
                         s.current_players,
-                        s.max_players
+                        s.max_players,
                     );
                     context.fillText(
                         serverText.playersSection,
                         20 + UNDER_MAP_SERVER_SPACING + serverSectionWidth,
-                        10 + this.renderStartY
+                        10 + this.renderStartY,
                     );
 
                     // count section
                     context.fillStyle = getCountColor(
                         s.current_players,
-                        s.max_players
+                        s.max_players,
                     );
                     context.fillText(
                         serverText.playersSection,
                         20 + UNDER_MAP_SERVER_SPACING + serverSectionWidth,
-                        10 + this.renderStartY
+                        10 + this.renderStartY,
                     );
 
                     this.renderStartY += 40;
@@ -193,13 +189,13 @@ export class MapsCanvas extends BaseCanvas {
         });
     }
 
-    renderRect(context: CanvasRenderingContext2D) {
+    renderRect(context: Canvas2DContext) {
         context.strokeStyle = '#f48225';
         context.rect(
             10,
             this.renderStartY + 10,
             this.maxRectWidth + 20,
-            this.contentLines * 40 + 10
+            this.contentLines * 40 + 10,
         );
         context.stroke();
         this.renderStartY += 10;

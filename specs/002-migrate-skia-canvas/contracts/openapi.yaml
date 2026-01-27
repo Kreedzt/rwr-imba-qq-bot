@@ -1,0 +1,59 @@
+openapi: 3.0.3
+info:
+    title: RWR Imba QQ Bot HTTP API
+    version: 0.1.0
+    description: |
+        Minimal Fastify endpoints used for receiving events and exposing basic health/analytics.
+
+servers:
+    - url: http://localhost:{port}
+      variables:
+          port:
+              default: '3000'
+
+paths:
+    /ping:
+        get:
+            summary: Health check
+            responses:
+                '200':
+                    description: pong
+                    content:
+                        text/plain:
+                            schema:
+                                type: string
+
+    /in:
+        post:
+            summary: Receive event webhook
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            additionalProperties: true
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        text/plain:
+                            schema:
+                                type: string
+
+    /query_cmd:
+        get:
+            summary: Query recent command analytics (ClickHouse enabled only)
+            description: |
+                This endpoint is only registered when CLICKHOUSE_DB is configured.
+            responses:
+                '200':
+                    description: Table-like response (header row + data rows)
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    type: array
+                                    items:
+                                        type: string
