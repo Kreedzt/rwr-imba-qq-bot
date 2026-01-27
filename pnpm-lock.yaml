@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@clickhouse/client':
-        specifier: ^1.0.1
-        version: 1.8.1
+        specifier: ^1.16.0
+        version: 1.16.0
       '@fastify/static':
         specifier: ^9.0.0
         version: 9.0.0
@@ -30,8 +30,8 @@ importers:
         specifier: ^17.2.3
         version: 17.2.3
       echarts:
-        specifier: ^5.5.1
-        version: 5.5.1
+        specifier: ^6.0.0
+        version: 6.0.0
       fast-xml-parser:
         specifier: ^5.3.3
         version: 5.3.3
@@ -175,11 +175,11 @@ packages:
     resolution: {integrity: sha512-L6mZmwFDK6Cjh1nRCLXpa6no13ZIioJDz7mdkzHv399pThrTa/k0nUlNaenOeh2kWu/iaOQYElEpKPUswUa9Vg==}
     engines: {node: '>=6.9.0'}
 
-  '@clickhouse/client-common@1.8.1':
-    resolution: {integrity: sha512-Z0R5zKaS3N35Op338WVRHIfoqDh9gotXZwekm0lbHQmwNaj3nY2iJ113dFYKjb1V+ESu+PvLEA//LJUGZyPQOg==}
+  '@clickhouse/client-common@1.16.0':
+    resolution: {integrity: sha512-qMzkI1NmV29ZjFkNpVSvGNfA0c7sCExlufAQMv+V+5xtNeYXnRfdqzmBLIQoq6Pf1ij0kw/wGLD3HQrl7pTFLA==}
 
-  '@clickhouse/client@1.8.1':
-    resolution: {integrity: sha512-Ec0pCdwftIPD7hCxhOukHS0Zxr2tDc5mNAHBqkT3c0c6GO2WQdZkME9+EcfGcoF7+foUp82F5a0bPfSDDjfWmg==}
+  '@clickhouse/client@1.16.0':
+    resolution: {integrity: sha512-ThPhoRMsKsf/hmBEgWlUsGxFecsr3i+k3JI8JV0Od7UpH2BSmk9VKMGJoyPCrTL0vPUs5rJH+7o4iCqBF09Xvg==}
     engines: {node: '>=16'}
 
   '@esbuild/aix-ppc64@0.21.5':
@@ -819,8 +819,8 @@ packages:
   ecdsa-sig-formatter@1.0.11:
     resolution: {integrity: sha512-nagl3RYrbNv6kQkeJIpt6NJZy8twLB/2vtz6yN9Z4vRKHN4/QZJIEbqohALSgwKdnksuY3k5Addp5lg8sVoVcQ==}
 
-  echarts@5.5.1:
-    resolution: {integrity: sha512-Fce8upazaAXUVUVsjgV6mBnGuqgO+JNDlcgF79Dksy4+wgGpQB2lmYoO4TSweFg/mZITdpGHomw/cNBJZj1icA==}
+  echarts@6.0.0:
+    resolution: {integrity: sha512-Tte/grDQRiETQP4xz3iZWSvoHrkCQtwqd6hs+mifXcjrCuo2iKWbajFObuLJVBlDIJlOzgQPd1hsaKt/3+OMkQ==}
 
   electron-to-chromium@1.5.80:
     resolution: {integrity: sha512-LTrKpW0AqIuHwmlVNV+cjFYTnXtM9K37OGhpe0ZI10ScPSxqVSryZHIY3WnCS5NSYbBODRTZyhRMS2h5FAEqAw==}
@@ -1626,8 +1626,8 @@ packages:
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
 
-  zrender@5.6.0:
-    resolution: {integrity: sha512-uzgraf4njmmHAbEUxMJ8Oxg+P3fT04O+9p7gY+wJRVxo8Ge+KmYv0WJev945EH4wFuc4OY2NLXz46FZrWS9xJg==}
+  zrender@6.0.0:
+    resolution: {integrity: sha512-41dFXEEXuJpNecuUQq6JlbybmnHaqqpGlbH1yxnA5V9MMP4SbohSVZsJIwz+zdjQXSSlR1Vc34EgH1zxyTDvhg==}
 
 snapshots:
 
@@ -1734,11 +1734,11 @@ snapshots:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
 
-  '@clickhouse/client-common@1.8.1': {}
+  '@clickhouse/client-common@1.16.0': {}
 
-  '@clickhouse/client@1.8.1':
+  '@clickhouse/client@1.16.0':
     dependencies:
-      '@clickhouse/client-common': 1.8.1
+      '@clickhouse/client-common': 1.16.0
 
   '@esbuild/aix-ppc64@0.21.5':
     optional: true
@@ -2289,10 +2289,10 @@ snapshots:
     dependencies:
       safe-buffer: 5.2.1
 
-  echarts@5.5.1:
+  echarts@6.0.0:
     dependencies:
       tslib: 2.3.0
-      zrender: 5.6.0
+      zrender: 6.0.0
 
   electron-to-chromium@1.5.80: {}
 
@@ -3102,6 +3102,6 @@ snapshots:
 
   yallist@3.1.1: {}
 
-  zrender@5.6.0:
+  zrender@6.0.0:
     dependencies:
       tslib: 2.3.0
