@@ -15,8 +15,7 @@ export default defineConfig({
         // node-canvas report: https://github.com/vitest-dev/vitest/issues/2261
         pool: 'forks',
         coverage: {
-            all: true,
-            include: ['src'],
+            include: ['src/**/*.ts'],
             provider: 'istanbul',
             reporter: ['text', 'json', 'cobertura', 'html', 'lcov'],
         },
