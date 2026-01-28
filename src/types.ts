@@ -4,6 +4,7 @@ export interface GlobalEnv {
     PORT: number;
     START_MATCH: string;
     HOSTNAME: string;
+    STATIC_HTTP_HOST: string;
     REMOTE_URL: string;
     LISTEN_GROUP: string;
     SERVERS_MATCH_REGEX: string;
