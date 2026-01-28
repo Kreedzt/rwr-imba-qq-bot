@@ -1,17 +1,21 @@
 import axios from 'axios';
 import type { AxiosInstance } from 'axios';
 import { logger } from '../utils/logger';
+import { GlobalEnv } from '../types';
 // import axios, { Axios, AxiosInstance } from 'axios';
 
 export class RemoteService {
     axiosInst: AxiosInstance;
     static selfInst: RemoteService;
 
-    constructor(remoteUrl: string) {
+    constructor(remoteUrl: string, token: string) {
         logger.info('Remote service init with:', remoteUrl);
         const axiosInst = axios.create({
             baseURL: remoteUrl,
             timeout: 10 * 1000,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
         });
 
         axiosInst.defaults.headers.post['Content-Type'] = 'application/json';
@@ -35,9 +39,9 @@ export class RemoteService {
         this.axiosInst = axiosInst;
     }
 
-    static init(remoteUrl: string) {
+    static init(env: GlobalEnv) {
         if (!RemoteService.selfInst) {
-            RemoteService.selfInst = new RemoteService(remoteUrl);
+            RemoteService.selfInst = new RemoteService(env.REMOTE_URL, env.TOKEN);
         }
     }
 

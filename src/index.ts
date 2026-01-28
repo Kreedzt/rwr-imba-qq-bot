@@ -49,7 +49,7 @@ async function startServer() {
 
     const env = loadEnv();
 
-    RemoteService.init(env.REMOTE_URL);
+    RemoteService.init(env);
 
     registerRoutes(app, env);
 
