@@ -69,5 +69,8 @@ export const checkTimeIntervalValid = (
 };
 
 export const getStaticHttpPath = (env: GlobalEnv, path: string) => {
-    return `http://${env.STATIC_HTTP_HOST || env.HOSTNAME || 'localhost'}:${env.PORT}/out/${path}`;
+    if (env.STATIC_HTTP_PATH) {
+        return `http://${env.STATIC_HTTP_PATH}/out/${path}`;
+    }
+    return `http://${env.HOSTNAME || 'localhost'}:${env.PORT}/out/${path}`;
 };
