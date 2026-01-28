@@ -36,6 +36,7 @@ async function startServer() {
                         params: req.params,
                         hostname: req.hostname,
                         ip: req.ip,
+                        body: req.body,
                     };
                 },
             },

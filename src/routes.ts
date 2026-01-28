@@ -2,12 +2,16 @@ import { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import { GlobalEnv } from './types';
 import { ClickHouseService } from './services/clickHouse.service';
 import { eventHandler } from './eventHandler';
+import { logger } from './utils/logger';
 
 export async function registerRoutes(app: FastifyInstance, env: GlobalEnv) {
     app.post('/in', async (req, res) => {
         const bodyData = req.body as any;
-        await eventHandler(env, bodyData);
-        res.send({ status: 'ok' });
+        logger.info('/in body data', bodyData);
+        res.send({
+            status: 'ok',
+        });
+        eventHandler(env, bodyData);
     });
 
     app.get('/ping', async (req, res) => {
