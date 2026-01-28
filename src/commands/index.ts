@@ -108,10 +108,12 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
     const msg = event.message.trim();
 
     if (!msg.startsWith(env.START_MATCH)) {
+        logger.info('> Message does not match START_MATCH', msg);
         return;
     }
 
     if (event.group_id && event.group_id !== +env.LISTEN_GROUP) {
+        logger.info('> Message group_id not in LISTEN_GROUP', event.group_id);
         return;
     }
 
