@@ -10,6 +10,7 @@ export function loadEnv(): GlobalEnv {
 
     const env = {
         ..._env,
+        START_MATCH: JSON.parse(_env.START_MATCH),
         ADMIN_QQ_LIST: JSON.parse(_env.ADMIN_QQ_LIST),
         PORT: parseInt(_env.PORT),
         ACTIVE_COMMANDS: JSON.parse(_env.ACTIVE_COMMANDS),

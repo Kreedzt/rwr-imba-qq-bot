@@ -108,7 +108,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
     const msg = event.message.trim();
 
     if (!msg.startsWith(env.START_MATCH)) {
-        logger.info('> Message does not match START_MATCH', msg);
+        logger.info('> Message does not match START_MATCH', msg, env.START_MATCH);
         return;
     }
 
