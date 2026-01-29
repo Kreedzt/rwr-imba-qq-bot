@@ -22,6 +22,11 @@ export interface GlobalEnv {
     IMGPROXY_URL: string;
     OUTPUT_BG_IMG: string;
     TOKEN: string;
+    PG_HOST?: string;
+    PG_PORT?: string;
+    PG_DB?: string;
+    PG_USER?: string;
+    PG_PASSWORD?: string;
 }
 
 export interface BaseEvent {
