@@ -6,18 +6,19 @@
 
 ## 环境准备
 
-使用根目录下的 `init.sql` 初始化 ClickHouse 数据库
+使用根目录下的 `init.sql` 初始化 PostgreSQL 数据库
 
 ## 环境变量
 
--   CLICKHOUSE_HOST: ClickHouse 地址
--   CLICKHOUSE_DB: ClickHouse 数据库
--   CLICKHOUSE_USER: ClickHouse 用户名
--   CLICKHOUSE_PASSWORD: ClickHouse 密码
+- PG_HOST: PostgreSQL 地址 (默认: localhost)
+- PG_PORT: PostgreSQL 端口 (默认: 5432)
+- PG_DB: PostgreSQL 数据库名
+- PG_USER: PostgreSQL 用户名
+- PG_PASSWORD: PostgreSQL 密码
 
 ## 注册的指令
 
--   log: 查询命令执行日志
+- log: 查询命令执行日志
 
     > 用法: `#log tdoll` 查询 `tdoll` 命令执行日志`
 

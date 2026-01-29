@@ -25,10 +25,11 @@
 - WEBSITE_DATA_FILE: 指定的网站文件路径
 - TDOLL_DATA_FILE: 战术人形数据文件路径
 - QA_DATA_FILE: 自助问答数据文件路径
-- CLICKHOUSE_HOST: ClickHouse 数据库Host地址, 用于统计命令数据
-- CLICKHOUSE_DB: ClickHouse 数据库, 用于统计命令数据
-- CLICKHOUSE_USER: ClickHouse 用户名, 用于统计命令数据
-- CLICKHOUSE_PASSWORD: ClickHouse 密码, 用于统计命令数据
+- PG_HOST: PostgreSQL 数据库Host地址, 用于统计命令数据 (默认: localhost)
+- PG_PORT: PostgreSQL 数据库端口 (默认: 5432)
+- PG_DB: PostgreSQL 数据库名, 用于统计命令数据
+- PG_USER: PostgreSQL 用户名, 用于统计命令数据
+- PG_PASSWORD: PostgreSQL 密码, 用于统计命令数据
 
 ## 部署
 

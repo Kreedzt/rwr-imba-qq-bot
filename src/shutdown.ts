@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { logger } from './utils/logger';
-import { ClickHouseService } from './services/clickHouse.service';
+import { PostgreSQLService } from './services/postgresql.service';
 
 export async function gracefulShutdown(app: FastifyInstance, signal: string) {
     logger.info(`Received ${signal}, starting graceful shutdown...`);
@@ -11,9 +11,9 @@ export async function gracefulShutdown(app: FastifyInstance, signal: string) {
         logger.info('Fastify server closed');
 
         // 2. 清理数据库连接
-        if (process.env.CLICKHOUSE_DB) {
-            await ClickHouseService.getInst().close();
-            logger.info('ClickHouse connection closed');
+        if (process.env.PG_DB) {
+            await PostgreSQLService.getInst().close();
+            logger.info('PostgreSQL connection closed');
         }
 
         // 3. 清理其他资源

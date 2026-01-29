@@ -44,7 +44,7 @@ import {
     Log7CommandRegister,
 } from './log/register';
 import { AiCommandRegister } from './ai/register';
-import { ClickHouseService } from '../services/clickHouse.service';
+import { PostgreSQLService } from '../services/postgresql.service';
 
 const allCommands: IRegister[] = [
     FuckCommandRegister,
@@ -82,7 +82,7 @@ export const initCommands = async (env: GlobalEnv) => {
             .filter((cmd) => !activeCommands || activeCommands.has(cmd.name))
             .map(async (cmd) => {
                 await cmd.init?.(env);
-            })
+            }),
     );
 };
 
@@ -108,7 +108,11 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
     const msg = event.message.trim();
 
     if (!msg.startsWith(env.START_MATCH)) {
-        logger.info('> Message does not match START_MATCH', msg, env.START_MATCH);
+        logger.info(
+            '> Message does not match START_MATCH',
+            msg,
+            env.START_MATCH,
+        );
         return;
     }
 
@@ -130,7 +134,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
     });
 
     const avaliableCommands = allCommands.filter((c) =>
-        activeCommandSet.has(c.name)
+        activeCommandSet.has(c.name),
     );
 
     // help:
@@ -142,7 +146,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
 
         if (query) {
             const hitCommand = avaliableCommands.find(
-                (c) => c.name === query || c.alias === query
+                (c) => c.name === query || c.alias === query,
             );
 
             if (hitCommand) {
@@ -161,7 +165,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
                 .filter(
                     (c) =>
                         !c.isAdmin ||
-                        env.ADMIN_QQ_LIST.some((qq) => event.user_id === qq)
+                        env.ADMIN_QQ_LIST.some((qq) => event.user_id === qq),
                 )
                 .forEach((c) => {
                     helpText += `#${c.name}${c.alias ? `(${c.alias})` : ''}: ${
@@ -175,7 +179,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
     }
 
     const hitCommand = avaliableCommands.find(
-        (c) => c.name === firstCommand || c.alias === firstCommand
+        (c) => c.name === firstCommand || c.alias === firstCommand,
     );
 
     if (!hitCommand) {
@@ -212,7 +216,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
                 const diffMs = timeIntervalRes.amount! - diffs * 1000;
                 await quickReply(
                     event,
-                    `账号被风控或请求命令频繁, 请稍后再试, CD 剩余${diffs}.${diffMs}s`
+                    `账号被风控或请求命令频繁, 请稍后再试, CD 剩余${diffs}.${diffMs}s`,
                 );
                 return;
             }
@@ -250,8 +254,8 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
 
             const stringParams = paramsList.join(' ');
 
-            if (process.env.CLICKHOUSE_HOST) {
-                ClickHouseService.getInst()
+            if (process.env.PG_HOST) {
+                PostgreSQLService.getInst()
                     .insertCmdData({
                         cmd: hitCommand.name,
                         params: stringParams,
@@ -261,7 +265,7 @@ export const msgHandler = async (env: GlobalEnv, event: MessageEvent) => {
                         response_time: endDate,
                         elapse_time: diff,
                     })
-                    .catch((err) => {
+                    .catch((err: any) => {
                         logger.error('insertCmdData error', err);
                     });
             }

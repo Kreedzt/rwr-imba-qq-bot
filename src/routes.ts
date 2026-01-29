@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import { GlobalEnv } from './types';
-import { ClickHouseService } from './services/clickHouse.service';
+import { PostgreSQLService } from './services/postgresql.service';
 import { eventHandler } from './eventHandler';
 import { logger } from './utils/logger';
 
@@ -18,9 +18,9 @@ export async function registerRoutes(app: FastifyInstance, env: GlobalEnv) {
         res.send('pong!');
     });
 
-    if (process.env.CLICKHOUSE_DB) {
+    if (process.env.PG_DB) {
         app.get('/query_cmd', async (req, res) => {
-            const data = await ClickHouseService.getInst().queryCmd();
+            const data = await PostgreSQLService.getInst().queryCmd();
 
             const columns = [
                 'cmd',
