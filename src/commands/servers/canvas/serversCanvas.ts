@@ -6,9 +6,12 @@ import {
     getServerInfoDisplaySectionText,
     getCountColor,
 } from '../utils/utils';
-import { BaseCanvas } from '../../../services/baseCanvas';
+import {
+    BaseCanvasRefactored,
+    DependencyFactory,
+} from '../../../services/canvas/base';
 
-export class ServersCanvas extends BaseCanvas {
+export class ServersCanvas extends BaseCanvasRefactored {
     // constructor params
     serverList: OnlineServerItem[];
     fileName: string;
@@ -33,7 +36,11 @@ export class ServersCanvas extends BaseCanvas {
     totalFooter = '';
 
     constructor(serverList: OnlineServerItem[], fileName: string) {
-        super();
+        const deps = DependencyFactory.create({
+            outputFolder: 'out',
+            footerConfig: { color: '#fff' },
+        });
+        super(deps);
         this.serverList = serverList;
         this.fileName = fileName;
     }
@@ -205,7 +212,11 @@ export class ServersCanvas extends BaseCanvas {
         const context = canvas.getContext('2d');
 
         this.renderLayout(context, this.renderWidth, this.renderHeight);
-        this.renderBgImg(context, this.renderWidth, this.renderHeight);
+        this.renderBgImg({
+            context,
+            width: this.renderWidth,
+            height: this.renderHeight,
+        });
         this.renderTitle(context);
         this.renderRect(context);
         this.renderList(context);
