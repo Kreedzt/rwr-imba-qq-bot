@@ -37,6 +37,9 @@ FROM base AS runner
 # 时区设置
 ENV TZ=Asia/Shanghai
 
+# 服务端口（可通过环境变量覆盖）
+ENV PORT=3000
+
 # 运行时特有的依赖
 RUN apk add --no-cache \
     tzdata \
@@ -59,12 +62,12 @@ LABEL maintainer="Kreedzt" \
     description="RWR Imba QQ Bot" \
     org.opencontainers.image.source="https://github.com/Kreedzt/rwr-imba-qq-bot"
 
-# 设置健康检查
+# 设置健康检查（使用 PORT 环境变量）
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD node -e "try { require('http').get('http://localhost:3000/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)); } catch (e) { process.exit(1); }"
+    CMD node -e "try { require('http').get('http://localhost:' + (process.env.PORT || 3000) + '/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)); } catch (e) { process.exit(1); }"
 
-# 声明暴露端口
-EXPOSE 3000
+# 声明暴露端口（默认3000，可通过环境变量 PORT 修改）
+EXPOSE ${PORT}
 
 # 设置默认命令
 CMD ["node", "dist/app.js"]
