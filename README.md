@@ -10,7 +10,7 @@
 
 通用配置:
 
-- PORT: 监听的 HTTP 端口号, 类型为 `number`, eg: `6768`
+- PORT: 监听的 HTTP 端口号, 类型为 `number`, 默认值为 `3000`, eg: `6768`
 - REMOTE_URL: go-cqhttp 的服务监听的 HTTP 地址, 类型为 `string`, eg: `http://127.0.0.1:5701`
 - START_MATCH: 机器人命令触发前缀, 类型为 `string`, eg: `#`
 - ADMIN_QQ_LIST: 管理员 QQ 列表, 类型为 `string[]`, eg: `555555`
@@ -41,8 +41,8 @@
 
 ```sh
 docker run --name my-rwr-qq-bot \
--p 8080:80 \
--e "PORT=80" \
+-p 3000:3000 \
+-e "PORT=3000" \
 -e "REMOTE_URL=<REMOTE_URL>" \
 -e "START_MATCH=<START_MATCH>" \
 -e "ADMIN_QQ_LIST=<ADMIN_QQ_LIST>" \
@@ -53,6 +53,8 @@ docker run --name my-rwr-qq-bot \
 -v ${PWD}/logs:/app/logs \
 -d zhaozisong0/rwr-imba-qq-bot:latest
 ```
+
+> **提示**: PORT 默认值为 `3000`，如需修改端口，请同时调整 `-p` 映射和 `-e PORT` 环境变量。例如使用 8080 端口：`-p 8080:8080 -e "PORT=8080"`
 
 ### Docker compose
 
