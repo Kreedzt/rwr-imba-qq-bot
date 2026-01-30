@@ -11,6 +11,7 @@ import { CANVAS_STYLE } from '../types/constants';
 import { replacedQueryMatch } from '../utils/utils';
 import { asImageRenderError } from '../../../services/imageRenderErrors';
 import { logImageRenderError } from '../../../services/imageRenderLogger';
+import { logger } from '../../../utils/logger';
 
 export class TDoll2Canvas extends BaseCanvas {
     renderStartY: number = 0;
@@ -86,6 +87,8 @@ export class TDoll2Canvas extends BaseCanvas {
                             this.imgMap.set(`${tdoll.id}__mod`, avatarModImg);
                         }
                     } catch (error) {
+                        console.error(error);
+                        logger.error(error);
                         logImageRenderError(
                             asImageRenderError(error, {
                                 code: 'IMAGE_LOAD_FAILED',

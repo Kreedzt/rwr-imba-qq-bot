@@ -15,6 +15,7 @@ import { CANVAS_STYLE, TDOLL_URL_PREFIX } from '../types/constants';
 import { calcCanvasTextWidth } from '../../servers/utils/utils';
 import { asImageRenderError } from '../../../services/imageRenderErrors';
 import { logImageRenderError } from '../../../services/imageRenderLogger';
+import { logger } from '../../../utils/logger';
 
 interface RenderDimensions {
     width: number;
@@ -137,6 +138,7 @@ export class TDollSkin2Canvas extends BaseCanvas {
 
                         const imgRawUrl = this.getFullImageUrl(skin.image.pic);
                         const imgResizeUrl = resizeImg(imgRawUrl, 150, 150);
+                        logger.info(`Loading skin image from URL: ${imgResizeUrl}`);
                         const skinImg = await loadImageFrom(imgResizeUrl);
 
                         this.tdollSkinImgMap.set(skin.value, skinImg);

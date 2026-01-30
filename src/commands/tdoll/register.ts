@@ -24,6 +24,7 @@ const createTDollCommand = (name: string, alias: string): IRegister => {
             }
 
             const [query, query2 = ''] = CommandHelper.getQueryParams(ctx.params);
+            await ctx.reply('正在查询数据并生成, 请稍候...');
             const replyText = (await CommandHelper.getTDoll2Reply(ctx, query, query2)) ?? '';
             await ctx.reply(replyText);
         } catch (error) {
@@ -76,6 +77,8 @@ const createTDollSkinCommand = (name: string, alias: string): IRegister => {
                 await ctx.reply(TDOLL_SKIN_NOT_FOUND_MSG);
                 return;
             }
+
+            await ctx.reply('正在查询数据并生成, 请稍候...');
 
             await CommandHelper.printTDollSkin2Png(
                 query,
