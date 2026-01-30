@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import _ from 'lodash';
 import { logger } from "../../utils/logger";
 import { IRegister } from "../../types";
 
