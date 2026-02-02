@@ -2,12 +2,10 @@ import { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import { GlobalEnv } from './types';
 import { PostgreSQLService } from './services/postgresql.service';
 import { eventHandler } from './eventHandler';
-import { logger } from './utils/logger';
 
 export async function registerRoutes(app: FastifyInstance, env: GlobalEnv) {
     app.post('/in', async (req, res) => {
         const bodyData = req.body as any;
-        logger.info('/in body data', bodyData);
         res.send({
             status: 'ok',
         });
