@@ -40,11 +40,19 @@ export const CANVAS_STYLE = {
     TEXT_COLOR: '#fff',
     BACKGROUND_COLOR: '#451a03',
     BORDER_COLOR: '#f48225',
+    HIGHLIGHT_COLOR: '#22d3ee',
     PADDING: 10,
     IMAGE_SIZE: 40,
     LINE_HEIGHT: 40,
     TITLE_OFFSET: 60,
     RECT_OFFSET: 10,
+    SPACING: 10,
+    FONT_SIZE: 20,
+    TITLE_PADDING: 20,
+    LIST_OFFSET: 40,
+    FOOTER_OFFSET: 30,
+    HEADER_HEIGHT: 120,
+    ROW_HEIGHT: 90,
 };
 
 export const TDOLL2_SKIN_OUTPUT_FILE = 'tdoll_skin2.png';

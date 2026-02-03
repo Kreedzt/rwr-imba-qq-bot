@@ -1,0 +1,153 @@
+import * as fs from 'fs';
+import * as path from 'path';
+import * as echarts from 'echarts';
+import { Resvg } from '@resvg/resvg-js';
+import { IAnalysisData } from '../types/types';
+import { OUTPUT_FOLDER } from '../types/constants';
+import { logger } from '../../../utils/logger';
+import { asImageRenderError } from '../../../services/imageRenderErrors';
+import { logImageRenderError } from '../../../services/imageRenderLogger';
+
+/**
+ * 图表配置接口
+ */
+export interface ChartConfig {
+    title: string;
+    xAxisName: string;
+    yAxisName: string;
+    data: Array<{ date: string; count: number }>;
+    outputFile: string;
+}
+
+/**
+ * 图表渲染器
+ * 负责将数据渲染为 PNG 图表
+ */
+export class ChartRenderer {
+    private readonly width = 800;
+    private readonly height = 400;
+
+    /**
+     * 渲染图表
+     * @param config - 图表配置
+     * @returns 输出文件名
+     */
+    async render(config: ChartConfig): Promise<string> {
+        try {
+            const chart = echarts.init(null as any, null as any, {
+                renderer: 'svg',
+                ssr: true,
+                width: this.width,
+                height: this.height,
+            });
+
+            chart.setOption(this.buildChartOption(config));
+
+            const svg = chart.renderToSVGString();
+            chart.dispose();
+
+            const buffer = await this.svgToPng(svg);
+            await this.savePng(buffer, config.outputFile);
+
+            return config.outputFile;
+        } catch (error) {
+            this.handleRenderError(error, config);
+            throw error;
+        }
+    }
+
+    /**
+     * 构建图表配置
+     */
+    private buildChartOption(config: ChartConfig): any {
+        return {
+            backgroundColor: '#fff',
+            title: {
+                text: config.title,
+                textAlign: 'center',
+                left: '50%',
+            },
+            xAxis: {
+                name: config.xAxisName,
+                nameLocation: 'center',
+                nameGap: 30,
+                nameTextStyle: {
+                    fontWeight: 700,
+                },
+                type: 'category',
+                data: config.data.map((d) => d.date),
+            },
+            yAxis: {
+                name: config.yAxisName,
+                nameGap: 30,
+                nameLocation: 'end',
+                nameTextStyle: {
+                    fontWeight: 700,
+                },
+                type: 'value',
+            },
+            series: [
+                {
+                    data: config.data.map((d) => d.count),
+                    label: {
+                        show: false,
+                    },
+                    type: 'line',
+                },
+                {
+                    data: config.data.map((d) => d.count),
+                    label: {
+                        show: true,
+                        position: 'top',
+                    },
+                    type: 'bar',
+                },
+            ],
+        };
+    }
+
+    /**
+     * 将 SVG 转换为 PNG
+     */
+    private async svgToPng(svg: string): Promise<Buffer> {
+        const resvg = new Resvg(svg, {
+            fitTo: { mode: 'width', value: this.width },
+            background: 'white',
+        });
+        return Buffer.from(resvg.render().asPng());
+    }
+
+    /**
+     * 保存 PNG 文件
+     */
+    private async savePng(buffer: Buffer, fileName: string): Promise<void> {
+        const outputPath = path.join(
+            process.cwd(),
+            OUTPUT_FOLDER,
+            `./${fileName}`,
+        );
+
+        // 确保输出目录存在
+        if (!fs.existsSync(OUTPUT_FOLDER)) {
+            fs.mkdirSync(OUTPUT_FOLDER, { recursive: true });
+        }
+
+        await fs.promises.writeFile(outputPath, buffer);
+    }
+
+    /**
+     * 处理渲染错误
+     */
+    private handleRenderError(error: unknown, config: ChartConfig): void {
+        const wrapped = asImageRenderError(error, {
+            code: 'IMAGE_RENDER_FAILED',
+            message: `Failed to render chart: ${config.title}`,
+            context: {
+                scene: 'ChartRenderer',
+                fileName: config.outputFile,
+            },
+        });
+        logImageRenderError(wrapped);
+        logger.error('ChartRenderer failed', wrapped);
+    }
+}
