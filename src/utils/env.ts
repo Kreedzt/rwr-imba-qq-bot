@@ -7,11 +7,11 @@ export function loadEnv(): GlobalEnv {
     const _env = process.env as Record<string, string>;
 
     logger.info('_env: ACTIVE_COMMANDS', _env.ACTIVE_COMMANDS);
-    
+
     const env = {
         ..._env,
         ADMIN_QQ_LIST: JSON.parse(_env.ADMIN_QQ_LIST),
-        PORT: parseInt(_env.PORT),
+        PORT: parseInt(_env.PORT || '3000'),
         ACTIVE_COMMANDS: JSON.parse(_env.ACTIVE_COMMANDS),
     } as GlobalEnv;
 

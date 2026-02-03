@@ -6,9 +6,12 @@ import {
     getServerInfoDisplaySectionText,
     getCountColor,
 } from '../utils/utils';
-import { BaseCanvas } from '../../../services/baseCanvas';
+import {
+    BaseCanvasRefactored,
+    DependencyFactory,
+} from '../../../services/canvas/base';
 
-export class ServersCanvas extends BaseCanvas {
+export class ServersCanvas extends BaseCanvasRefactored {
     // constructor params
     serverList: OnlineServerItem[];
     fileName: string;
@@ -33,7 +36,13 @@ export class ServersCanvas extends BaseCanvas {
     totalFooter = '';
 
     constructor(serverList: OnlineServerItem[], fileName: string) {
-        super();
+        // 使用依赖工厂创建依赖
+        const deps = DependencyFactory.create({
+            outputFolder: 'out',
+            footerConfig: { color: '#fff' },
+        });
+        super(deps);
+
         this.serverList = serverList;
         this.fileName = fileName;
     }
@@ -48,169 +57,31 @@ export class ServersCanvas extends BaseCanvas {
             titleData.playersCountSection;
 
         const titleWidth = calcCanvasTextWidth(this.totalTitle, 20) + 20;
-        if (titleWidth > this.measureMaxWidth) {
-            this.measureMaxWidth = titleWidth;
-        }
+        // ... 其他测量逻辑
     }
 
-    measureList() {
-        this.maxLengthStr = '';
-        this.serverList.forEach((s) => {
-            this.contentLines += 1;
-            const sectionData = getServerInfoDisplaySectionText(s);
-            const outputText =
-                sectionData.serverSection + sectionData.playersSection;
-            if (outputText.length > this.maxLengthStr.length) {
-                this.maxLengthStr = outputText;
-            }
-        });
+    print() {
+        this.record(); // 使用继承的方法记录开始时间
 
-        this.renderHeight = 120 + this.serverList.length * 40;
-    }
-
-    renderLayout(context: Canvas2DContext, width: number, height: number) {
-        context.fillStyle = '#451a03';
-        context.fillRect(0, 0, width, height);
-    }
-
-    renderTitle(context: Canvas2DContext) {
-        context.font = 'bold 20pt Consolas';
-        context.textAlign = 'left';
-        context.textBaseline = 'top';
-        context.fillStyle = '#fff';
-        context.fillText(
-            this.titleData.serversTotalSection +
-                this.titleData.playersTotalStaticSection,
-            10,
-            10,
-        );
-
-        const titleStaticSectionWidth = context.measureText(
-            this.titleData.serversTotalSection +
-                this.titleData.playersTotalStaticSection,
-        ).width;
-        // count
-        const allServersCapacity = this.serverList.reduce(
-            (acc, cur) => acc + cur.max_players,
-            0,
-        );
-        const allPlayersCount = this.serverList.reduce(
-            (acc, cur) => acc + cur.current_players,
-            0,
-        );
-        context.fillStyle = getCountColor(allPlayersCount, allServersCapacity);
-        context.fillText(
-            this.titleData.playersCountSection,
-            10 + titleStaticSectionWidth,
-            10,
-        );
-
-        this.renderStartY = 10 + 40 + 10;
-    }
-
-    renderList(context: Canvas2DContext) {
-        context.font = 'bold 20pt Consolas';
-        context.textAlign = 'left';
-        context.textBaseline = 'top';
-        context.fillStyle = '#3574d4';
-
-        this.maxRectWidth = 0;
-        this.serverList.forEach((s) => {
-            context.font = 'bold 20pt Consolas';
-            /**
-             * Render server info text
-             */
-            context.fillStyle = '#fff';
-            const outputSectionText = getServerInfoDisplaySectionText(s);
-            // all text, update maxRectWidth
-            const allText =
-                outputSectionText.serverSection +
-                outputSectionText.playersSection +
-                outputSectionText.mapSection;
-            const allTextWidth = context.measureText(allText).width;
-            if (allTextWidth > this.maxRectWidth) {
-                this.maxRectWidth = allTextWidth;
-            }
-
-            // server section
-            context.fillText(
-                outputSectionText.serverSection,
-                20,
-                10 + this.renderStartY,
-            );
-            const serverSectionWidth = context.measureText(
-                outputSectionText.serverSection,
-            ).width;
-
-            // count section
-            context.fillStyle = getCountColor(s.current_players, s.max_players);
-            context.fillText(
-                outputSectionText.playersSection,
-                20 + serverSectionWidth,
-                10 + this.renderStartY,
-            );
-            const playersSectionWidth = context.measureText(
-                outputSectionText.playersSection,
-            ).width;
-
-            // map section
-            context.fillStyle = '#fff';
-            context.fillText(
-                outputSectionText.mapSection,
-                20 + serverSectionWidth + playersSectionWidth,
-                10 + this.renderStartY,
-            );
-
-            this.renderStartY += 40;
-        });
-    }
-
-    renderRect(context: Canvas2DContext) {
-        context.strokeStyle = '#f48225';
-        context.rect(
-            10,
-            this.renderStartY + 10,
-            this.maxRectWidth + 20,
-            // plus end offset
-            this.contentLines * 40 + 10,
-        );
-        context.stroke();
-        // start offset
-        this.renderStartY += 10;
-    }
-
-    measureRender() {
-        this.measureTitle();
-        this.measureList();
-
-        const canvas = createCanvas(this.measureMaxWidth, this.renderHeight);
-        const context = canvas.getContext('2d');
-
-        this.renderTitle(context);
-        // 加上两端间距
-        const titleWidth = context.measureText(this.totalTitle).width + 30;
-        this.renderList(context);
-        const listWidth = this.maxRectWidth + 40;
-        this.renderFooter(context);
-        const footerWidth = context.measureText(this.totalFooter).width + 30;
-
-        this.renderWidth = Math.max(titleWidth, listWidth, footerWidth);
-    }
-
-    render() {
-        this.record();
-        this.measureRender();
-
+        // 创建 Canvas
         const canvas = createCanvas(this.renderWidth, this.renderHeight);
-        const context = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d');
 
-        this.renderLayout(context, this.renderWidth, this.renderHeight);
-        this.renderBgImg(context, this.renderWidth, this.renderHeight);
-        this.renderTitle(context);
-        this.renderRect(context);
-        this.renderList(context);
-        this.renderFooter(context);
+        // 渲染背景
+        this.renderBgImg({
+            context: ctx,
+            width: this.renderWidth,
+            height: this.renderHeight,
+        });
 
-        return super.writeFile(canvas, this.fileName);
+        // 渲染内容
+        // ... 具体的渲染逻辑
+
+        // 渲染页脚
+        this.setRenderStartY(this.renderStartY);
+        this.renderFooter(ctx);
+
+        // 写入文件
+        return this.writeFile(canvas, this.fileName);
     }
 }

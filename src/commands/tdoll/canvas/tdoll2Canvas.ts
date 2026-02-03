@@ -1,119 +1,73 @@
-import {
-    createCanvas,
-    Canvas2DContext,
-    ImageLike,
-    loadImageFrom,
-} from '../../../services/canvasBackend';
-import { BaseCanvas } from '../../../services/baseCanvas';
+/**
+ * TDoll2Canvas.ts - 重构后的版本
+ * 
+ * 重构要点：
+ * 1. 使用组合替代继承
+ * 2. 职责分离：将渲染逻辑拆分到专门的渲染器类
+ * 3. 依赖注入：通过构造函数注入依赖
+ * 
+ * 原文件已备份为：tdoll2Canvas.ts.bak.legacy
+ */
+
+import { createCanvas, Canvas2DContext } from '../../../services/canvasBackend';
 import { ITDollDataItem } from '../types/types';
-import { resizeImg } from '../../../utils/imgproxy';
+import { TDOLL_OUTPUT_FILE } from '../types/constants';
 import { CANVAS_STYLE } from '../types/constants';
-import { replacedQueryMatch } from '../utils/utils';
-import { asImageRenderError } from '../../../services/imageRenderErrors';
-import { logImageRenderError } from '../../../services/imageRenderLogger';
-import { logger } from '../../../utils/logger';
+import { BaseCanvas } from '../../../services/baseCanvas';
+import {
+    TDollDataProvider,
+    TDollTitleRenderer,
+    TDollImageRenderer,
+    TextWidthCalculator,
+} from './renderers';
 
-export class TDoll2Canvas extends BaseCanvas {
-    renderStartY: number = 0;
-    totalTitle: string = '';
-    totalFooter: string = '';
+/**
+ * TDoll2Canvas - 重构后的类
+ * 
+ * 使用组合替代继承，将渲染职责分离到专门的渲染器类
+ */
+export class TDoll2Canvas {
+    // 渲染尺寸
+    private renderWidth = 0;
+    private renderHeight = 0;
+    private measureMaxWidth = 0;
+    private maxRectWidth = 0;
+    private contentLines = 0;
+    private renderStartY = 0;
 
-    // render params data
-    measureMaxWidth = 0;
-    renderWidth = 0;
-    renderHeight = 0;
-    maxRectWidth = 0;
+    // 文本内容
+    private totalTitle = '';
+    private totalFooter = '';
 
-    maxLengthStr: string = '';
-    contentLines = 0;
-    imgMap: Map<string, ImageLike> = new Map();
 
-    fileName: string;
-    query: string;
-    tdolls: ITDollDataItem[];
+    // 依赖组件
+    private dataProvider: TDollDataProvider;
+    private textCalculator: TextWidthCalculator;
+    private baseCanvas: BaseCanvas;
+
+
+    // 输入参数
+    private fileName: string;
+    private query: string;
+    private tdolls: ITDollDataItem[];
+
 
     constructor(query: string, tdolls: ITDollDataItem[], fileName: string) {
-        super();
         this.fileName = fileName;
         this.query = query;
         this.tdolls = tdolls;
+
+
+        // 初始化依赖
+        this.dataProvider = new TDollDataProvider();
+        this.textCalculator = new TextWidthCalculator();
+        this.baseCanvas = new BaseCanvas();
     }
 
-    private applyBaseStyle(context: Canvas2DContext) {
-        this.setContextStyle(context, {
-            font: CANVAS_STYLE.FONT,
-            textAlign: 'left',
-            textBaseline: 'top',
-            fillStyle: CANVAS_STYLE.TEXT_COLOR,
-        });
-    }
-
-    private setContextStyle(
-        context: Canvas2DContext,
-        style: {
-            font?: string;
-            textAlign?: CanvasTextAlign;
-            textBaseline?: CanvasTextBaseline;
-            fillStyle?: string | CanvasGradient | CanvasPattern;
-        },
-    ) {
-        if (style.font) context.font = style.font;
-        if (style.textAlign) context.textAlign = style.textAlign;
-        if (style.textBaseline) context.textBaseline = style.textBaseline;
-        if (style.fillStyle) context.fillStyle = style.fillStyle;
-    }
-
-    async loadAllImg() {
-        try {
-            await Promise.all(
-                this.tdolls.map(async (tdoll) => {
-                    try {
-                        const avatarUrl = resizeImg(
-                            tdoll.avatar,
-                            CANVAS_STYLE.IMAGE_SIZE,
-                            CANVAS_STYLE.IMAGE_SIZE,
-                        );
-                        const avatarImg = await loadImageFrom(avatarUrl);
-                        this.imgMap.set(tdoll.id, avatarImg);
-
-                        if (tdoll.mod === '1') {
-                            const avatarModImg = await loadImageFrom(
-                                resizeImg(
-                                    tdoll.avatarMod,
-                                    CANVAS_STYLE.IMAGE_SIZE,
-                                    CANVAS_STYLE.IMAGE_SIZE,
-                                ),
-                            );
-                            this.imgMap.set(`${tdoll.id}__mod`, avatarModImg);
-                        }
-                    } catch (error) {
-                        console.error(error);
-                        logger.error(error);
-                        logImageRenderError(
-                            asImageRenderError(error, {
-                                code: 'IMAGE_LOAD_FAILED',
-                                message: `Failed to load image for tdoll ${tdoll.id}`,
-                                context: {
-                                    scene: 'tdoll2:loadAllImg',
-                                    inputSummary: tdoll.id,
-                                },
-                            }),
-                        );
-                    }
-                }),
-            );
-        } catch (error) {
-            const wrapped = asImageRenderError(error, {
-                code: 'IMAGE_LOAD_FAILED',
-                message: 'Failed to load images',
-                context: { scene: 'tdoll2:loadAllImg' },
-            });
-            logImageRenderError(wrapped);
-            throw wrapped;
-        }
-    }
-
-    getTitleSection() {
+    /**
+     * 获取标题段落
+     */
+    private getTitleSection() {
         return {
             staticSection: '查询 ',
             userSection: `${this.query}`,
@@ -121,254 +75,42 @@ export class TDoll2Canvas extends BaseCanvas {
         };
     }
 
-    getTDollSection(tdoll: ITDollDataItem) {
-        const staticSection = `No.`;
-        const noSection = `${tdoll.id}`;
-        const staticSection2 = ` ${tdoll.nameIngame || ''}${
-            tdoll.mod === '1' ? '(mod)' : ''
-        } ${tdoll.type || ''}`;
-
-        return {
-            staticSection,
-            noSection,
-            staticSection2,
-        };
-    }
-
-    measureTitle() {
+    /**
+     * 测量标题尺寸
+     */
+    private measureTitle(): void {
         const section = this.getTitleSection();
-        const title =
-            section.staticSection +
-            section.userSection +
-            section.staticSection2;
+        const title = section.staticSection + section.userSection + section.staticSection2;
         this.totalTitle = title;
 
-        const titleWidth = this.calcCanvasTextWidth(title, 20) + 20;
+        const titleWidth = this.textCalculator.calcCanvasTextWidth(title, CANVAS_STYLE.FONT_SIZE) + CANVAS_STYLE.TITLE_PADDING;
 
         if (titleWidth > this.measureMaxWidth) {
             this.measureMaxWidth = titleWidth;
         }
     }
 
-    measureList() {
-        this.maxLengthStr = '';
+    /**
+     * 测量列表尺寸
+     */
+    private measureList(): void {
         this.tdolls.forEach((tdoll) => {
             this.contentLines += 1;
-            const sectionTitle = `No.${tdoll.id} ${tdoll.nameIngame || ''}${
-                tdoll.mod === '1' ? '(mod)' : ''
-            }`;
-            const sectionTitleWidth = this.calcCanvasTextWidth(
-                sectionTitle,
-                20,
-            );
+            const sectionTitle = `No.${tdoll.id} ${tdoll.nameIngame || ''}${tdoll.mod === '1' ? '(mod)' : ''}`;
+            const sectionTitleWidth = this.textCalculator.calcCanvasTextWidth(sectionTitle, CANVAS_STYLE.FONT_SIZE);
 
             if (sectionTitleWidth > this.measureMaxWidth) {
                 this.measureMaxWidth = sectionTitleWidth;
             }
         });
 
-        // text: 40, img: 40, spacing: 10
-        this.renderHeight = 120 + this.tdolls.length * (40 + 40 + 10);
-    }
-
-    renderLayout(context: Canvas2DContext, width: number, height: number) {
-        context.fillStyle = '#451a03';
-        context.fillRect(0, 0, width, height);
+        this.renderHeight = CANVAS_STYLE.HEADER_HEIGHT + this.tdolls.length * CANVAS_STYLE.ROW_HEIGHT;
     }
 
     /**
-     * Renders the main title at the top of the canvas
-     * @param context - The canvas rendering context
+     * 执行完整测量
      */
-    renderTitle(context: Canvas2DContext) {
-        this.applyBaseStyle(context);
-        const section = this.getTitleSection();
-        context.fillText(
-            section.staticSection,
-            CANVAS_STYLE.PADDING,
-            CANVAS_STYLE.PADDING,
-        );
-        const staticSectionWidth = context.measureText(
-            section.staticSection,
-        ).width;
-
-        context.fillStyle = '#22d3ee';
-        context.fillText(
-            section.userSection,
-            CANVAS_STYLE.PADDING + staticSectionWidth,
-            CANVAS_STYLE.PADDING,
-        );
-        const userSectionWidth = context.measureText(section.userSection).width;
-
-        context.fillStyle = '#fff';
-        context.fillText(
-            section.staticSection2,
-            CANVAS_STYLE.PADDING + userSectionWidth + staticSectionWidth,
-            CANVAS_STYLE.PADDING,
-        );
-        this.renderStartY = CANVAS_STYLE.TITLE_OFFSET;
-    }
-
-    private renderTdollTitle(
-        context: Canvas2DContext,
-        tdoll: ITDollDataItem,
-    ): number {
-        const section = this.getTDollSection(tdoll);
-
-        // No.
-        context.fillStyle = '#fff';
-        context.fillText(
-            section.staticSection,
-            CANVAS_STYLE.PADDING * 2,
-            this.renderStartY,
-        );
-        const staticSectionWidth = context.measureText(
-            section.staticSection,
-        ).width;
-
-        // id number
-        context.fillStyle = '#f97316';
-        context.fillText(
-            section.noSection,
-            CANVAS_STYLE.PADDING * 2 + staticSectionWidth,
-            this.renderStartY,
-        );
-        const idSectionWidth = context.measureText(section.noSection).width;
-
-        // name with highlight if needed
-        const startX =
-            CANVAS_STYLE.PADDING * 2 + staticSectionWidth + idSectionWidth;
-        if (this.query && this.query !== 'random') {
-            const name = section.staticSection2;
-            const processedName = replacedQueryMatch(name);
-            const processedQuery = replacedQueryMatch(this.query);
-            const queryIndex = processedName.indexOf(processedQuery);
-
-            if (queryIndex !== -1) {
-                let matchStartIndex = 0;
-                let matchEndIndex = 0;
-                let currentProcessedIndex = 0;
-
-                // 找到实际要高亮的字符位置
-                for (let i = 0; i < name.length; i++) {
-                    if (currentProcessedIndex === queryIndex) {
-                        matchStartIndex = i;
-                    }
-                    if (
-                        currentProcessedIndex ===
-                        queryIndex + processedQuery.length
-                    ) {
-                        matchEndIndex = i;
-                        break;
-                    }
-                    if (!/[-. ]/.test(name[i])) {
-                        currentProcessedIndex++;
-                    }
-                }
-                if (matchEndIndex === 0) matchEndIndex = name.length;
-
-                const before = name.substring(0, matchStartIndex);
-                const match = name.substring(matchStartIndex, matchEndIndex);
-                const after = name.substring(matchEndIndex);
-
-                context.fillStyle = '#fff';
-                context.fillText(before, startX, this.renderStartY);
-                const beforeWidth = context.measureText(before).width;
-
-                context.fillStyle = '#22d3ee';
-                context.fillText(
-                    match,
-                    startX + beforeWidth,
-                    this.renderStartY,
-                );
-                const matchWidth = context.measureText(match).width;
-
-                context.fillStyle = '#fff';
-                context.fillText(
-                    after,
-                    startX + beforeWidth + matchWidth,
-                    this.renderStartY,
-                );
-            } else {
-                context.fillStyle = '#fff';
-                context.fillText(name, startX, this.renderStartY);
-            }
-        } else {
-            context.fillStyle = '#fff';
-            context.fillText(section.staticSection2, startX, this.renderStartY);
-        }
-
-        this.renderStartY += CANVAS_STYLE.LINE_HEIGHT;
-
-        const fullWidth =
-            staticSectionWidth +
-            idSectionWidth +
-            context.measureText(section.staticSection2).width;
-        return fullWidth;
-    }
-
-    private renderTdollImages(
-        context: Canvas2DContext,
-        tdoll: ITDollDataItem,
-    ): number {
-        let maxWidth = 0;
-        let offsetX = CANVAS_STYLE.PADDING * 2;
-
-        const renderImage = (image: ImageLike | undefined) => {
-            if (image) {
-                context.drawImage(
-                    image,
-                    offsetX,
-                    this.renderStartY,
-                    CANVAS_STYLE.IMAGE_SIZE,
-                    CANVAS_STYLE.IMAGE_SIZE,
-                );
-                offsetX += CANVAS_STYLE.IMAGE_SIZE;
-                maxWidth = Math.max(maxWidth, offsetX);
-            }
-        };
-
-        renderImage(this.imgMap.get(tdoll.id));
-        if (tdoll.mod === '1') {
-            renderImage(this.imgMap.get(`${tdoll.id}__mod`));
-        }
-
-        this.renderStartY += CANVAS_STYLE.IMAGE_SIZE;
-        return maxWidth;
-    }
-
-    renderList(context: Canvas2DContext) {
-        this.applyBaseStyle(context);
-        this.maxRectWidth = 0;
-
-        this.tdolls.forEach((tdoll) => {
-            this.renderStartY += 10;
-            const titleWidth = this.renderTdollTitle(context, tdoll);
-            this.maxRectWidth = Math.max(this.maxRectWidth, titleWidth);
-
-            const imagesWidth = this.renderTdollImages(context, tdoll);
-            this.maxRectWidth = Math.max(this.maxRectWidth, imagesWidth);
-        });
-    }
-
-    renderRect(context: Canvas2DContext) {
-        context.strokeStyle = '#f48225';
-        context.rect(
-            10,
-            this.renderStartY + 10,
-            this.maxRectWidth + 20,
-            // plus end offset
-            this.contentLines * (40 + 40 + 10) + 10,
-        );
-        context.stroke();
-        // start offset
-        this.renderStartY += 10;
-    }
-
-    /**
-     * 测量渲染尺寸
-     */
-    private measureRender() {
+    private performMeasurement(): void {
         this.measureTitle();
         this.measureList();
 
@@ -376,32 +118,118 @@ export class TDoll2Canvas extends BaseCanvas {
         const context = canvas.getContext('2d');
 
         this.renderTitle(context);
-        const titleWidth = context.measureText(this.totalTitle).width + 30;
+        const titleWidth = context.measureText(this.totalTitle).width + CANVAS_STYLE.TITLE_OFFSET;
+
 
         this.renderList(context);
-        const listWidth = this.maxRectWidth + 40;
+        const listWidth = this.maxRectWidth + CANVAS_STYLE.LIST_OFFSET;
+
 
         this.renderFooter(context);
-        const footerWidth = context.measureText(this.totalFooter).width + 30;
+        const footerWidth = context.measureText(this.totalFooter).width + CANVAS_STYLE.FOOTER_OFFSET;
+
 
         this.renderWidth = Math.max(titleWidth, listWidth, footerWidth);
     }
 
-    async render() {
-        await this.loadAllImg();
-        this.record();
-        this.measureRender();
+    /**
+     * 渲染标题
+     */
+    private renderTitle(context: Canvas2DContext): void {
+        const section = this.getTitleSection();
 
+        context.fillStyle = CANVAS_STYLE.TEXT_COLOR;
+        context.fillText(section.staticSection, CANVAS_STYLE.PADDING, CANVAS_STYLE.PADDING);
+        const staticSectionWidth = context.measureText(section.staticSection).width;
+
+
+        context.fillStyle = CANVAS_STYLE.HIGHLIGHT_COLOR;
+        context.fillText(section.userSection, CANVAS_STYLE.PADDING + staticSectionWidth, CANVAS_STYLE.PADDING);
+        const userSectionWidth = context.measureText(section.userSection).width;
+
+
+        context.fillStyle = CANVAS_STYLE.TEXT_COLOR;
+        context.fillText(section.staticSection2, CANVAS_STYLE.PADDING + userSectionWidth + staticSectionWidth, CANVAS_STYLE.PADDING);
+
+
+        this.renderStartY = CANVAS_STYLE.TITLE_OFFSET;
+    }
+
+    /**
+     * 渲染列表
+     */
+    private renderList(context: Canvas2DContext): void {
+        this.maxRectWidth = 0;
+
+
+        const imgMap = this.dataProvider.getImgMap();
+        const titleRenderer = new TDollTitleRenderer(this.renderStartY, this.query);
+        const imageRenderer = new TDollImageRenderer(this.renderStartY, imgMap);
+
+
+        this.tdolls.forEach((tdoll) => {
+            this.renderStartY += CANVAS_STYLE.SPACING;
+
+
+            const titleWidth = titleRenderer.render(context, tdoll);
+            this.maxRectWidth = Math.max(this.maxRectWidth, titleWidth);
+
+
+            const imagesWidth = imageRenderer.render(context, tdoll);
+            this.maxRectWidth = Math.max(this.maxRectWidth, imagesWidth);
+        });
+
+        this.renderStartY = titleRenderer.getCurrentY();
+    }
+    /**
+     * 渲染布局背景
+     */
+    private renderLayout(context: Canvas2DContext, width: number, height: number): void {
+        context.fillStyle = CANVAS_STYLE.BACKGROUND_COLOR;
+        context.fillRect(0, 0, width, height);
+    }
+    /**
+     * 渲染背景图片
+     */
+    private renderBackground(context: Canvas2DContext, width: number, height: number): void {
+        this.baseCanvas.renderBgImg(context, width, height);
+    }
+    /**
+     * 渲染页脚
+     */
+    private renderFooter(context: Canvas2DContext): void {
+        this.baseCanvas.record();
+        this.baseCanvas.renderFooter(context);
+    }
+    /**
+     * 加载所有图片 (向后兼容方法)
+     */
+    async loadAllImg(): Promise<void> {
+        return this.dataProvider.loadAllImages(this.tdolls);
+    }
+
+    /**
+     * 执行渲染
+     */
+    async render(): Promise<string> {
+        // 加载图片
+        await this.dataProvider.loadAllImages(this.tdolls);
+
+        // 执行测量
+        this.performMeasurement();
+
+        // 创建画布
         const canvas = createCanvas(this.renderWidth, this.renderHeight);
         const context = canvas.getContext('2d');
 
+        // 渲染各组件
         this.renderLayout(context, this.renderWidth, this.renderHeight);
-        this.renderBgImg(context, this.renderWidth, this.renderHeight);
+        this.renderBackground(context, this.renderWidth, this.renderHeight);
         this.renderTitle(context);
-        this.renderRect(context);
         this.renderList(context);
         this.renderFooter(context);
 
-        return super.writeFile(canvas, this.fileName);
+        // 输出文件
+        return this.baseCanvas.writeFile(canvas, this.fileName);
     }
 }
