@@ -1,14 +1,26 @@
 import dayjs from 'dayjs';
-import { createCanvas, Canvas2DContext } from '../../../services/canvasBackend';
+import { Canvas2DContext } from '../../../services/canvasBackend';
 import { BaseCanvas, CanvasSize } from '../../../services/baseCanvas';
-import { buildCanvasFont } from '../../../services/canvasFonts';
+import { buildCanvasFont, CANVAS_FONT } from '../../../services/canvasFonts';
 import {
     roundRectPath,
     drawSegments,
-    truncate,
     drawFitText,
     drawSparklineAxisLabels,
+    TextSegment,
 } from '../../../services/canvasHelpers';
+import {
+    CANVAS_COLORS,
+    CANVAS_RADIUS,
+    CANVAS_SPACE,
+} from '../../../services/canvasTheme';
+import {
+    CANVAS_MAX_WIDTH,
+    renderCard,
+    renderKpiCard,
+    renderPageTitle,
+    renderSectionHeader,
+} from '../../../services/canvasLayout';
 import {
     IAnalysisData,
     IAnalyticsViewData,
@@ -17,30 +29,30 @@ import {
 import { getCountColor } from '../utils/utils';
 
 // ============================================================================
-// 布局常量(与 ServerOverviewCanvas 家族一致)
+// 布局常量(统一走设计 token, 见 src/services/canvasTheme.ts / canvasLayout.ts)
 // ============================================================================
-const WIDTH = 880;
-const PAD = 30;
+const WIDTH = CANVAS_MAX_WIDTH;
+const PAD = CANVAS_SPACE[6];
 const CONTENT_W = WIDTH - PAD * 2;
 
 const TITLE_H = 56;
 
-const KPI_GAP = 16;
+const KPI_GAP = CANVAS_SPACE[4];
 const KPI_COUNT = 4;
 const KPI_CARD_W = (CONTENT_W - KPI_GAP * (KPI_COUNT - 1)) / KPI_COUNT;
 const KPI_CARD_H = 96;
 
-const TREND_GAP = 16;
+const TREND_GAP = CANVAS_SPACE[4];
 const TREND_CARD_W = (CONTENT_W - TREND_GAP) / 2;
 const TREND_H = 132;
 
 const SECTION_HEADER_H = 40;
-const SECTION_GAP = 18;
+const SECTION_GAP = CANVAS_SPACE[4];
 
 const RANK_ROW_H = 30;
 const RANK_MAX = 15;
 
-const GRID_GAP = 16;
+const GRID_GAP = CANVAS_SPACE[4];
 const GRID_COLS = 2;
 const GRID_CARD_W = (CONTENT_W - GRID_GAP * (GRID_COLS - 1)) / GRID_COLS;
 const GRID_CARD_H = 140;
@@ -50,19 +62,10 @@ const EMPTY_HINT_H = 30;
 
 const FOOTER_H = 40;
 
-// 配色(暖棕底 + 半透明深色面板, 与 overview 一致)
-const COLOR_CARD = 'rgba(0, 0, 0, 0.5)';
-const COLOR_BG = '#451a03';
-const COLOR_ACCENT = '#f48225';
-const COLOR_TEXT = '#f8fafc';
-const COLOR_MUTED = '#cbb8a3';
-const COLOR_VALUE = '#fcd34d';
-const COLOR_TRACK = 'rgba(255, 255, 255, 0.12)';
-
 const TITLE_TEXT = '服务器统计总览';
 
 /**
- * 服务器统计总览画布 — 卡片式多段布局:
+ * 服务器统计总览画布 — 卡片式多段布局(固定 880 宽):
  *   段一 KPI 概要: 24h峰值 / 7日峰值 / 当前在线 / 活跃服务器
  *   段二 全局历史趋势: 近24小时 + 近7日 双 sparkline
  *   段三 服务器活跃排行: 按峰值降序的横向条形
@@ -125,42 +128,19 @@ export class AnalyticsCanvas extends BaseCanvas {
         return v === null || v === undefined ? '—' : `${v}`;
     }
 
-    private renderSectionHeader(
-        ctx: Canvas2DContext,
-        y: number,
-        title: string,
-        rightNote = '',
-    ): number {
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-
-        ctx.fillStyle = COLOR_ACCENT;
-        ctx.fillRect(PAD, y + 2, 4, 20);
-
-        ctx.font = buildCanvasFont(16);
-        ctx.fillStyle = COLOR_TEXT;
-        ctx.fillText(title, PAD + 14, y);
-
-        if (rightNote) {
-            ctx.textAlign = 'right';
-            ctx.font = buildCanvasFont(12, 'normal');
-            ctx.fillStyle = COLOR_MUTED;
-            ctx.fillText(rightNote, WIDTH - PAD, y + 3);
-            ctx.textAlign = 'left';
-        }
-
-        return y + SECTION_HEADER_H;
-    }
-
     private renderEmptyHint(ctx: Canvas2DContext, y: number, text: string): number {
-        ctx.fillStyle = COLOR_CARD;
-        roundRectPath(ctx, PAD, y, CONTENT_W, EMPTY_HINT_H, 8);
-        ctx.fill();
+        renderCard(ctx, PAD, y, CONTENT_W, EMPTY_HINT_H, {
+            radius: CANVAS_RADIUS.sm,
+        });
 
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.font = buildCanvasFont(12, 'normal');
-        ctx.fillStyle = COLOR_MUTED;
+        ctx.font = buildCanvasFont(
+            CANVAS_FONT.size.sm,
+            CANVAS_FONT.weight.normal,
+            'sans',
+        );
+        ctx.fillStyle = CANVAS_COLORS.TEXT_MUTED;
         ctx.fillText(text, WIDTH / 2, y + EMPTY_HINT_H / 2);
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
@@ -189,8 +169,12 @@ export class AnalyticsCanvas extends BaseCanvas {
         if (series.length === 0) {
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.font = buildCanvasFont(12, 'normal');
-            ctx.fillStyle = COLOR_MUTED;
+            ctx.font = buildCanvasFont(
+                CANVAS_FONT.size.sm,
+                CANVAS_FONT.weight.normal,
+                'sans',
+            );
+            ctx.fillStyle = CANVAS_COLORS.TEXT_MUTED;
             ctx.fillText('暂无趋势数据', x + w / 2, chartTop + chartH / 2);
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
@@ -206,7 +190,7 @@ export class AnalyticsCanvas extends BaseCanvas {
         });
 
         // 基线
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.strokeStyle = CANVAS_COLORS.LINE_WEAK;
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(x, baseline);
@@ -221,7 +205,7 @@ export class AnalyticsCanvas extends BaseCanvas {
         ctx.lineTo(points[n - 1].x, baseline);
         ctx.lineTo(points[0].x, baseline);
         ctx.closePath();
-        ctx.fillStyle = 'rgba(244, 130, 37, 0.18)';
+        ctx.fillStyle = CANVAS_COLORS.AREA_ACCENT;
         ctx.fill();
 
         // 折线
@@ -229,7 +213,7 @@ export class AnalyticsCanvas extends BaseCanvas {
         points.forEach((p, i) =>
             i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y),
         );
-        ctx.strokeStyle = COLOR_ACCENT;
+        ctx.strokeStyle = CANVAS_COLORS.AMBER_500;
         ctx.lineWidth = 2;
         ctx.stroke();
 
@@ -243,7 +227,7 @@ export class AnalyticsCanvas extends BaseCanvas {
         const peak = points[peakIdx];
         ctx.beginPath();
         ctx.arc(peak.x, peak.y, 3.5, 0, Math.PI * 2);
-        ctx.fillStyle = COLOR_VALUE;
+        ctx.fillStyle = CANVAS_COLORS.VALUE;
         ctx.fill();
 
         if (!showLabels) {
@@ -261,9 +245,13 @@ export class AnalyticsCanvas extends BaseCanvas {
             endLabel: series[n - 1].date,
             peakLabel: peakIdx > 0 && peakIdx < n - 1 ? peak.date : null,
             peakX: peak.x,
-            mutedColor: COLOR_MUTED,
-            peakColor: COLOR_VALUE,
-            font: buildCanvasFont(10, 'normal'),
+            mutedColor: CANVAS_COLORS.TEXT_MUTED,
+            peakColor: CANVAS_COLORS.VALUE,
+            font: buildCanvasFont(
+                CANVAS_FONT.size.xs,
+                CANVAS_FONT.weight.normal,
+                'mono',
+            ),
         });
 
         ctx.textBaseline = 'top';
@@ -273,110 +261,82 @@ export class AnalyticsCanvas extends BaseCanvas {
     // 段一: 标题 + KPI
     // ------------------------------------------------------------------
     private renderTitle(ctx: Canvas2DContext, y: number): number {
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        ctx.fillStyle = COLOR_TEXT;
-        ctx.font = buildCanvasFont(24);
-        ctx.fillText(TITLE_TEXT, PAD, y);
-
-        const labelFont = buildCanvasFont(13, 'normal');
-        const valueFont = buildCanvasFont(13);
+        const labelFont = buildCanvasFont(
+            CANVAS_FONT.size.base,
+            CANVAS_FONT.weight.normal,
+            'sans',
+        );
+        const valueFont = buildCanvasFont(
+            CANVAS_FONT.size.base,
+            CANVAS_FONT.weight.bold,
+            'mono',
+        );
         const updatedText = this.view.lastUpdateTime
             ? `更新于 ${dayjs(this.view.lastUpdateTime).format('HH:mm')}`
             : '暂无采集数据';
-        drawSegments(
+        return renderPageTitle(
             ctx,
-            WIDTH - PAD,
-            y + 10,
+            PAD,
+            y,
+            TITLE_TEXT,
             [
                 {
                     text: `${this.view.servers.length}`,
-                    color: COLOR_TEXT,
+                    color: CANVAS_COLORS.TEXT,
                     font: valueFont,
                 },
-                { text: ' 服务器  ·  ', color: COLOR_MUTED, font: labelFont },
-                { text: updatedText, color: COLOR_MUTED, font: labelFont },
+                { text: ' 服务器  ·  ', color: CANVAS_COLORS.TEXT_MUTED, font: labelFont },
+                { text: updatedText, color: CANVAS_COLORS.TEXT_MUTED, font: labelFont },
             ],
-            'right',
+            { rightX: WIDTH - PAD },
         );
-        ctx.textAlign = 'left';
-
-        return y + TITLE_H;
-    }
-
-    private renderKpiCard(
-        ctx: Canvas2DContext,
-        idx: number,
-        y: number,
-        label: string,
-        value: string,
-        valueColor: string,
-        sub: string,
-    ) {
-        const x = PAD + idx * (KPI_CARD_W + KPI_GAP);
-
-        ctx.fillStyle = COLOR_CARD;
-        roundRectPath(ctx, x, y, KPI_CARD_W, KPI_CARD_H, 12);
-        ctx.fill();
-
-        const innerX = x + 16;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-
-        ctx.font = buildCanvasFont(12, 'normal');
-        ctx.fillStyle = COLOR_MUTED;
-        ctx.fillText(label, innerX, y + 14);
-
-        ctx.font = buildCanvasFont(24);
-        ctx.fillStyle = valueColor;
-        ctx.fillText(truncate(ctx, value, KPI_CARD_W - 32), innerX, y + 36);
-
-        if (sub) {
-            ctx.font = buildCanvasFont(11, 'normal');
-            ctx.fillStyle = COLOR_MUTED;
-            ctx.fillText(truncate(ctx, sub, KPI_CARD_W - 32), innerX, y + 72);
-        }
     }
 
     private renderKpiRow(ctx: Canvas2DContext, y: number): number {
         const { trend } = this.view;
 
-        this.renderKpiCard(
-            ctx,
-            0,
-            y,
-            '24小时峰值',
-            this.kpiValue(trend.peak24h),
-            COLOR_VALUE,
-            '近24h在线最高',
-        );
-        this.renderKpiCard(
-            ctx,
-            1,
-            y,
-            '7日峰值',
-            this.kpiValue(trend.peak7d),
-            COLOR_VALUE,
-            '近7日在线最高',
-        );
-        this.renderKpiCard(
-            ctx,
-            2,
-            y,
-            '当前在线',
-            this.kpiValue(trend.latest),
-            trend.latest !== null ? COLOR_ACCENT : COLOR_TEXT,
-            '最近一次采集',
-        );
-        this.renderKpiCard(
-            ctx,
-            3,
-            y,
-            '活跃服务器',
-            `${this.view.activeCount}`,
-            COLOR_TEXT,
-            `共 ${this.view.servers.length} 个`,
-        );
+        const kpis = [
+            {
+                label: '24小时峰值',
+                value: this.kpiValue(trend.peak24h),
+                valueColor: CANVAS_COLORS.VALUE,
+                sub: '近24h在线最高',
+            },
+            {
+                label: '7日峰值',
+                value: this.kpiValue(trend.peak7d),
+                valueColor: CANVAS_COLORS.VALUE,
+                sub: '近7日在线最高',
+            },
+            {
+                label: '当前在线',
+                value: this.kpiValue(trend.latest),
+                valueColor:
+                    trend.latest !== null
+                        ? CANVAS_COLORS.AMBER_500
+                        : CANVAS_COLORS.TEXT,
+                sub: '最近一次采集',
+            },
+            {
+                label: '活跃服务器',
+                value: `${this.view.activeCount}`,
+                valueColor: CANVAS_COLORS.TEXT,
+                sub: `共 ${this.view.servers.length} 个`,
+            },
+        ];
+
+        kpis.forEach((kpi, idx) => {
+            renderKpiCard(ctx, {
+                x: PAD + idx * (KPI_CARD_W + KPI_GAP),
+                y,
+                w: KPI_CARD_W,
+                h: KPI_CARD_H,
+                label: kpi.label,
+                value: kpi.value,
+                valueColor: kpi.valueColor,
+                sub: kpi.sub,
+            });
+        });
 
         return y + KPI_CARD_H + SECTION_GAP;
     }
@@ -409,46 +369,60 @@ export class AnalyticsCanvas extends BaseCanvas {
         peakTimeText = '',
     ) {
         const cardH = TREND_H;
-        ctx.fillStyle = COLOR_CARD;
-        roundRectPath(ctx, x, y, TREND_CARD_W, cardH, 10);
-        ctx.fill();
+        renderCard(ctx, x, y, TREND_CARD_W, cardH, { radius: CANVAS_RADIUS.md });
 
-        const innerX = x + 16;
+        const innerX = x + CANVAS_SPACE[4];
 
         ctx.textBaseline = 'top';
         ctx.textAlign = 'left';
-        ctx.font = buildCanvasFont(13);
-        ctx.fillStyle = COLOR_TEXT;
+        ctx.font = buildCanvasFont(
+            CANVAS_FONT.size.base,
+            CANVAS_FONT.weight.bold,
+            'sans',
+        );
+        ctx.fillStyle = CANVAS_COLORS.TEXT;
         ctx.fillText(title, innerX, y + 12);
 
         if (peak !== null) {
-            const segments = [
+            const segments: TextSegment[] = [
                 {
                     text: `${peakLabel} `,
-                    color: COLOR_MUTED,
-                    font: buildCanvasFont(12, 'normal'),
+                    color: CANVAS_COLORS.TEXT_MUTED,
+                    font: buildCanvasFont(
+                        CANVAS_FONT.size.sm,
+                        CANVAS_FONT.weight.normal,
+                        'sans',
+                    ),
                 },
                 {
                     text: `${peak}人`,
-                    color: COLOR_VALUE,
-                    font: buildCanvasFont(13),
+                    color: CANVAS_COLORS.VALUE,
+                    font: buildCanvasFont(
+                        CANVAS_FONT.size.base,
+                        CANVAS_FONT.weight.bold,
+                        'mono',
+                    ),
                 },
             ];
             if (peakTimeText) {
                 segments.push({
                     text: ` @${peakTimeText}`,
-                    color: COLOR_MUTED,
-                    font: buildCanvasFont(11, 'normal'),
+                    color: CANVAS_COLORS.TEXT_MUTED,
+                    font: buildCanvasFont(
+                        CANVAS_FONT.size.sm,
+                        CANVAS_FONT.weight.normal,
+                        'sans',
+                    ),
                 });
             }
-            drawSegments(ctx, x + TREND_CARD_W - 16, y + 12, segments, 'right');
+            drawSegments(ctx, x + TREND_CARD_W - CANVAS_SPACE[4], y + 12, segments, 'right');
         }
 
         this.drawSparkline(
             ctx,
             innerX,
             y + 38,
-            TREND_CARD_W - 32,
+            TREND_CARD_W - CANVAS_SPACE[8],
             cardH - 38 - 12,
             series,
             true,
@@ -459,7 +433,10 @@ export class AnalyticsCanvas extends BaseCanvas {
     }
 
     private renderTrendRow(ctx: Canvas2DContext, y: number): number {
-        y = this.renderSectionHeader(ctx, y, '全局在线趋势');
+        y = renderSectionHeader(ctx, y, '全局在线趋势', '', {
+            x: PAD,
+            rightX: WIDTH - PAD,
+        });
 
         const { trend, series7d } = this.view;
         this.renderTrendCard(
@@ -494,7 +471,10 @@ export class AnalyticsCanvas extends BaseCanvas {
         const shown = Math.min(total, RANK_MAX);
         const note = total > shown ? `其余 ${total - shown} 个未展示` : '';
 
-        y = this.renderSectionHeader(ctx, y, '服务器活跃排行', note);
+        y = renderSectionHeader(ctx, y, '服务器活跃排行', note, {
+            x: PAD,
+            rightX: WIDTH - PAD,
+        });
 
         if (total === 0) {
             return this.renderEmptyHint(
@@ -524,8 +504,12 @@ export class AnalyticsCanvas extends BaseCanvas {
 
             // 名次
             ctx.textAlign = 'left';
-            ctx.font = buildCanvasFont(12);
-            ctx.fillStyle = i < 3 ? COLOR_VALUE : COLOR_MUTED;
+            ctx.font = buildCanvasFont(
+                CANVAS_FONT.size.sm,
+                CANVAS_FONT.weight.bold,
+                'mono',
+            );
+            ctx.fillStyle = i < 3 ? CANVAS_COLORS.VALUE : CANVAS_COLORS.TEXT_MUTED;
             ctx.fillText(`${i + 1}`, rankX, midY);
 
             // 服务器名
@@ -537,26 +521,31 @@ export class AnalyticsCanvas extends BaseCanvas {
                 nameMaxW,
                 12,
                 9,
-                COLOR_TEXT,
+                CANVAS_COLORS.TEXT,
                 'left',
+                'sans',
             );
 
-            // 峰值条(轨道 + 填充)
+            // 峰值条(轨道弱覆盖 + AMBER 填充)
             const barH = 10;
             const barY = midY - barH / 2;
-            ctx.fillStyle = COLOR_TRACK;
+            ctx.fillStyle = CANVAS_COLORS.BG_OVERLAY_WEAK;
             roundRectPath(ctx, barX, barY, barMaxW, barH, barH / 2);
             ctx.fill();
 
             const fillW = Math.max(2, (s.peak / maxPeak) * barMaxW);
-            ctx.fillStyle = COLOR_ACCENT;
+            ctx.fillStyle = CANVAS_COLORS.AMBER_500;
             roundRectPath(ctx, barX, barY, fillW, barH, barH / 2);
             ctx.fill();
 
             // 峰值数字
             ctx.textAlign = 'right';
-            ctx.font = buildCanvasFont(12);
-            ctx.fillStyle = COLOR_VALUE;
+            ctx.font = buildCanvasFont(
+                CANVAS_FONT.size.sm,
+                CANVAS_FONT.weight.bold,
+                'mono',
+            );
+            ctx.fillStyle = CANVAS_COLORS.VALUE;
             ctx.fillText(`${s.peak}`, valueRight, midY);
         });
 
@@ -578,7 +567,10 @@ export class AnalyticsCanvas extends BaseCanvas {
         const shown = this.shownServers();
         const note = total > shown.length ? `其余 ${total - shown.length} 个已隐藏` : '';
 
-        y = this.renderSectionHeader(ctx, y, title, note);
+        y = renderSectionHeader(ctx, y, title, note, {
+            x: PAD,
+            rightX: WIDTH - PAD,
+        });
 
         if (total === 0) {
             return this.renderEmptyHint(
@@ -608,9 +600,7 @@ export class AnalyticsCanvas extends BaseCanvas {
         s: IServerAnalyticsSummary,
         mode: '24h' | '7d',
     ) {
-        ctx.fillStyle = COLOR_CARD;
-        roundRectPath(ctx, x, y, GRID_CARD_W, GRID_CARD_H, 12);
-        ctx.fill();
+        renderCard(ctx, x, y, GRID_CARD_W, GRID_CARD_H);
 
         const innerX = x + 14;
         const innerW = GRID_CARD_W - 28;
@@ -625,8 +615,9 @@ export class AnalyticsCanvas extends BaseCanvas {
             innerW,
             13,
             9,
-            COLOR_TEXT,
+            CANVAS_COLORS.TEXT,
             'left',
+            'sans',
         );
 
         // 整宽 sparkline(按段选择 24h 或 近7日 序列)
@@ -634,8 +625,16 @@ export class AnalyticsCanvas extends BaseCanvas {
         this.drawSparkline(ctx, innerX, y + 38, innerW, 42, series, false);
 
         // 底部数值(峰值 / 当前 或 今日 / 均值)
-        const labelFont = buildCanvasFont(11, 'normal');
-        const valueFont = buildCanvasFont(12);
+        const labelFont = buildCanvasFont(
+            CANVAS_FONT.size.sm,
+            CANVAS_FONT.weight.normal,
+            'sans',
+        );
+        const valueFont = buildCanvasFont(
+            CANVAS_FONT.size.sm,
+            CANVAS_FONT.weight.bold,
+            'mono',
+        );
         ctx.textBaseline = 'middle';
 
         const counts = series.map((d) => d.count);
@@ -653,34 +652,38 @@ export class AnalyticsCanvas extends BaseCanvas {
             innerX,
             y + GRID_CARD_H - 38,
             [
-                { text: '峰值 ', color: COLOR_MUTED, font: labelFont },
-                { text: `${peak}`, color: COLOR_VALUE, font: valueFont },
-                { text: `  ${lastLabel}`, color: COLOR_MUTED, font: labelFont },
-                { text: lastVal, color: COLOR_ACCENT, font: valueFont },
-                { text: '  均值 ', color: COLOR_MUTED, font: labelFont },
-                { text: `${avg}`, color: COLOR_TEXT, font: valueFont },
+                { text: '峰值 ', color: CANVAS_COLORS.TEXT_MUTED, font: labelFont },
+                { text: `${peak}`, color: CANVAS_COLORS.VALUE, font: valueFont },
+                { text: `  ${lastLabel}`, color: CANVAS_COLORS.TEXT_MUTED, font: labelFont },
+                { text: lastVal, color: CANVAS_COLORS.AMBER_500, font: valueFont },
+                { text: '  均值 ', color: CANVAS_COLORS.TEXT_MUTED, font: labelFont },
+                { text: `${avg}`, color: CANVAS_COLORS.TEXT, font: valueFont },
             ],
             'left',
         );
 
         // 峰值采样时间行: "在 XXXX 达到最高"(24h 精确到小时, 7日 精确到日期)
         const peakDate = this.peakDateOf(series);
-        const smallFont = buildCanvasFont(11, 'normal');
+        const smallFont = buildCanvasFont(
+            CANVAS_FONT.size.sm,
+            CANVAS_FONT.weight.normal,
+            'sans',
+        );
         if (peakDate) {
             drawSegments(
                 ctx,
                 innerX,
                 y + GRID_CARD_H - 16,
                 [
-                    { text: '在 ', color: COLOR_MUTED, font: smallFont },
-                    { text: peakDate, color: COLOR_VALUE, font: smallFont },
-                    { text: ' 达到最高', color: COLOR_MUTED, font: smallFont },
+                    { text: '在 ', color: CANVAS_COLORS.TEXT_MUTED, font: smallFont },
+                    { text: peakDate, color: CANVAS_COLORS.VALUE, font: smallFont },
+                    { text: ' 达到最高', color: CANVAS_COLORS.TEXT_MUTED, font: smallFont },
                 ],
                 'left',
             );
         } else {
             ctx.font = smallFont;
-            ctx.fillStyle = COLOR_MUTED;
+            ctx.fillStyle = CANVAS_COLORS.TEXT_MUTED;
             ctx.textAlign = 'left';
             ctx.fillText('暂无趋势数据', innerX, y + GRID_CARD_H - 16);
         }
@@ -699,7 +702,7 @@ export class AnalyticsCanvas extends BaseCanvas {
     }
 
     protected getBgColor(): string {
-        return COLOR_BG;
+        return CANVAS_COLORS.BG;
     }
 
     protected paint(ctx: Canvas2DContext): number {

@@ -1,7 +1,7 @@
-import { createCanvas, Canvas2DContext } from '../../../services/canvasBackend';
+import { Canvas2DContext } from '../../../services/canvasBackend';
 import { BaseCanvas, CanvasSize } from '../../../services/baseCanvas';
-import { buildCanvasFont } from '../../../services/canvasFonts';
-import { CANVAS_COLORS } from '../../../services/canvasTheme';
+import { buildCanvasFont, CANVAS_FONT } from '../../../services/canvasFonts';
+import { CANVAS_COLORS, CANVAS_RADIUS, CANVAS_SPACE } from '../../../services/canvasTheme';
 import {
     roundRectPath,
     drawSegments,
@@ -10,6 +10,13 @@ import {
     drawSparklineAxisLabels,
     TextSegment,
 } from '../../../services/canvasHelpers';
+import {
+    CANVAS_MAX_WIDTH,
+    renderCard,
+    renderKpiCard,
+    renderPageTitle,
+    renderSectionHeader,
+} from '../../../services/canvasLayout';
 import {
     HistoricalServerItem,
     IServerOverviewStats,
@@ -22,15 +29,15 @@ import {
 } from '../utils/utils';
 
 // ============================================================================
-// 布局常量
+// 布局常量(统一走设计 token, 见 src/services/canvasTheme.ts / canvasLayout.ts)
 // ============================================================================
-const WIDTH = 880;
-const PAD = 30;
+const WIDTH = CANVAS_MAX_WIDTH;
+const PAD = CANVAS_SPACE[6];
 const CONTENT_W = WIDTH - PAD * 2;
 
 const TITLE_H = 56;
 
-const KPI_GAP = 16;
+const KPI_GAP = CANVAS_SPACE[4];
 const KPI_COUNT = 4;
 const KPI_CARD_W = (CONTENT_W - KPI_GAP * (KPI_COUNT - 1)) / KPI_COUNT;
 const KPI_CARD_H = 96;
@@ -41,22 +48,14 @@ const SECTION_HEADER_H = 40;
 const DETAIL_COL_HEADER_H = 28;
 const DETAIL_ROW_H = 34;
 const OFFLINE_ROW_H = 28;
-const SECTION_GAP = 18;
+const SECTION_GAP = CANVAS_SPACE[4];
 
 const FOOTER_H = 40;
-
-// 配色统一取自共享主题(src/services/canvasTheme.ts), 保留局部别名以最小化 diff
-const COLOR_BG = CANVAS_COLORS.BG;
-const COLOR_CARD = CANVAS_COLORS.CARD;
-const COLOR_ACCENT = CANVAS_COLORS.ACCENT;
-const COLOR_TEXT = CANVAS_COLORS.TEXT;
-const COLOR_MUTED = CANVAS_COLORS.MUTED;
-const COLOR_VALUE = CANVAS_COLORS.VALUE;
 
 const TITLE_TEXT = '服务器状态总览';
 
 /**
- * 服务器状态总览画布 — 卡片式三段布局:
+ * 服务器状态总览画布 — 卡片式三段布局(固定 880 宽):
  *   段一 概览: 标题 + KPI 卡片 + 历史峰值趋势条
  *   段二 服务器详情: 各服务器地图 / 玩家 / Bots / 运行时长
  *   段三 页脚
@@ -88,18 +87,18 @@ export class ServerOverviewCanvas extends BaseCanvas {
         this.historicalServers = historicalServers;
     }
 
-    /** 延迟着色: 低绿 / 中琥珀 / 高红 / 无数据灰 */
+    /** 延迟着色: 低绿 / 中琥珀 / 高红 / 无数据灰(语义色) */
     private latencyColor(ms: number | null | undefined): string {
         if (ms === null || ms === undefined) {
-            return COLOR_MUTED;
+            return CANVAS_COLORS.TEXT_MUTED;
         }
         if (ms < 80) {
-            return '#4ade80';
+            return CANVAS_COLORS.SUCCESS;
         }
         if (ms < 180) {
-            return '#fbbf24';
+            return CANVAS_COLORS.WARNING;
         }
-        return '#f87171';
+        return CANVAS_COLORS.DANGER;
     }
 
     private hasTrendStrip(): boolean {
@@ -138,88 +137,27 @@ export class ServerOverviewCanvas extends BaseCanvas {
     }
 
     // ------------------------------------------------------------------
-    // 绘制辅助
-    // ------------------------------------------------------------------
-    private roundRectPath(
-        ctx: Canvas2DContext,
-        x: number,
-        y: number,
-        w: number,
-        h: number,
-        r: number,
-    ) {
-        return roundRectPath(ctx, x, y, w, h, r);
-    }
-
-    /**
-     * 按段绘制文本(每段可独立着色/字体), 支持左对齐或右对齐整体锚定。
-     * 调用方需先设置 textBaseline。
-     */
-    private drawSegments(
-        ctx: Canvas2DContext,
-        anchorX: number,
-        y: number,
-        segments: TextSegment[],
-        align: 'left' | 'right' = 'left',
-    ) {
-        return drawSegments(ctx, anchorX, y, segments, align);
-    }
-
-    private truncate(
-        ctx: Canvas2DContext,
-        text: string,
-        maxWidth: number,
-    ): string {
-        return truncate(ctx, text, maxWidth);
-    }
-
-    /**
-     * 在 maxWidth 内绘制完整文本; 若放不下则从 startSize 递减到 minSize 寻找合适字号,
-     * 仍放不下则以 minSize 绘制(不截断, 禁止换行)。
-     */
-    private drawFitText(
-        ctx: Canvas2DContext,
-        text: string,
-        x: number,
-        y: number,
-        maxWidth: number,
-        startSize: number,
-        minSize: number,
-        color: string,
-        align: 'left' | 'right' = 'left',
-    ) {
-        return drawFitText(
-            ctx,
-            text,
-            x,
-            y,
-            maxWidth,
-            startSize,
-            minSize,
-            color,
-            align,
-        );
-    }
-
-    // ------------------------------------------------------------------
     // 段一: 概览(标题 + KPI 卡片 + 趋势条)
     // ------------------------------------------------------------------
     private renderTitle(ctx: Canvas2DContext, y: number): number {
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        ctx.fillStyle = COLOR_TEXT;
-        ctx.font = buildCanvasFont(24);
-        ctx.fillText(TITLE_TEXT, PAD, y);
-
-        const labelFont = buildCanvasFont(13, 'normal');
-        const valueFont = buildCanvasFont(13);
-        this.drawSegments(
+        const labelFont = buildCanvasFont(
+            CANVAS_FONT.size.base,
+            CANVAS_FONT.weight.normal,
+            'sans',
+        );
+        const valueFont = buildCanvasFont(
+            CANVAS_FONT.size.base,
+            CANVAS_FONT.weight.bold,
+            'mono',
+        );
+        return renderPageTitle(
             ctx,
-            WIDTH - PAD,
-            y + 10,
+            PAD,
+            y,
+            TITLE_TEXT,
             [
-                { text: `${this.stats.serverCount}`, color: COLOR_TEXT, font: valueFont },
-                { text: ' 服务器  ·  ', color: COLOR_MUTED, font: labelFont },
+                { text: `${this.stats.serverCount}`, color: CANVAS_COLORS.TEXT, font: valueFont },
+                { text: ' 服务器  ·  ', color: CANVAS_COLORS.TEXT_MUTED, font: labelFont },
                 {
                     text: `${this.stats.playersTotal}`,
                     color: getCountColor(
@@ -228,51 +166,10 @@ export class ServerOverviewCanvas extends BaseCanvas {
                     ),
                     font: valueFont,
                 },
-                { text: ' 玩家在线', color: COLOR_MUTED, font: labelFont },
+                { text: ' 玩家在线', color: CANVAS_COLORS.TEXT_MUTED, font: labelFont },
             ],
-            'right',
+            { rightX: WIDTH - PAD },
         );
-        ctx.textAlign = 'left';
-
-        return y + TITLE_H;
-    }
-
-    private renderKpiCard(
-        ctx: Canvas2DContext,
-        idx: number,
-        y: number,
-        label: string,
-        value: string,
-        valueColor: string,
-        sub: string,
-    ) {
-        const x = PAD + idx * (KPI_CARD_W + KPI_GAP);
-
-        ctx.fillStyle = COLOR_CARD;
-        this.roundRectPath(ctx, x, y, KPI_CARD_W, KPI_CARD_H, 12);
-        ctx.fill();
-
-        const innerX = x + 16;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-
-        ctx.font = buildCanvasFont(12, 'normal');
-        ctx.fillStyle = COLOR_MUTED;
-        ctx.fillText(label, innerX, y + 14);
-
-        ctx.font = buildCanvasFont(24);
-        ctx.fillStyle = valueColor;
-        ctx.fillText(this.truncate(ctx, value, KPI_CARD_W - 32), innerX, y + 36);
-
-        if (sub) {
-            ctx.font = buildCanvasFont(11, 'normal');
-            ctx.fillStyle = COLOR_MUTED;
-            ctx.fillText(
-                this.truncate(ctx, sub, KPI_CARD_W - 32),
-                innerX,
-                y + 72,
-            );
-        }
     }
 
     private renderKpiRow(ctx: Canvas2DContext, y: number): number {
@@ -282,42 +179,48 @@ export class ServerOverviewCanvas extends BaseCanvas {
             this.stats.capacityTotal,
         );
 
-        this.renderKpiCard(
-            ctx,
-            0,
-            y,
-            '在线服务器',
-            `${this.stats.serverCount}`,
-            COLOR_TEXT,
-            `满 ${this.stats.fullCount} · 空 ${this.stats.emptyCount}`,
-        );
-        this.renderKpiCard(
-            ctx,
-            1,
-            y,
-            '在线玩家 / 容量',
-            `${this.stats.playersTotal}/${this.stats.capacityTotal}`,
-            playersColor,
-            `占用 ${occupancyPct}`,
-        );
-        this.renderKpiCard(
-            ctx,
-            2,
-            y,
-            'AI 单位 (Bots)',
-            `${this.stats.botsTotal}`,
-            COLOR_TEXT,
-            '',
-        );
-        this.renderKpiCard(
-            ctx,
-            3,
-            y,
-            '满员服务器',
-            `${this.stats.fullCount}`,
-            this.stats.fullCount > 0 ? COLOR_ACCENT : COLOR_TEXT,
-            `空闲 ${this.stats.emptyCount}`,
-        );
+        const kpis = [
+            {
+                label: '在线服务器',
+                value: `${this.stats.serverCount}`,
+                valueColor: CANVAS_COLORS.TEXT,
+                sub: `满 ${this.stats.fullCount} · 空 ${this.stats.emptyCount}`,
+            },
+            {
+                label: '在线玩家 / 容量',
+                value: `${this.stats.playersTotal}/${this.stats.capacityTotal}`,
+                valueColor: playersColor,
+                sub: `占用 ${occupancyPct}`,
+            },
+            {
+                label: 'AI 单位 (Bots)',
+                value: `${this.stats.botsTotal}`,
+                valueColor: CANVAS_COLORS.TEXT,
+                sub: '',
+            },
+            {
+                label: '满员服务器',
+                value: `${this.stats.fullCount}`,
+                valueColor:
+                    this.stats.fullCount > 0
+                        ? CANVAS_COLORS.AMBER_500
+                        : CANVAS_COLORS.TEXT,
+                sub: `空闲 ${this.stats.emptyCount}`,
+            },
+        ];
+
+        kpis.forEach((kpi, idx) => {
+            renderKpiCard(ctx, {
+                x: PAD + idx * (KPI_CARD_W + KPI_GAP),
+                y,
+                w: KPI_CARD_W,
+                h: KPI_CARD_H,
+                label: kpi.label,
+                value: kpi.value,
+                valueColor: kpi.valueColor,
+                sub: kpi.sub,
+            });
+        });
 
         return y + KPI_CARD_H + SECTION_GAP;
     }
@@ -328,36 +231,42 @@ export class ServerOverviewCanvas extends BaseCanvas {
         }
 
         const cardH = TREND_H - 12;
-        ctx.fillStyle = COLOR_CARD;
-        this.roundRectPath(ctx, PAD, y, CONTENT_W, cardH, 10);
-        ctx.fill();
+        renderCard(ctx, PAD, y, CONTENT_W, cardH, { radius: CANVAS_RADIUS.md });
 
-        const innerX = PAD + 16;
+        const innerX = PAD + CANVAS_SPACE[4];
 
         // 标题行: 左侧标题 + 右侧峰值数字
         ctx.textBaseline = 'top';
         ctx.textAlign = 'left';
-        ctx.font = buildCanvasFont(13);
-        ctx.fillStyle = COLOR_TEXT;
+        ctx.font = buildCanvasFont(
+            CANVAS_FONT.size.base,
+            CANVAS_FONT.weight.bold,
+            'sans',
+        );
+        ctx.fillStyle = CANVAS_COLORS.TEXT;
         ctx.fillText('在线趋势 · 近24小时', innerX, y + 12);
 
-        const labelFont = buildCanvasFont(12, 'normal');
-        const valueFont = buildCanvasFont(13);
-        const peakSegments: Array<{
-            text: string;
-            color: string;
-            font: string;
-        }> = [];
+        const labelFont = buildCanvasFont(
+            CANVAS_FONT.size.sm,
+            CANVAS_FONT.weight.normal,
+            'sans',
+        );
+        const valueFont = buildCanvasFont(
+            CANVAS_FONT.size.base,
+            CANVAS_FONT.weight.bold,
+            'mono',
+        );
+        const peakSegments: TextSegment[] = [];
         if (this.trend.peak24h !== null) {
             peakSegments.push(
-                { text: '24h峰值 ', color: COLOR_MUTED, font: labelFont },
-                { text: `${this.trend.peak24h}人`, color: COLOR_VALUE, font: valueFont },
+                { text: '24h峰值 ', color: CANVAS_COLORS.TEXT_MUTED, font: labelFont },
+                { text: `${this.trend.peak24h}人`, color: CANVAS_COLORS.VALUE, font: valueFont },
             );
         }
         if (peakSegments.length > 0) {
-            this.drawSegments(
+            drawSegments(
                 ctx,
-                WIDTH - PAD - 16,
+                WIDTH - PAD - CANVAS_SPACE[4],
                 y + 12,
                 peakSegments,
                 'right',
@@ -369,7 +278,7 @@ export class ServerOverviewCanvas extends BaseCanvas {
             ctx,
             innerX,
             y + 38,
-            CONTENT_W - 32,
+            CONTENT_W - CANVAS_SPACE[8],
             cardH - 38 - 12,
         );
 
@@ -395,8 +304,12 @@ export class ServerOverviewCanvas extends BaseCanvas {
         if (series.length === 0) {
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.font = buildCanvasFont(12, 'normal');
-            ctx.fillStyle = COLOR_MUTED;
+            ctx.font = buildCanvasFont(
+                CANVAS_FONT.size.sm,
+                CANVAS_FONT.weight.normal,
+                'sans',
+            );
+            ctx.fillStyle = CANVAS_COLORS.TEXT_MUTED;
             ctx.fillText('暂无趋势数据', x + w / 2, chartTop + chartH / 2);
             return;
         }
@@ -410,7 +323,7 @@ export class ServerOverviewCanvas extends BaseCanvas {
         });
 
         // 基线
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.strokeStyle = CANVAS_COLORS.LINE_WEAK;
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(x, baseline);
@@ -425,7 +338,7 @@ export class ServerOverviewCanvas extends BaseCanvas {
         ctx.lineTo(points[n - 1].x, baseline);
         ctx.lineTo(points[0].x, baseline);
         ctx.closePath();
-        ctx.fillStyle = 'rgba(244, 130, 37, 0.18)';
+        ctx.fillStyle = CANVAS_COLORS.AREA_ACCENT;
         ctx.fill();
 
         // 折线
@@ -433,7 +346,7 @@ export class ServerOverviewCanvas extends BaseCanvas {
         points.forEach((p, i) =>
             i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y),
         );
-        ctx.strokeStyle = COLOR_ACCENT;
+        ctx.strokeStyle = CANVAS_COLORS.AMBER_500;
         ctx.lineWidth = 2;
         ctx.stroke();
 
@@ -447,7 +360,7 @@ export class ServerOverviewCanvas extends BaseCanvas {
         const peak = points[peakIdx];
         ctx.beginPath();
         ctx.arc(peak.x, peak.y, 3.5, 0, Math.PI * 2);
-        ctx.fillStyle = COLOR_VALUE;
+        ctx.fillStyle = CANVAS_COLORS.VALUE;
         ctx.fill();
 
         // 小时刻度(首 / 峰值 / 尾) —— 峰值标签做像素级防重叠
@@ -461,30 +374,16 @@ export class ServerOverviewCanvas extends BaseCanvas {
             endLabel: series[n - 1].date,
             peakLabel: peakIdx > 0 && peakIdx < n - 1 ? peak.date : null,
             peakX: peak.x,
-            mutedColor: COLOR_MUTED,
-            peakColor: COLOR_VALUE,
-            font: buildCanvasFont(10, 'normal'),
+            mutedColor: CANVAS_COLORS.TEXT_MUTED,
+            peakColor: CANVAS_COLORS.VALUE,
+            font: buildCanvasFont(
+                CANVAS_FONT.size.xs,
+                CANVAS_FONT.weight.normal,
+                'mono',
+            ),
         });
 
         ctx.textBaseline = 'top';
-    }
-
-    private renderSectionHeader(
-        ctx: Canvas2DContext,
-        y: number,
-        title: string,
-    ): number {
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-
-        ctx.fillStyle = COLOR_ACCENT;
-        ctx.fillRect(PAD, y + 2, 4, 20);
-
-        ctx.font = buildCanvasFont(16);
-        ctx.fillStyle = COLOR_TEXT;
-        ctx.fillText(title, PAD + 14, y);
-
-        return y + SECTION_HEADER_H;
     }
 
     // ------------------------------------------------------------------
@@ -495,7 +394,10 @@ export class ServerOverviewCanvas extends BaseCanvas {
             return y;
         }
 
-        y = this.renderSectionHeader(ctx, y, '服务器详情');
+        y = renderSectionHeader(ctx, y, '服务器详情', '', {
+            x: PAD,
+            rightX: WIDTH - PAD,
+        });
 
         const nameX = PAD;
         const mapX = PAD + 250;
@@ -504,10 +406,14 @@ export class ServerOverviewCanvas extends BaseCanvas {
         const latencyRight = PAD + 700;
         const durationRight = WIDTH - PAD;
 
-        // 列标题 (醒目 + 具有标识性)
+        // 列标题(用暖中性色, 降低侵略性)
         ctx.textBaseline = 'middle';
-        ctx.font = buildCanvasFont(11);
-        ctx.fillStyle = COLOR_VALUE;
+        ctx.font = buildCanvasFont(
+            CANVAS_FONT.size.sm,
+            CANVAS_FONT.weight.bold,
+            'sans',
+        );
+        ctx.fillStyle = CANVAS_COLORS.WARM_300;
         const headMidY = y + DETAIL_COL_HEADER_H / 2;
         ctx.textAlign = 'left';
         ctx.fillText('服务器', nameX, headMidY);
@@ -524,16 +430,16 @@ export class ServerOverviewCanvas extends BaseCanvas {
             const rowY = bodyY + i * DETAIL_ROW_H;
             const midY = rowY + DETAIL_ROW_H / 2;
 
-            // 斑马纹卡片背景
+            // 斑马纹行底色(统一弱覆盖)
             if (i % 2 === 0) {
-                ctx.fillStyle = COLOR_CARD;
-                this.roundRectPath(
+                ctx.fillStyle = CANVAS_COLORS.BG_OVERLAY_WEAK;
+                roundRectPath(
                     ctx,
                     PAD - 8,
                     rowY + 2,
                     CONTENT_W + 16,
                     DETAIL_ROW_H - 4,
-                    6,
+                    CANVAS_RADIUS.sm,
                 );
                 ctx.fill();
             }
@@ -541,7 +447,7 @@ export class ServerOverviewCanvas extends BaseCanvas {
             ctx.textBaseline = 'middle';
 
             // 服务器名称保持全名, 字号自适应(禁止截断/换行)
-            this.drawFitText(
+            drawFitText(
                 ctx,
                 d.name,
                 nameX,
@@ -549,24 +455,32 @@ export class ServerOverviewCanvas extends BaseCanvas {
                 mapX - nameX - 14,
                 13,
                 9,
-                COLOR_TEXT,
+                CANVAS_COLORS.TEXT,
                 'left',
             );
 
-            ctx.font = buildCanvasFont(12, 'normal');
-            ctx.fillStyle = COLOR_ACCENT;
+            ctx.font = buildCanvasFont(
+                CANVAS_FONT.size.sm,
+                CANVAS_FONT.weight.normal,
+                'sans',
+            );
+            ctx.fillStyle = CANVAS_COLORS.AMBER_500;
             ctx.fillText(
-                this.truncate(ctx, d.mapName, playersRight - mapX - 60),
+                truncate(ctx, d.mapName, playersRight - mapX - 60),
                 mapX,
                 midY,
             );
 
             ctx.textAlign = 'right';
-            ctx.font = buildCanvasFont(13);
+            ctx.font = buildCanvasFont(
+                CANVAS_FONT.size.base,
+                CANVAS_FONT.weight.bold,
+                'mono',
+            );
             ctx.fillStyle = getCountColor(d.players, d.maxPlayers);
             ctx.fillText(`${d.players}/${d.maxPlayers}`, playersRight, midY);
 
-            ctx.fillStyle = d.bots > 0 ? '#67e8f9' : COLOR_MUTED;
+            ctx.fillStyle = d.bots > 0 ? CANVAS_COLORS.INFO : CANVAS_COLORS.TEXT_MUTED;
             ctx.fillText(`${d.bots}`, botsRight, midY);
 
             // 延迟
@@ -581,7 +495,7 @@ export class ServerOverviewCanvas extends BaseCanvas {
             const durationText = formatMapDuration(
                 this.mapStartedAtMap.get(d.serverKey) ?? null,
             );
-            ctx.fillStyle = '#67e8f9';
+            ctx.fillStyle = CANVAS_COLORS.INFO;
             ctx.fillText(durationText, durationRight, midY);
         });
 
@@ -600,7 +514,10 @@ export class ServerOverviewCanvas extends BaseCanvas {
             return y;
         }
 
-        y = this.renderSectionHeader(ctx, y, '近5分钟离线服务器');
+        y = renderSectionHeader(ctx, y, '近5分钟离线服务器', '', {
+            x: PAD,
+            rightX: WIDTH - PAD,
+        });
 
         const nameX = PAD;
         const mapX = PAD + 250;
@@ -615,16 +532,24 @@ export class ServerOverviewCanvas extends BaseCanvas {
             const sec = getServerInfoDisplaySectionText(s);
 
             ctx.textAlign = 'left';
-            ctx.font = buildCanvasFont(12, 'normal');
-            ctx.fillStyle = COLOR_MUTED;
+            ctx.font = buildCanvasFont(
+                CANVAS_FONT.size.sm,
+                CANVAS_FONT.weight.normal,
+                'sans',
+            );
+            ctx.fillStyle = CANVAS_COLORS.TEXT_MUTED;
             ctx.fillText(
                 truncate(ctx, s.name, mapX - nameX - 14),
                 nameX,
                 midY,
             );
 
-            ctx.font = buildCanvasFont(11, 'normal');
-            ctx.fillStyle = 'rgba(203, 184, 163, 0.7)';
+            ctx.font = buildCanvasFont(
+                CANVAS_FONT.size.xs,
+                CANVAS_FONT.weight.normal,
+                'sans',
+            );
+            ctx.fillStyle = CANVAS_COLORS.MUTED_DIM;
             ctx.fillText(
                 truncate(ctx, sec.mapSection.trim(), playersRight - mapX - 20),
                 mapX,
@@ -632,12 +557,16 @@ export class ServerOverviewCanvas extends BaseCanvas {
             );
 
             ctx.textAlign = 'right';
-            ctx.font = buildCanvasFont(12, 'normal');
-            ctx.fillStyle = COLOR_MUTED;
+            ctx.font = buildCanvasFont(
+                CANVAS_FONT.size.sm,
+                CANVAS_FONT.weight.normal,
+                'sans',
+            );
+            ctx.fillStyle = CANVAS_COLORS.TEXT_MUTED;
             ctx.fillText(sec.playersSection, playersRight, midY);
 
             const elapsedMin = Math.ceil((Date.now() - s.lastSeenAt) / 60000);
-            ctx.fillStyle = 'rgba(203, 184, 163, 0.6)';
+            ctx.fillStyle = CANVAS_COLORS.MUTED_DIMMER;
             ctx.fillText(`${elapsedMin}分钟前`, elapsedRight, midY);
         });
 
@@ -656,7 +585,7 @@ export class ServerOverviewCanvas extends BaseCanvas {
     }
 
     protected getBgColor(): string {
-        return COLOR_BG;
+        return CANVAS_COLORS.BG;
     }
 
     protected paint(ctx: Canvas2DContext): number {

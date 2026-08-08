@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { OnlineServerItem, IMapDataItem } from '../types/types';
+import { CANVAS_COLORS } from '../../../services/canvasTheme';
 import {
     getServerInfoDisplaySectionText,
     getCountColor,
@@ -93,23 +94,23 @@ describe('getServerInfoDisplaySectionText', () => {
 
 describe('getServerPlayersCountColor', () => {
     it.concurrent('100%', () => {
-        expect(getCountColor(20, 20)).toBe('#ef4444');
+        expect(getCountColor(20, 20)).toBe(CANVAS_COLORS.DANGER);
     });
 
     it.concurrent('80%', () => {
-        expect(getCountColor(16, 20)).toBe('#f97316');
+        expect(getCountColor(16, 20)).toBe(CANVAS_COLORS.WARNING);
     });
 
     it.concurrent('60%', () => {
-        expect(getCountColor(12, 20)).toBe('#22c55e');
+        expect(getCountColor(12, 20)).toBe(CANVAS_COLORS.SUCCESS);
     });
 
     it.concurrent('0%', () => {
-        expect(getCountColor(0, 20)).toBe('#9ca3af');
+        expect(getCountColor(0, 20)).toBe(CANVAS_COLORS.WARM_500);
     });
 
     it.concurrent('-1', () => {
-        expect(getCountColor(-1, 20)).toBe('#ef4444');
+        expect(getCountColor(-1, 20)).toBe(CANVAS_COLORS.DANGER);
     });
 });
 

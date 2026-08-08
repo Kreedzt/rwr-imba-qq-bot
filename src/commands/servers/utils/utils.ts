@@ -10,6 +10,7 @@ import type {
     IUserMatchedServerItem,
     IMapDataItem,
 } from '../types/types';
+import { CANVAS_COLORS } from '../../../services/canvasTheme';
 import * as fs from 'node:fs/promises';
 
 const SERVER_API_URL = 'http://rwr.runningwithrifles.com/rwr_server_list';
@@ -118,27 +119,29 @@ export const getServerInfoDisplaySectionText = (
 };
 
 /**
- * Get server or players count color(100% red, 80% orange, 60% green)
+ * Get server or players count color(100% danger, 80% warning, 0% neutral, else success)
  * @param current filled
  * @param max capacity
  */
 export const getCountColor = (current: number, max: number): string => {
+    const { SUCCESS, WARNING, DANGER } = CANVAS_COLORS;
+
     // 100% or -N
     if (current === max || current < 0) {
-        return '#ef4444';
+        return DANGER;
     }
 
     // 80%
     if (current >= max * 0.8) {
-        return '#f97316';
+        return WARNING;
     }
 
     // 0%
     if (current === 0) {
-        return '#9ca3af';
+        return CANVAS_COLORS.WARM_500;
     }
 
-    return '#22c55e';
+    return SUCCESS;
 };
 
 /**

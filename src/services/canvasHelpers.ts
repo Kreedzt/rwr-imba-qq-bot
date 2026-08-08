@@ -1,5 +1,6 @@
 import { Canvas2DContext } from './canvasBackend';
-import { buildCanvasFont } from './canvasFonts';
+import { buildCanvasFont, CANVAS_FONT, CanvasFontFamily } from './canvasFonts';
+import { CANVAS_SPACE, CanvasShadow } from './canvasTheme';
 
 /**
  * 共享的 canvas 绘制 / 度量辅助。
@@ -10,6 +11,28 @@ import { buildCanvasFont } from './canvasFonts';
 // ============================================================================
 // 几何 / 文本绘制
 // ============================================================================
+
+/**
+ * 在带投影的状态下执行 fn, 结束后恢复 shadow 全局状态。
+ * skia-canvas 的 shadow 是全局状态, 必须 save/restore 配对, 否则影响后续绘制。
+ * 阴影只用于顶层卡片/面板层级, 不要给行/chip 加。
+ */
+export function withShadow(
+    ctx: Canvas2DContext,
+    shadow: CanvasShadow,
+    fn: () => void,
+) {
+    ctx.save();
+    ctx.shadowColor = shadow.color;
+    ctx.shadowBlur = shadow.blur;
+    ctx.shadowOffsetX = shadow.offsetX;
+    ctx.shadowOffsetY = shadow.offsetY;
+    try {
+        fn();
+    } finally {
+        ctx.restore();
+    }
+}
 
 /** 绘制圆角矩形路径(不填充/描边, 调用方自行 fill()/stroke()) */
 export function roundRectPath(
@@ -104,17 +127,18 @@ export function drawFitText(
     minSize: number,
     color: string,
     align: 'left' | 'right' = 'left',
+    family: CanvasFontFamily = 'mono',
 ) {
     ctx.textAlign = align;
     for (let size = startSize; size >= minSize; size--) {
-        ctx.font = buildCanvasFont(size);
+        ctx.font = buildCanvasFont(size, 'bold', family);
         if (ctx.measureText(text).width <= maxWidth) {
             ctx.fillStyle = color;
             ctx.fillText(text, x, y);
             return;
         }
     }
-    ctx.font = buildCanvasFont(minSize);
+    ctx.font = buildCanvasFont(minSize, 'bold', family);
     ctx.fillStyle = color;
     ctx.fillText(text, x, y);
 }
@@ -195,11 +219,11 @@ export function drawSparklineAxisLabels(
 // Chip(胶囊标签)流式布局 —— PlayersCanvas 使用
 // ============================================================================
 
-export const CHIP_FONT_PT = 13; // chip 文本字号
-export const CHIP_PAD_X = 12; // chip 左右内边距
+export const CHIP_FONT_PT = CANVAS_FONT.size.base; // chip 文本字号
+export const CHIP_PAD_X = CANVAS_SPACE[3]; // chip 左右内边距
 export const CHIP_H = 30; // chip 高度(圆角 = CHIP_H/2 → 胶囊形)
-export const CHIP_GAP_X = 8; // 同行 chip 间距
-export const CHIP_GAP_Y = 8; // chip 行间距
+export const CHIP_GAP_X = CANVAS_SPACE[2]; // 同行 chip 间距
+export const CHIP_GAP_Y = CANVAS_SPACE[2]; // chip 行间距
 export const CHIP_MAX_W = 320; // 单个 chip 最大宽度(超长则截断)
 
 export interface ChipItem {

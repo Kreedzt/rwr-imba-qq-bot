@@ -210,4 +210,18 @@ docker run --name my-rwr-qq-bot \
 See `docker-compose-example.yaml` for a full config example.
 
 <!-- MANUAL ADDITIONS START -->
-<!-- MANUAL ADDITIONS END -->
+
+## Canvas 设计 Token 约定(图片输出统一设计语言)
+
+所有图片输出统一从 `src/services/canvasTheme.ts`(颜色/间距/圆角/阴影)与 `src/services/canvasFonts.ts`(字体族/字号/字重)读取 token, **禁止在 canvas 里裸写 hex / rgba / 随意字号**。
+
+- **颜色**: `CANVAS_COLORS` — 暖棕底 `BG` + 半透明面板 `BG_OVERLAY` / `BG_OVERLAY_WEAK`, 强调走 `AMBER_500`, 文本走 `TEXT` / `TEXT_MUTED`, 数值高亮 `VALUE`, 状态语义色 `SUCCESS` / `WARNING` / `DANGER` / `INFO`。`CARD`/`ACCENT`/`MUTED` 是旧命名兼容别名, 仅 tdoll/check/ai/welcome 等未改造画布可用。
+- **间距**: `CANVAS_SPACE`(4px 基线 scale) — 页面外边缘 `space.6`(24), 卡片内边距 `space.4`(16), 卡片 gap / section gap `space.3`~`space.4`。
+- **圆角**: `CANVAS_RADIUS` — `sm`(6, 行/标签)、`md`(10, 趋势卡/内部面板)、`lg`(12, 主卡片)、`full`(pill)。
+- **阴影**: `CANVAS_SHADOW[1]` — **只给顶层卡片/面板**加(用 `canvasLayout.renderCard` 默认即可), 不要给行/chip/文字加。`withShadow`(canvasHelpers) 内部 `save/restore`, 不要手工设 shadow 全局状态。
+- **字体**: `CANVAS_FONT.size` — `xs`(10, footer/刻度)、`sm`(11, 辅助)、`base`(13, 正文)、`lg`(15, 卡片标题)、`xl`(18, 小节标题)、`2xl`(24, 页面标题)。`buildCanvasFont(size, weight, family?)` — 正文传 `'sans'`, 命令名/代码/数值传 `'mono'`(默认)。
+- **宽度策略**: 服务器类 canvas(clamp 家族: servers/players/whereis/maps)用 `clampCanvasWidth` 收敛到 `[560, 880]`; overview/analytics/map-detail/help 固定 880。`measure()` 与 `paint()` 必须用同一套 font/间距 token 测量, 长文本用 `truncate` 截断而不是依赖宽度自适应。
+- **共享原语**: 页面标题 `renderPageTitle`、小节标题 `renderSectionHeader`、卡片 `renderCard`、KPI 卡 `renderKpiCard`、chip `renderChip`、空态卡 `renderEmptyCard`(均在 `src/services/canvasLayout.ts`); 纯绘制辅助(圆角/分段文本/截断/自适应字号/sparkline 刻度/chip 布局)在 `canvasHelpers.ts`。
+- **截断辅助**: 服务器名按可用宽截断统一用 `buildTruncatedNameSegments`(canvasLayout), 内容最大宽取 `CANVAS_CARD_CONTENT_MAX_W`(800), 不要再各画布重复实现。
+- 图片结构改动后需要更新 golden: `UPDATE_IMAGE_GOLDENS=1 RUN_IMAGE_TESTS=1 pnpm test`。
+- **注意**: 图像回归 golden 对渲染环境(系统字体/Noto CJK 版本)敏感, 在本机重生成会把未改代码画布(ai/check/tdoll/welcome 等)的 golden 一并刷新; CI 不运行 image regression(`RUN_IMAGE_TESTS` 未设置时跳过), 提交 golden 前确认 diff 中只有目标画布。<!-- MANUAL ADDITIONS END -->

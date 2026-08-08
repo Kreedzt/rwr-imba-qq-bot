@@ -5,9 +5,8 @@ import {
     getCountColor,
 } from '../utils/utils';
 import { BaseCanvas, CanvasSize } from '../../../services/baseCanvas';
-import { buildCanvasFont } from '../../../services/canvasFonts';
+import { buildCanvasFont, CANVAS_FONT } from '../../../services/canvasFonts';
 import {
-    roundRectPath,
     drawSegments,
     measureSegmentsWidth,
     layoutChips,
@@ -20,19 +19,26 @@ import {
     CHIP_GAP_X,
     CHIP_GAP_Y,
 } from '../../../services/canvasHelpers';
+import { CANVAS_COLORS, CANVAS_SPACE } from '../../../services/canvasTheme';
+import {
+    CANVAS_CARD_CONTENT_MAX_W,
+    buildTruncatedNameSegments,
+    clampCanvasWidth,
+    renderCard,
+    renderChip,
+    renderEmptyCard,
+} from '../../../services/canvasLayout';
 
 // ============================================================================
-// 布局常量(沿用 PlayersCanvas / 家族的视觉节奏)
+// 布局常量(统一走设计 token, 见 src/services/canvasTheme.ts / canvasLayout.ts)
 // ============================================================================
-const PAD = 30;
+const PAD = CANVAS_SPACE[6];
 const TITLE_H = 56;
-const SECTION_GAP = 18;
+const SECTION_GAP = CANVAS_SPACE[4];
 
-const CARD_GAP = 14;
-const CARD_PAD_X = 16;
-const CARD_PAD_TOP = 14;
-const CARD_PAD_BOTTOM = 14;
-const CARD_RADIUS = 12;
+const CARD_GAP = CANVAS_SPACE[3];
+const CARD_PAD_X = CANVAS_SPACE[4];
+const CARD_PAD_Y = CANVAS_SPACE[4];
 const HEADER_H = 30; // 卡片头部行高(服务器名行)
 const HEADER_TO_CHIP_GAP = 10;
 
@@ -42,16 +48,13 @@ const FOOTER_H = 40;
 const WRAP_W_MIN = 360; // chip 区目标换行宽下限
 const WRAP_W_MAX = 760; // chip 区目标换行宽上限(控制图片不要过宽)
 
-// 配色(与 PlayersCanvas / 家族一致)
-const COLOR_BG = '#451a03';
-const COLOR_CARD = 'rgba(0, 0, 0, 0.5)';
-const COLOR_TEXT = '#f8fafc';
-const COLOR_MUTED = '#cbb8a3';
-
-const MAP_TEXT_COLOR = '#fff';
-const CHIP_BG = 'rgba(255, 255, 255, 0.08)';
-const CHIP_TEXT = '#a5f3fc'; // 命中玩家文本(呼应旧版青色高亮)
-const QUERY_HIGHLIGHT = '#a5f3fc'; // 标题中查询词高亮
+// 配色统一取自共享主题
+const COLOR_TEXT = CANVAS_COLORS.TEXT;
+const COLOR_MUTED = CANVAS_COLORS.TEXT_MUTED;
+const MAP_TEXT_COLOR = CANVAS_COLORS.TEXT;
+const CHIP_BG = CANVAS_COLORS.CHIP_BG;
+const CHIP_TEXT = CANVAS_COLORS.INFO; // 命中玩家文本(语义 INFO 色)
+const QUERY_HIGHLIGHT = CANVAS_COLORS.INFO; // 标题中查询词高亮
 
 const TITLE_PREFIX = '查询 ';
 const TITLE_SUFFIX = ' 所在服务器';
@@ -65,7 +68,7 @@ interface ServerGroup {
 /**
  * 玩家位置查询画布 — 按服务器分组卡片(与 PlayersCanvas 设计语言一致):
  *   标题(高亮查询词) + 每个命中服务器一张圆角卡片(服务器信息 + 命中玩家 chip 流式排布) + 页脚
- * 画布宽度按内容自适应。
+ * 画布宽度 clamp 到 [560, 880]。
  */
 export class WhereisCanvas extends BaseCanvas {
     matchList: IUserMatchedServerItem[];
@@ -122,34 +125,56 @@ export class WhereisCanvas extends BaseCanvas {
         }));
     }
 
-    /** 卡片头部分段(服务器名 + 人数 + 地图) */
-    private buildHeaderSegments(server: OnlineServerItem): TextSegment[] {
+    /** 卡片头部分段(服务器名 + 人数 + 地图); 服务器名按可用宽截断 */
+    private buildHeaderSegments(
+        server: OnlineServerItem,
+        ctx: Canvas2DContext,
+    ): TextSegment[] {
         const sec = getServerInfoDisplaySectionText(server);
-        return [
-            {
-                text: sec.serverSection,
-                color: COLOR_TEXT,
-                font: buildCanvasFont(15),
-            },
+        const tail: TextSegment[] = [
             {
                 text: sec.playersSection,
                 color: getCountColor(
                     server.current_players,
                     server.max_players,
                 ),
-                font: buildCanvasFont(15),
+                font: buildCanvasFont(
+                    CANVAS_FONT.size.lg,
+                    CANVAS_FONT.weight.bold,
+                    'mono',
+                ),
             },
             {
                 text: sec.mapSection,
                 color: MAP_TEXT_COLOR,
-                font: buildCanvasFont(13),
+                font: buildCanvasFont(
+                    CANVAS_FONT.size.base,
+                    CANVAS_FONT.weight.bold,
+                    'sans',
+                ),
             },
         ];
+        const nameFont = buildCanvasFont(
+            CANVAS_FONT.size.lg,
+            CANVAS_FONT.weight.bold,
+            'sans',
+        );
+        return buildTruncatedNameSegments(
+            ctx,
+            server.name,
+            tail,
+            CANVAS_CARD_CONTENT_MAX_W,
+            nameFont,
+        );
     }
 
     /** 标题左侧分段(高亮查询词) */
     private buildTitleSegments(): TextSegment[] {
-        const font = buildCanvasFont(24);
+        const font = buildCanvasFont(
+            CANVAS_FONT.size['2xl'],
+            CANVAS_FONT.weight.bold,
+            'sans',
+        );
         return [
             { text: TITLE_PREFIX, color: COLOR_TEXT, font },
             { text: `"${this.query}"`, color: QUERY_HIGHLIGHT, font },
@@ -159,8 +184,16 @@ export class WhereisCanvas extends BaseCanvas {
 
     /** 标题右侧统计分段 */
     private buildTitleStatSegments(): TextSegment[] {
-        const labelFont = buildCanvasFont(13, 'normal');
-        const valueFont = buildCanvasFont(13);
+        const labelFont = buildCanvasFont(
+            CANVAS_FONT.size.base,
+            CANVAS_FONT.weight.normal,
+            'sans',
+        );
+        const valueFont = buildCanvasFont(
+            CANVAS_FONT.size.base,
+            CANVAS_FONT.weight.bold,
+            'mono',
+        );
         return [
             {
                 text: `${this.groups.length}`,
@@ -177,11 +210,11 @@ export class WhereisCanvas extends BaseCanvas {
     private cardHeight(layout: ChipLayout): number {
         const chipAreaH = layout.rows > 0 ? layout.chipAreaH : CHIP_H;
         return (
-            CARD_PAD_TOP +
+            CARD_PAD_Y +
             HEADER_H +
             HEADER_TO_CHIP_GAP +
             chipAreaH +
-            CARD_PAD_BOTTOM
+            CARD_PAD_Y
         );
     }
 
@@ -194,12 +227,12 @@ export class WhereisCanvas extends BaseCanvas {
         const tmp = createCanvas(1, 1);
         const ctx = tmp.getContext('2d');
 
-        // (1) 头行最大宽
+        // (1) 头行最大宽(服务器名按可用宽截断)
         let headerMaxW = 0;
         this.groups.forEach((g) => {
             headerMaxW = Math.max(
                 headerMaxW,
-                measureSegmentsWidth(ctx, this.buildHeaderSegments(g.server)),
+                measureSegmentsWidth(ctx, this.buildHeaderSegments(g.server, ctx)),
             );
         });
 
@@ -230,7 +263,7 @@ export class WhereisCanvas extends BaseCanvas {
 
         // (5) footer 宽
         this.renderFooter(ctx);
-        ctx.font = buildCanvasFont(10);
+        ctx.font = buildCanvasFont(CANVAS_FONT.size.xs);
         const footerW = this.totalFooter
             ? ctx.measureText(this.totalFooter).width
             : 0;
@@ -246,19 +279,18 @@ export class WhereisCanvas extends BaseCanvas {
         // (7) 空态卡片文本宽
         let emptyW = 0;
         if (this.isEmpty) {
-            ctx.font = buildCanvasFont(14);
+            ctx.font = buildCanvasFont(CANVAS_FONT.size.base, 'normal', 'sans');
             emptyW = ctx.measureText(this.emptyText()).width;
         }
 
-        // (8) 整图宽高
-        this.renderWidth = Math.ceil(
-            Math.max(
-                PAD * 2 + titleW,
-                PAD * 2 + Math.max(headerMaxW, maxChipLineW) + CARD_PAD_X * 2,
-                PAD * 2 + emptyW + CARD_PAD_X * 2,
-                20 + footerW,
-            ),
+        // (8) 整图宽高(内容自然宽 clamp)
+        const naturalW = Math.max(
+            PAD * 2 + titleW,
+            PAD * 2 + Math.max(headerMaxW, maxChipLineW) + CARD_PAD_X * 2,
+            PAD * 2 + emptyW + CARD_PAD_X * 2,
+            20 + footerW,
         );
+        this.renderWidth = clampCanvasWidth(naturalW);
         this.renderHeight = this.computeHeight();
     }
 
@@ -299,22 +331,13 @@ export class WhereisCanvas extends BaseCanvas {
         return y + TITLE_H;
     }
 
-    private renderEmptyCard(ctx: Canvas2DContext, y: number): number {
+    private renderEmptyState(ctx: Canvas2DContext, y: number): number {
         const cardX = PAD;
         const cardW = this.renderWidth - PAD * 2;
 
-        ctx.fillStyle = COLOR_CARD;
-        roundRectPath(ctx, cardX, y, cardW, EMPTY_CARD_H, CARD_RADIUS);
-        ctx.fill();
-
-        ctx.font = buildCanvasFont(14);
-        ctx.fillStyle = COLOR_MUTED;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(this.emptyText(), cardX + CARD_PAD_X, y + EMPTY_CARD_H / 2);
+        renderEmptyCard(ctx, cardX, y, cardW, EMPTY_CARD_H, this.emptyText());
 
         y += EMPTY_CARD_H + SECTION_GAP;
-        ctx.textBaseline = 'top';
         return y;
     }
 
@@ -326,39 +349,31 @@ export class WhereisCanvas extends BaseCanvas {
             const layout = this.groupLayouts[i];
             const cardH = this.cardHeight(layout);
 
-            // 卡片背景
-            ctx.fillStyle = COLOR_CARD;
-            roundRectPath(ctx, cardX, y, cardW, cardH, CARD_RADIUS);
-            ctx.fill();
+            // 卡片背景 + 投影
+            renderCard(ctx, cardX, y, cardW, cardH);
 
             // 头部信息行
             ctx.textBaseline = 'middle';
             drawSegments(
                 ctx,
                 cardX + CARD_PAD_X,
-                y + CARD_PAD_TOP + HEADER_H / 2,
-                this.buildHeaderSegments(group.server),
+                y + CARD_PAD_Y + HEADER_H / 2,
+                this.buildHeaderSegments(group.server, ctx),
                 'left',
             );
 
             // chip 区
             const chipX0 = cardX + CARD_PAD_X;
-            const chipY0 = y + CARD_PAD_TOP + HEADER_H + HEADER_TO_CHIP_GAP;
+            const chipY0 = y + CARD_PAD_Y + HEADER_H + HEADER_TO_CHIP_GAP;
 
             layout.lines.forEach((line, rowIdx) => {
                 const rowY = chipY0 + rowIdx * (CHIP_H + CHIP_GAP_Y);
                 let cx = chipX0;
                 line.chips.forEach((chip) => {
-                    ctx.fillStyle = CHIP_BG;
-                    roundRectPath(ctx, cx, rowY, chip.w, CHIP_H, CHIP_H / 2);
-                    ctx.fill();
-
-                    ctx.font = buildCanvasFont(CHIP_FONT_PT);
-                    ctx.fillStyle = CHIP_TEXT;
-                    ctx.textAlign = 'left';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(chip.text, cx + CHIP_PAD_X, rowY + CHIP_H / 2);
-
+                    renderChip(ctx, cx, rowY, chip.w, CHIP_H, chip.text, {
+                        bg: CHIP_BG,
+                        textColor: CHIP_TEXT,
+                    });
                     cx += chip.w + CHIP_GAP_X;
                 });
             });
@@ -385,14 +400,14 @@ export class WhereisCanvas extends BaseCanvas {
     }
 
     protected getBgColor(): string {
-        return COLOR_BG;
+        return CANVAS_COLORS.BG;
     }
 
     protected paint(ctx: Canvas2DContext): number {
         let y = PAD;
         y = this.renderTitle(ctx, y);
         y = this.isEmpty
-            ? this.renderEmptyCard(ctx, y)
+            ? this.renderEmptyState(ctx, y)
             : this.renderGroupCards(ctx, y);
         return y;
     }

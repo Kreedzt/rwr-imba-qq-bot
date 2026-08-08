@@ -7,27 +7,31 @@ import {
     formatMapDuration,
 } from '../utils/utils';
 import { BaseCanvas, CanvasSize } from '../../../services/baseCanvas';
-import { buildCanvasFont } from '../../../services/canvasFonts';
+import { buildCanvasFont, CANVAS_FONT } from '../../../services/canvasFonts';
 import {
-    roundRectPath,
     drawSegments,
     measureSegmentsWidth,
     truncate,
     TextSegment,
 } from '../../../services/canvasHelpers';
+import { CANVAS_COLORS, CANVAS_RADIUS, CANVAS_SPACE } from '../../../services/canvasTheme';
+import {
+    clampCanvasWidth,
+    renderCard,
+    renderPageTitle,
+    renderSectionHeader,
+} from '../../../services/canvasLayout';
 
 // ============================================================================
-// 布局常量(沿用 PlayersCanvas / 家族的视觉节奏)
+// 布局常量(统一走设计 token, 见 src/services/canvasTheme.ts / canvasLayout.ts)
 // ============================================================================
-const PAD = 30;
+const PAD = CANVAS_SPACE[6]; // 页面外边缘 24
 const TITLE_H = 56;
-const SECTION_GAP = 18;
+const SECTION_GAP = CANVAS_SPACE[4];
 
-const CARD_GAP = 14; // 在线服务器卡片之间的垂直间距
-const CARD_PAD_X = 16;
-const CARD_PAD_TOP = 14;
-const CARD_PAD_BOTTOM = 14;
-const CARD_RADIUS = 12;
+const CARD_GAP = CANVAS_SPACE[3]; // 卡片垂直间距 12
+const CARD_PAD_X = CANVAS_SPACE[4]; // 卡片左右内边距 16
+const CARD_PAD_Y = CANVAS_SPACE[4]; // 卡片上下内边距 16
 const NAME_H = 28; // 卡片第一行(服务器名)行高
 const NAME_TO_META_GAP = 6; // 名称行与元信息行之间的间距
 const META_H = 22; // 卡片第二行(元信息)行高
@@ -37,14 +41,10 @@ const OFFLINE_ROW_H = 28;
 
 const FOOTER_H = 40;
 
-// 配色(与 ServerOverviewCanvas / 家族一致)
-const COLOR_BG = '#451a03';
-const COLOR_CARD = 'rgba(0, 0, 0, 0.5)';
-const COLOR_ACCENT = '#f48225';
-const COLOR_TEXT = '#f8fafc';
-const COLOR_MUTED = '#cbb8a3';
-
-const MAP_TEXT_COLOR = '#fff'; // 地图文本(沿用旧版白色)
+// 配色统一取自共享主题
+const COLOR_TEXT = CANVAS_COLORS.TEXT;
+const COLOR_MUTED = CANVAS_COLORS.TEXT_MUTED;
+const MAP_TEXT_COLOR = CANVAS_COLORS.TEXT;
 
 const TITLE_TEXT = '在线服务器';
 const HISTORY_SECTION_TITLE = '近5分钟离线服务器';
@@ -53,7 +53,7 @@ const TITLE_GAP = 40; // 标题左侧文字与右侧统计之间的最小间距
 /**
  * 服务器列表画布 — 卡片式布局(与 PlayersCanvas 设计语言一致):
  *   标题 + 每个在线服务器一张圆角卡片(名称行 + 元信息行) + 近期离线区块 + 页脚
- * 画布宽度按内容自适应。
+ * 画布宽度 clamp 到 [560, 880]。
  */
 export class ServersCanvas extends BaseCanvas {
     serverList: OnlineServerItem[];
@@ -97,27 +97,47 @@ export class ServersCanvas extends BaseCanvas {
                     server.current_players,
                     server.max_players,
                 ),
-                font: buildCanvasFont(15),
+                font: buildCanvasFont(
+                    CANVAS_FONT.size.lg,
+                    CANVAS_FONT.weight.bold,
+                    'mono',
+                ),
             },
             {
                 text: ' 玩家  ·  ',
                 color: COLOR_MUTED,
-                font: buildCanvasFont(13, 'normal'),
+                font: buildCanvasFont(
+                    CANVAS_FONT.size.base,
+                    CANVAS_FONT.weight.normal,
+                    'sans',
+                ),
             },
             {
                 text: mapName,
                 color: MAP_TEXT_COLOR,
-                font: buildCanvasFont(13),
+                font: buildCanvasFont(
+                    CANVAS_FONT.size.base,
+                    CANVAS_FONT.weight.bold,
+                    'sans',
+                ),
             },
             {
                 text: '  ·  ',
                 color: COLOR_MUTED,
-                font: buildCanvasFont(13, 'normal'),
+                font: buildCanvasFont(
+                    CANVAS_FONT.size.base,
+                    CANVAS_FONT.weight.normal,
+                    'sans',
+                ),
             },
             {
                 text: duration,
                 color: COLOR_MUTED,
-                font: buildCanvasFont(12),
+                font: buildCanvasFont(
+                    CANVAS_FONT.size.sm,
+                    CANVAS_FONT.weight.normal,
+                    'sans',
+                ),
             },
         ];
     }
@@ -130,22 +150,38 @@ export class ServersCanvas extends BaseCanvas {
             {
                 text: sec.serverSection,
                 color: COLOR_MUTED,
-                font: buildCanvasFont(12, 'normal'),
+                font: buildCanvasFont(
+                    CANVAS_FONT.size.sm,
+                    CANVAS_FONT.weight.normal,
+                    'sans',
+                ),
             },
             {
                 text: sec.playersSection,
                 color: COLOR_MUTED,
-                font: buildCanvasFont(12, 'normal'),
+                font: buildCanvasFont(
+                    CANVAS_FONT.size.sm,
+                    CANVAS_FONT.weight.normal,
+                    'sans',
+                ),
             },
             {
                 text: sec.mapSection,
-                color: 'rgba(203, 184, 163, 0.7)',
-                font: buildCanvasFont(11, 'normal'),
+                color: CANVAS_COLORS.MUTED_DIM,
+                font: buildCanvasFont(
+                    CANVAS_FONT.size.sm,
+                    CANVAS_FONT.weight.normal,
+                    'sans',
+                ),
             },
             {
                 text: `  ${elapsedMin}分钟前`,
-                color: 'rgba(203, 184, 163, 0.6)',
-                font: buildCanvasFont(11, 'normal'),
+                color: CANVAS_COLORS.MUTED_DIMMER,
+                font: buildCanvasFont(
+                    CANVAS_FONT.size.sm,
+                    CANVAS_FONT.weight.normal,
+                    'sans',
+                ),
             },
         ];
     }
@@ -160,8 +196,16 @@ export class ServersCanvas extends BaseCanvas {
             (acc, s) => acc + s.max_players,
             0,
         );
-        const labelFont = buildCanvasFont(13, 'normal');
-        const valueFont = buildCanvasFont(13);
+        const labelFont = buildCanvasFont(
+            CANVAS_FONT.size.base,
+            CANVAS_FONT.weight.normal,
+            'sans',
+        );
+        const valueFont = buildCanvasFont(
+            CANVAS_FONT.size.base,
+            CANVAS_FONT.weight.bold,
+            'mono',
+        );
         return [
             {
                 text: `${this.serverList.length}`,
@@ -180,16 +224,16 @@ export class ServersCanvas extends BaseCanvas {
 
     private cardHeight(): number {
         return (
-            CARD_PAD_TOP +
+            CARD_PAD_Y +
             NAME_H +
             NAME_TO_META_GAP +
             META_H +
-            CARD_PAD_BOTTOM
+            CARD_PAD_Y
         );
     }
 
     /**
-     * 测量阶段: 计算画布宽高。
+     * 测量阶段: 计算画布宽高(clamp 到 [560, 880])。
      */
     private prepare() {
         const tmp = createCanvas(1, 1);
@@ -197,7 +241,7 @@ export class ServersCanvas extends BaseCanvas {
 
         // (1) 卡片内容最大宽(名称行 / 元信息行)
         let cardContentW = 0;
-        ctx.font = buildCanvasFont(16);
+        ctx.font = buildCanvasFont(CANVAS_FONT.size.lg, 'bold', 'sans');
         this.serverList.forEach((s) => {
             cardContentW = Math.max(cardContentW, ctx.measureText(s.name).width);
             cardContentW = Math.max(
@@ -208,7 +252,7 @@ export class ServersCanvas extends BaseCanvas {
 
         // (2) 估算 footer 宽(renderFooter 写入 this.totalFooter; 禁用时为空)
         this.renderFooter(ctx);
-        ctx.font = buildCanvasFont(10);
+        ctx.font = buildCanvasFont(CANVAS_FONT.size.xs);
         const footerW = this.totalFooter
             ? ctx.measureText(this.totalFooter).width
             : 0;
@@ -218,13 +262,13 @@ export class ServersCanvas extends BaseCanvas {
             ctx,
             this.buildTitleStatSegments(),
         );
-        ctx.font = buildCanvasFont(24);
+        ctx.font = buildCanvasFont(CANVAS_FONT.size['2xl'], 'bold', 'sans');
         const titleLeftW = ctx.measureText(TITLE_TEXT).width;
         const titleW = titleLeftW + TITLE_GAP + titleStatW;
 
         let offlineW = 0;
         if (this.historicalServers.length > 0) {
-            ctx.font = buildCanvasFont(16);
+            ctx.font = buildCanvasFont(CANVAS_FONT.size.xl, 'bold', 'sans');
             offlineW = ctx.measureText(HISTORY_SECTION_TITLE).width + 14;
             this.historicalServers.forEach((s) => {
                 offlineW = Math.max(
@@ -234,15 +278,14 @@ export class ServersCanvas extends BaseCanvas {
             });
         }
 
-        // (4) 整图宽高
-        this.renderWidth = Math.ceil(
-            Math.max(
-                PAD * 2 + titleW,
-                PAD * 2 + cardContentW + CARD_PAD_X * 2,
-                PAD * 2 + offlineW,
-                20 + footerW,
-            ),
+        // (4) 整图宽高(内容自然宽 clamp)
+        const naturalW = Math.max(
+            PAD * 2 + titleW,
+            PAD * 2 + cardContentW + CARD_PAD_X * 2,
+            PAD * 2 + offlineW,
+            20 + footerW,
         );
+        this.renderWidth = clampCanvasWidth(naturalW);
         this.renderHeight = this.computeHeight();
     }
 
@@ -272,22 +315,14 @@ export class ServersCanvas extends BaseCanvas {
     }
 
     private renderTitle(ctx: Canvas2DContext, y: number): number {
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        ctx.fillStyle = COLOR_TEXT;
-        ctx.font = buildCanvasFont(24);
-        ctx.fillText(TITLE_TEXT, PAD, y);
-
-        drawSegments(
+        return renderPageTitle(
             ctx,
-            this.renderWidth - PAD,
-            y + 10,
+            PAD,
+            y,
+            TITLE_TEXT,
             this.buildTitleStatSegments(),
-            'right',
+            { rightX: this.renderWidth - PAD },
         );
-        ctx.textAlign = 'left';
-
-        return y + TITLE_H;
     }
 
     private renderServerCards(ctx: Canvas2DContext, y: number): number {
@@ -297,27 +332,25 @@ export class ServersCanvas extends BaseCanvas {
         const cardH = this.cardHeight();
 
         this.serverList.forEach((server, i) => {
-            // 卡片背景
-            ctx.fillStyle = COLOR_CARD;
-            roundRectPath(ctx, cardX, y, cardW, cardH, CARD_RADIUS);
-            ctx.fill();
+            // 卡片背景 + 投影
+            renderCard(ctx, cardX, y, cardW, cardH);
 
             // 名称行
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
-            ctx.font = buildCanvasFont(16);
+            ctx.font = buildCanvasFont(CANVAS_FONT.size.lg, 'bold', 'sans');
             ctx.fillStyle = COLOR_TEXT;
             ctx.fillText(
                 truncate(ctx, server.name, contentW),
                 cardX + CARD_PAD_X,
-                y + CARD_PAD_TOP + NAME_H / 2,
+                y + CARD_PAD_Y + NAME_H / 2,
             );
 
             // 元信息行
             drawSegments(
                 ctx,
                 cardX + CARD_PAD_X,
-                y + CARD_PAD_TOP + NAME_H + NAME_TO_META_GAP + META_H / 2,
+                y + CARD_PAD_Y + NAME_H + NAME_TO_META_GAP + META_H / 2,
                 this.buildMetaSegments(server),
                 'left',
             );
@@ -341,15 +374,10 @@ export class ServersCanvas extends BaseCanvas {
             return y;
         }
 
-        // 分段标题(accent 竖条 + 标题)
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        ctx.fillStyle = COLOR_ACCENT;
-        ctx.fillRect(PAD, y + 2, 4, 20);
-        ctx.font = buildCanvasFont(16);
-        ctx.fillStyle = COLOR_TEXT;
-        ctx.fillText(HISTORY_SECTION_TITLE, PAD + 14, y);
-        y += SECTION_HEADER_H;
+        y = renderSectionHeader(ctx, y, HISTORY_SECTION_TITLE, '', {
+            x: PAD,
+            rightX: this.renderWidth - PAD,
+        });
 
         this.historicalServers.forEach((server) => {
             const midY = y + OFFLINE_ROW_H / 2;
@@ -379,7 +407,7 @@ export class ServersCanvas extends BaseCanvas {
     }
 
     protected getBgColor(): string {
-        return COLOR_BG;
+        return CANVAS_COLORS.BG;
     }
 
     protected paint(ctx: Canvas2DContext): number {
