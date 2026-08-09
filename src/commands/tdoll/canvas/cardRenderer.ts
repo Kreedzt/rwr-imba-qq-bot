@@ -1,12 +1,18 @@
 import { Canvas2DContext, ImageLike } from '../../../services/canvasBackend';
-import { buildCanvasFont } from '../../../services/canvasFonts';
+import { buildCanvasFont, CANVAS_FONT } from '../../../services/canvasFonts';
 import {
     TextSegment,
+    colorWithAlpha,
     drawSegments,
     roundRectPath,
     truncate,
 } from '../../../services/canvasHelpers';
-import { CANVAS_COLORS } from '../../../services/canvasTheme';
+import { renderCard } from '../../../services/canvasLayout';
+import {
+    CANVAS_COLORS,
+    CANVAS_RADIUS,
+    CANVAS_SPACE,
+} from '../../../services/canvasTheme';
 import { TDollCategoryEnum } from '../types/enums';
 import { ITDollDataItem } from '../types/types';
 import { splitByQueryMatch } from '../utils/query';
@@ -14,32 +20,39 @@ import { AVATAR_RENDER_SIZE, getModAvatarKey } from './assets';
 
 export const CARD_W = 380;
 export const CARD_H = 76;
-export const CARD_RADIUS = 12;
-export const CARD_GAP = 12;
+export const CARD_GAP = CANVAS_SPACE[3];
 
-const CARD_PAD = 14;
-const AVATAR_RADIUS = 8;
-const AVATAR_GAP = 4;
+const CARD_PAD = CANVAS_SPACE[4];
+const AVATAR_RADIUS = CANVAS_RADIUS.sm;
+const AVATAR_GAP = CANVAS_SPACE[1];
 const BADGE_H = 20;
-const BADGE_PAD_X = 8;
+const BADGE_PAD_X = CANVAS_SPACE[2];
 const MOD_TAG_H = 16;
 const MOD_TAG_PAD_X = 6;
 
 /** 查询命中高亮色(与标题 query 段一致) */
-export const QUERY_HIGHLIGHT_COLOR = '#22d3ee';
+export const QUERY_HIGHLIGHT_COLOR = CANVAS_COLORS.AMBER_400;
 
-/** 枪种徽章配色: 文字主色 + 同色 16% 透明底 */
+/** 枪种识别色(命令级 palette, 见 TDOLL_CLASS_BADGE) */
+const TDOLL_CLASS_FG: Record<TDollCategoryEnum, string> = {
+    [TDollCategoryEnum.AR]: '#f87171',
+    [TDollCategoryEnum.SMG]: '#22d3ee',
+    [TDollCategoryEnum.RF]: '#fcd34d',
+    [TDollCategoryEnum.MG]: '#a78bfa',
+    [TDollCategoryEnum.SG]: '#4ade80',
+    [TDollCategoryEnum.HG]: '#f472b6',
+};
+
+/** 枪种徽章配色: 文字主色 + 同色 16% 透明底(底色由 fg 推导) */
 export const TDOLL_CLASS_BADGE: Record<
     TDollCategoryEnum,
     { fg: string; bg: string }
-> = {
-    [TDollCategoryEnum.AR]: { fg: '#f87171', bg: 'rgba(248, 113, 113, 0.16)' },
-    [TDollCategoryEnum.SMG]: { fg: '#22d3ee', bg: 'rgba(34, 211, 238, 0.16)' },
-    [TDollCategoryEnum.RF]: { fg: '#fcd34d', bg: 'rgba(252, 211, 77, 0.16)' },
-    [TDollCategoryEnum.MG]: { fg: '#a78bfa', bg: 'rgba(167, 139, 250, 0.16)' },
-    [TDollCategoryEnum.SG]: { fg: '#4ade80', bg: 'rgba(74, 222, 128, 0.16)' },
-    [TDollCategoryEnum.HG]: { fg: '#f472b6', bg: 'rgba(244, 114, 182, 0.16)' },
-};
+> = Object.fromEntries(
+    Object.entries(TDOLL_CLASS_FG).map(([cls, fg]) => [
+        cls,
+        { fg, bg: colorWithAlpha(fg, 0.16) },
+    ]),
+) as Record<TDollCategoryEnum, { fg: string; bg: string }>;
 
 export interface TDollCardModel {
     id: string;
@@ -89,7 +102,7 @@ const drawAvatar = (
     }
 
     // 缺图占位: 深色圆角块
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
+    ctx.fillStyle = CANVAS_COLORS.CHIP_BG;
     roundRectPath(ctx, x, y, AVATAR_RENDER_SIZE, AVATAR_RENDER_SIZE, AVATAR_RADIUS);
     ctx.fill();
 };
@@ -99,7 +112,11 @@ const buildNameSegments = (
     model: TDollCardModel,
     maxWidth: number,
 ): TextSegment[] => {
-    const nameFont = buildCanvasFont(15);
+    const nameFont = buildCanvasFont(
+        CANVAS_FONT.size.lg,
+        CANVAS_FONT.weight.bold,
+        'sans',
+    );
     ctx.font = nameFont;
     const displayName = truncate(ctx, model.name, maxWidth);
 
@@ -127,13 +144,14 @@ export const drawTDollCard = (
     imgMap: Map<string, ImageLike>,
     width: number = CARD_W,
 ): number => {
-    // 卡片面板
-    ctx.fillStyle = CANVAS_COLORS.CARD;
-    roundRectPath(ctx, x, y, width, CARD_H, CARD_RADIUS);
-    ctx.fill();
+    // 卡片面板(顶层卡片带默认 shadow-1)
+    renderCard(ctx, x, y, width, CARD_H, {
+        fillStyle: CANVAS_COLORS.BG_OVERLAY,
+    });
 
     // 左侧头像(mod 版双头像并排)
-    const avatarY = y + (CARD_H - AVATAR_RENDER_SIZE) / 2;
+    const avatarTop = (CARD_H - AVATAR_RENDER_SIZE) / 2;
+    const avatarY = y + avatarTop;
     const baseImg = imgMap.get(model.id);
     const modImg = model.isMod
         ? imgMap.get(getModAvatarKey(model.id))
@@ -151,16 +169,20 @@ export const drawTDollCard = (
         avatarBlockW = AVATAR_RENDER_SIZE * 2 + AVATAR_GAP;
     }
 
-    const textX = x + CARD_PAD + avatarBlockW + 12;
+    const textX = x + CARD_PAD + avatarBlockW + CANVAS_SPACE[3];
     const textMaxRight = x + width - CARD_PAD;
 
     // mod 角标(右上角)
     let modTagW = 0;
     if (model.isMod) {
-        ctx.font = buildCanvasFont(9);
+        ctx.font = buildCanvasFont(
+            CANVAS_FONT.size.xs,
+            CANVAS_FONT.weight.bold,
+            'mono',
+        );
         modTagW = ctx.measureText('MOD').width + MOD_TAG_PAD_X * 2;
         const tagX = x + width - CARD_PAD - modTagW;
-        const tagY = y + 8;
+        const tagY = y + CANVAS_SPACE[2];
         ctx.fillStyle = CANVAS_COLORS.ACCENT;
         roundRectPath(ctx, tagX, tagY, modTagW, MOD_TAG_H, MOD_TAG_H / 2);
         ctx.fill();
@@ -171,11 +193,17 @@ export const drawTDollCard = (
     }
 
     // 行 1: No.<id> <名称>(命中高亮)
+    // 名称顶端与头像顶端对齐; ID 前缀与名称共用 alphabetic baseline,
+    // 避免不同字号因 em-top 对齐导致视觉上高低不一。
     ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-    const idFont = buildCanvasFont(12);
+    ctx.textBaseline = 'alphabetic';
+    const idFont = buildCanvasFont(
+        CANVAS_FONT.size.sm,
+        CANVAS_FONT.weight.normal,
+        'mono',
+    );
     const idPrefixSegments: TextSegment[] = [
-        { text: 'No.', color: CANVAS_COLORS.MUTED, font: buildCanvasFont(12, 'normal') },
+        { text: 'No.', color: CANVAS_COLORS.MUTED, font: idFont },
         { text: model.id, color: CANVAS_COLORS.VALUE, font: idFont },
         { text: '  ', color: CANVAS_COLORS.TEXT, font: idFont },
     ];
@@ -185,10 +213,13 @@ export const drawTDollCard = (
     }, 0);
     const nameMaxW = Math.max(
         20,
-        textMaxRight - textX - prefixWidth - (model.isMod ? modTagW + 8 : 0),
+        textMaxRight - textX - prefixWidth - (model.isMod ? modTagW + CANVAS_SPACE[2] : 0),
     );
     const nameSegments = buildNameSegments(ctx, model, nameMaxW);
-    drawSegments(ctx, textX, y + 14, [...idPrefixSegments, ...nameSegments]);
+    // buildNameSegments 最后把 ctx.font 设为 nameFont, 直接量出实际 ascent
+    const nameAscent = ctx.measureText(model.name || 'M').actualBoundingBoxAscent;
+    const nameBaselineY = y + avatarTop + nameAscent;
+    drawSegments(ctx, textX, nameBaselineY, [...idPrefixSegments, ...nameSegments]);
 
     // 行 2: 枪种徽章 + 中文枪种
     const row2CenterY = y + CARD_H - CARD_PAD - BADGE_H / 2;
@@ -198,7 +229,11 @@ export const drawTDollCard = (
         ? TDOLL_CLASS_BADGE[model.tdollClass]
         : undefined;
     if (badge) {
-        ctx.font = buildCanvasFont(10);
+        ctx.font = buildCanvasFont(
+            CANVAS_FONT.size.sm,
+            CANVAS_FONT.weight.bold,
+            'mono',
+        );
         const badgeTextW = ctx.measureText(model.tdollClass!).width;
         const badgeW = badgeTextW + BADGE_PAD_X * 2;
         const badgeY = row2CenterY - BADGE_H / 2;
@@ -212,11 +247,15 @@ export const drawTDollCard = (
         ctx.textBaseline = 'middle';
         ctx.fillText(model.tdollClass!, textX + badgeW / 2, row2CenterY + 0.5);
 
-        typeTextX = textX + badgeW + 8;
+        typeTextX = textX + badgeW + CANVAS_SPACE[2];
     }
 
     if (model.typeText) {
-        ctx.font = buildCanvasFont(11, 'normal');
+        ctx.font = buildCanvasFont(
+            CANVAS_FONT.size.sm,
+            CANVAS_FONT.weight.normal,
+            'sans',
+        );
         ctx.fillStyle = CANVAS_COLORS.MUTED;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';

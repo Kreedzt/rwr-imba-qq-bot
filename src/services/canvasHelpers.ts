@@ -9,6 +9,26 @@ import { CANVAS_SPACE, CanvasShadow } from './canvasTheme';
  */
 
 // ============================================================================
+// 颜色辅助
+// ============================================================================
+
+/**
+ * 从 hex 颜色推导带透明度的 rgba 串(如徽章底 = 主色 16% 透明),
+ * 避免各 canvas 重复拼 rgba 裸写。
+ */
+export function colorWithAlpha(hex: string, alpha: number): string {
+    const value = hex.replace('#', '');
+    const full = value.length === 3
+        ? value.split('').map((c) => c + c).join('')
+        : value;
+    const num = parseInt(full, 16);
+    const r = (num >> 16) & 0xff;
+    const g = (num >> 8) & 0xff;
+    const b = num & 0xff;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+// ============================================================================
 // 几何 / 文本绘制
 // ============================================================================
 
@@ -84,6 +104,30 @@ export function drawSegments(
         ctx.fillText(s.text, cx, y);
         cx += ctx.measureText(s.text).width;
     }
+}
+
+/**
+ * 按 alphabetic baseline 绘制分段文本，并用参考字体把整行在 `midY` 处垂直居中。
+ * 不传 `referenceFont` 时默认用首段字体作为参考；`referenceText` 用于更准确地计算参考字体高度。
+ * 适用于需要让各段文字坐在同一 baseline 上的场景。
+ */
+export function drawSegmentsAlphabeticCentered(
+    ctx: Canvas2DContext,
+    anchorX: number,
+    midY: number,
+    segments: TextSegment[],
+    align: 'left' | 'right' = 'left',
+    referenceFont?: string,
+    referenceText = 'M',
+): void {
+    if (segments.length === 0) return;
+
+    ctx.textBaseline = 'alphabetic';
+    ctx.font = referenceFont ?? segments[0].font;
+    const m = ctx.measureText(referenceText);
+    const baselineY =
+        midY + (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2;
+    drawSegments(ctx, anchorX, baselineY, segments, align);
 }
 
 /** 计算分段文本的总宽度(逐段设置字体后测量并累加) */

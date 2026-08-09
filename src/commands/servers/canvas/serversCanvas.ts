@@ -10,6 +10,7 @@ import { BaseCanvas, CanvasSize } from '../../../services/baseCanvas';
 import { buildCanvasFont, CANVAS_FONT } from '../../../services/canvasFonts';
 import {
     drawSegments,
+    drawSegmentsAlphabeticCentered,
     measureSegmentsWidth,
     truncate,
     TextSegment,
@@ -134,7 +135,7 @@ export class ServersCanvas extends BaseCanvas {
                 text: duration,
                 color: COLOR_MUTED,
                 font: buildCanvasFont(
-                    CANVAS_FONT.size.sm,
+                    CANVAS_FONT.size.base,
                     CANVAS_FONT.weight.normal,
                     'sans',
                 ),
@@ -346,13 +347,20 @@ export class ServersCanvas extends BaseCanvas {
                 y + CARD_PAD_Y + NAME_H / 2,
             );
 
-            // 元信息行
-            drawSegments(
+            // 元信息行(混用 15pt mono 人数与 11pt sans 时长,
+            // 以 mono 人数字体为参考按 alphabetic baseline 对齐)
+            drawSegmentsAlphabeticCentered(
                 ctx,
                 cardX + CARD_PAD_X,
                 y + CARD_PAD_Y + NAME_H + NAME_TO_META_GAP + META_H / 2,
                 this.buildMetaSegments(server),
                 'left',
+                buildCanvasFont(
+                    CANVAS_FONT.size.lg,
+                    CANVAS_FONT.weight.bold,
+                    'mono',
+                ),
+                '0/20',
             );
 
             y += cardH;

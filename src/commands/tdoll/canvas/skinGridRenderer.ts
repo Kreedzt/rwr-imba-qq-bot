@@ -1,19 +1,24 @@
 import { Canvas2DContext, ImageLike } from '../../../services/canvasBackend';
-import { buildCanvasFont } from '../../../services/canvasFonts';
+import { buildCanvasFont, CANVAS_FONT } from '../../../services/canvasFonts';
 import { roundRectPath, truncate } from '../../../services/canvasHelpers';
-import { CANVAS_COLORS } from '../../../services/canvasTheme';
+import { renderCard, renderEmptyCard } from '../../../services/canvasLayout';
+import {
+    CANVAS_COLORS,
+    CANVAS_RADIUS,
+    CANVAS_SPACE,
+} from '../../../services/canvasTheme';
 import { ITDollSkinDataItem } from '../types/types';
 import { SKIN_IMG_SIZE } from './assets';
 
 export const SKIN_GRID_COLS = 3;
 export const SKIN_CELL_W = 166; // 150 图 + 8*2 内边距
-const CELL_PAD = 8;
-const CELL_RADIUS = 10;
+const CELL_PAD = CANVAS_SPACE[2];
+const CELL_RADIUS = CANVAS_RADIUS.md;
 const NAME_ROW_H = 24;
 const ID_ROW_H = 20;
 export const SKIN_CELL_H =
     CELL_PAD + SKIN_IMG_SIZE + NAME_ROW_H + ID_ROW_H + CELL_PAD; // 150 图 + 名称行 + ID 行 + 上下留白 = 210
-export const SKIN_GRID_GAP = 12;
+export const SKIN_GRID_GAP = CANVAS_SPACE[3];
 export const SKIN_GRID_W =
     SKIN_GRID_COLS * SKIN_CELL_W + (SKIN_GRID_COLS - 1) * SKIN_GRID_GAP; // 522
 
@@ -74,12 +79,7 @@ export const drawSkinGrid = (
     imgMap: Map<string, ImageLike>,
 ): number => {
     if (items.length === 0) {
-        ctx.font = buildCanvasFont(12, 'normal');
-        ctx.fillStyle = CANVAS_COLORS.MUTED;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('暂无皮肤数据', x, y + EMPTY_HINT_H / 2);
-        ctx.textBaseline = 'top';
+        renderEmptyCard(ctx, x, y, SKIN_GRID_W, EMPTY_HINT_H, '暂无皮肤数据');
         return y + EMPTY_HINT_H;
     }
 
@@ -89,10 +89,11 @@ export const drawSkinGrid = (
         const cellX = x + col * (SKIN_CELL_W + SKIN_GRID_GAP);
         const cellY = y + row * (SKIN_CELL_H + SKIN_GRID_GAP);
 
-        // 格子面板
-        ctx.fillStyle = CANVAS_COLORS.CARD;
-        roundRectPath(ctx, cellX, cellY, SKIN_CELL_W, SKIN_CELL_H, CELL_RADIUS);
-        ctx.fill();
+        // 格子面板(网格内子卡片不加阴影)
+        renderCard(ctx, cellX, cellY, SKIN_CELL_W, SKIN_CELL_H, {
+            shadow: null,
+            fillStyle: CANVAS_COLORS.BG_OVERLAY,
+        });
 
         // 皮肤图(缺图画占位框)
         const imgX = cellX + CELL_PAD;
@@ -101,11 +102,15 @@ export const drawSkinGrid = (
         if (img) {
             ctx.drawImage(img as any, imgX, imgY, SKIN_IMG_SIZE, SKIN_IMG_SIZE);
         } else {
-            ctx.strokeStyle = CANVAS_COLORS.MUTED;
-            roundRectPath(ctx, imgX, imgY, SKIN_IMG_SIZE, SKIN_IMG_SIZE, 6);
+            ctx.strokeStyle = CANVAS_COLORS.TEXT_MUTED;
+            roundRectPath(ctx, imgX, imgY, SKIN_IMG_SIZE, SKIN_IMG_SIZE, CANVAS_RADIUS.sm);
             ctx.stroke();
-            ctx.font = buildCanvasFont(11, 'normal');
-            ctx.fillStyle = CANVAS_COLORS.MUTED;
+            ctx.font = buildCanvasFont(
+                CANVAS_FONT.size.sm,
+                CANVAS_FONT.weight.normal,
+                'sans',
+            );
+            ctx.fillStyle = CANVAS_COLORS.TEXT_MUTED;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(
@@ -117,7 +122,11 @@ export const drawSkinGrid = (
 
         // 名称行: <序号>. <名称>
         const textMaxWidth = SKIN_CELL_W - CELL_PAD * 2;
-        ctx.font = buildCanvasFont(11);
+        ctx.font = buildCanvasFont(
+            CANVAS_FONT.size.sm,
+            CANVAS_FONT.weight.bold,
+            'sans',
+        );
         ctx.fillStyle = CANVAS_COLORS.TEXT;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
@@ -128,7 +137,11 @@ export const drawSkinGrid = (
         );
 
         // ID 行: 皮肤编号(高亮, 供玩家在游戏内/wiki 核对)
-        ctx.font = buildCanvasFont(10, 'normal');
+        ctx.font = buildCanvasFont(
+            CANVAS_FONT.size.xs,
+            CANVAS_FONT.weight.normal,
+            'mono',
+        );
         ctx.fillStyle = CANVAS_COLORS.VALUE;
         ctx.fillText(
             truncate(ctx, `ID: ${item.value}`, textMaxWidth),

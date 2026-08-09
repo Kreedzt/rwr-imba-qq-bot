@@ -3,18 +3,21 @@ import {
     Canvas2DContext,
     ImageLike,
 } from '../../../services/canvasBackend';
-import { buildCanvasFont } from '../../../services/canvasFonts';
-import { drawSegments } from '../../../services/canvasHelpers';
-import { CANVAS_COLORS } from '../../../services/canvasTheme';
+import {
+    clampCanvasWidth,
+    renderPageTitle,
+    renderSectionHeader,
+} from '../../../services/canvasLayout';
+import { CANVAS_COLORS, CANVAS_SPACE } from '../../../services/canvasTheme';
 import { ITDollDataItem, ITDollSkinDataItem } from '../types/types';
 import { loadSkinImageMap, loadTDollAvatarMap } from './assets';
 import {
     CARD_H,
-    QUERY_HIGHLIGHT_COLOR,
     TDollCardModel,
     buildCardModel,
     drawTDollCard,
 } from './cardRenderer';
+import { buildQueryTitleSegments } from './queryTitle';
 import {
     SKIN_GRID_W,
     SkinGridItem,
@@ -23,11 +26,11 @@ import {
     measureSkinGridHeight,
 } from './skinGridRenderer';
 
-const PAD = 30;
+const PAD = CANVAS_SPACE[6];
 const TITLE_H = 56;
 const SECTION_HEADER_H = 40;
 const FOOTER_H = 40;
-const WIDTH = PAD * 2 + SKIN_GRID_W;
+const WIDTH = clampCanvasWidth(PAD * 2 + SKIN_GRID_W);
 
 /**
  * TDoll 详情画布 — 数据卡 + 皮肤 3 列网格合并为一张图。
@@ -70,29 +73,25 @@ export class TDollDetailCanvas extends BaseCanvas {
         };
     }
 
-    private renderTitle(ctx: Canvas2DContext): void {
-        ctx.textBaseline = 'top';
-        const titleFont = buildCanvasFont(20);
-        drawSegments(ctx, PAD, PAD, [
-            { text: '查询 ', color: CANVAS_COLORS.TEXT, font: titleFont },
-            {
-                text: this.query,
-                color: QUERY_HIGHLIGHT_COLOR,
-                font: titleFont,
-            },
-            { text: ' 匹配结果', color: CANVAS_COLORS.TEXT, font: titleFont },
-        ]);
+    private renderTitle(ctx: Canvas2DContext): number {
+        return renderPageTitle(ctx, PAD, PAD, '查询 匹配结果', undefined, {
+            titleSegments: buildQueryTitleSegments(
+                ctx,
+                this.query,
+                WIDTH - PAD * 2,
+            ),
+            rightX: WIDTH - PAD,
+        });
     }
 
-    private renderSectionHeader(ctx: Canvas2DContext, y: number): number {
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        ctx.fillStyle = CANVAS_COLORS.ACCENT;
-        ctx.fillRect(PAD, y + 2, 4, 20);
-        ctx.font = buildCanvasFont(16);
-        ctx.fillStyle = CANVAS_COLORS.TEXT;
-        ctx.fillText(`皮肤 (${this.skinItems.length})`, PAD + 14, y);
-        return y + SECTION_HEADER_H;
+    private renderSkinSection(ctx: Canvas2DContext, y: number): number {
+        return renderSectionHeader(
+            ctx,
+            y,
+            '皮肤',
+            `${this.skinItems.length} 款`,
+            { x: PAD, rightX: WIDTH - PAD },
+        );
     }
 
     protected async measure(): Promise<CanvasSize> {
@@ -107,7 +106,13 @@ export class TDollDetailCanvas extends BaseCanvas {
 
         const gridH = measureSkinGridHeight(this.skinItems.length);
         const height =
-            PAD + TITLE_H + CARD_H + 16 + SECTION_HEADER_H + gridH + FOOTER_H;
+            PAD +
+            TITLE_H +
+            CARD_H +
+            CANVAS_SPACE[4] +
+            SECTION_HEADER_H +
+            gridH +
+            FOOTER_H;
 
         return { width: WIDTH, height };
     }
@@ -141,7 +146,7 @@ export class TDollDetailCanvas extends BaseCanvas {
             SKIN_GRID_W,
         );
 
-        y = this.renderSectionHeader(ctx, y + 16);
+        y = this.renderSkinSection(ctx, y + CANVAS_SPACE[4]);
         drawSkinGrid(ctx, PAD, y, this.skinItems, this.skinMap!);
 
         return size.height - FOOTER_H;

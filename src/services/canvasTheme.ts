@@ -16,6 +16,8 @@ export const CANVAS_COLORS = {
     BG_OVERLAY: 'rgba(0, 0, 0, 0.55)',
     /** 更弱的半透明底(空闲态、斑马纹、排行轨道) */
     BG_OVERLAY_WEAK: 'rgba(0, 0, 0, 0.35)',
+    /** 背景图上的全局蒙层(压暗底图, 避免水印穿透卡片) */
+    BG_IMG_OVERLAY: 'rgba(0, 0, 0, 0.82)',
 
     // 琥珀强调
     AMBER_400: '#fb923c',

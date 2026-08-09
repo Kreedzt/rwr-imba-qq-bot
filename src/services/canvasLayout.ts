@@ -79,6 +79,8 @@ export interface PageTitleOptions {
     rightX?: number;
     /** 标题区高度(默认 56) */
     height?: number;
+    /** 标题分段文本(支持命中高亮等), 传入则替代 title 纯文本绘制 */
+    titleSegments?: TextSegment[];
 }
 
 /**
@@ -95,22 +97,40 @@ export function renderPageTitle(
 ): number {
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
-    ctx.fillStyle = CANVAS_COLORS.TEXT;
-    ctx.font = buildCanvasFont(
-        CANVAS_FONT.size['2xl'],
-        CANVAS_FONT.weight.bold,
-        'sans',
-    );
-    ctx.fillText(title, x, y);
+    if (options.titleSegments && options.titleSegments.length > 0) {
+        drawSegments(ctx, x, y, options.titleSegments);
+    } else {
+        ctx.fillStyle = CANVAS_COLORS.TEXT;
+        ctx.font = buildCanvasFont(
+            CANVAS_FONT.size['2xl'],
+            CANVAS_FONT.weight.bold,
+            'sans',
+        );
+        ctx.fillText(title, x, y);
+    }
 
     if (rightSegments && rightSegments.length > 0) {
+        // 右侧统计与标题按 alphabetic baseline 对齐,
+        // 避免小字号统计被视觉上感知为“飘在标题上方”。
+        const titleFont = buildCanvasFont(
+            CANVAS_FONT.size['2xl'],
+            CANVAS_FONT.weight.bold,
+            'sans',
+        );
+        ctx.font = titleFont;
+        // measureText 受当前 textBaseline 影响, 先用 alphabetic 取准确度量
+        ctx.textBaseline = 'alphabetic';
+        const titleMetrics = ctx.measureText(title);
+        const titleBaselineY = y + titleMetrics.emHeightAscent;
+        ctx.textBaseline = 'alphabetic';
         drawSegments(
             ctx,
             options.rightX ?? x + CANVAS_MAX_WIDTH - CANVAS_SPACE[6],
-            y + 10,
+            titleBaselineY,
             rightSegments,
             'right',
         );
+        ctx.textBaseline = 'top';
     }
     ctx.textAlign = 'left';
 
@@ -125,7 +145,7 @@ export interface SectionHeaderOptions {
     height?: number;
 }
 
-/** 小节标题(xl sans + accent 竖条), 可选右侧说明文字 */
+/** 小节标题(xl sans + accent 竖条), 可选右侧说明文字; 竖条与文字均垂直居中 */
 export function renderSectionHeader(
     ctx: Canvas2DContext,
     y: number,
@@ -134,20 +154,29 @@ export function renderSectionHeader(
     options: SectionHeaderOptions = {},
 ): number {
     const x = options.x ?? CANVAS_SPACE[6];
+    const height = options.height ?? SECTION_HEADER_H;
+    const midY = y + height / 2;
 
     ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-
-    ctx.fillStyle = CANVAS_COLORS.AMBER_500;
-    ctx.fillRect(x, y + 2, 4, 20);
+    ctx.textBaseline = 'middle';
 
     ctx.font = buildCanvasFont(
         CANVAS_FONT.size.xl,
         CANVAS_FONT.weight.bold,
         'sans',
     );
+    const titleMetrics = ctx.measureText(title);
+    const titleAscent = titleMetrics.actualBoundingBoxAscent;
+    const titleDescent = titleMetrics.actualBoundingBoxDescent;
+    const textTop = midY - titleAscent;
+    const textBottom = midY + titleDescent;
+    const barTop = Math.max(y, textTop);
+    const barBottom = Math.min(y + height, textBottom);
+    ctx.fillStyle = CANVAS_COLORS.AMBER_500;
+    ctx.fillRect(x, barTop, 4, barBottom - barTop);
+
     ctx.fillStyle = CANVAS_COLORS.TEXT;
-    ctx.fillText(title, x + 14, y);
+    ctx.fillText(title, x + 14, midY);
 
     if (rightNote) {
         ctx.textAlign = 'right';
@@ -157,11 +186,16 @@ export function renderSectionHeader(
             'sans',
         );
         ctx.fillStyle = CANVAS_COLORS.TEXT_MUTED;
-        ctx.fillText(rightNote, options.rightX ?? x + CANVAS_MAX_WIDTH - CANVAS_SPACE[6], y + 5);
+        ctx.fillText(
+            rightNote,
+            options.rightX ?? x + CANVAS_MAX_WIDTH - CANVAS_SPACE[6],
+            midY,
+        );
         ctx.textAlign = 'left';
     }
 
-    return y + (options.height ?? SECTION_HEADER_H);
+    ctx.textBaseline = 'top';
+    return y + height;
 }
 
 // ============================================================================

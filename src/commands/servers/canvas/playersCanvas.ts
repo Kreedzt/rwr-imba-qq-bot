@@ -10,6 +10,7 @@ import { BaseCanvas, CanvasSize } from '../../../services/baseCanvas';
 import { buildCanvasFont, CANVAS_FONT } from '../../../services/canvasFonts';
 import {
     drawSegments,
+    drawSegmentsAlphabeticCentered,
     measureSegmentsWidth,
     layoutChips,
     ChipLayout,
@@ -48,6 +49,7 @@ const CARD_GAP = CANVAS_SPACE[3];
 const CARD_PAD_X = CANVAS_SPACE[4];
 const CARD_PAD_Y = CANVAS_SPACE[4];
 const HEADER_H = 30; // 卡片头部行高(服务器名行)
+const HEADER_OFFSET_Y = 2; // 头部整体下移 2px，避免视觉上偏上
 const HEADER_TO_CHIP_GAP = 10;
 const EMPTY_PLACEHOLDER_H = CHIP_H; // 0 玩家时占位行高
 
@@ -168,7 +170,7 @@ export class PlayersCanvas extends BaseCanvas {
                 text: ` ${duration}`,
                 color: COLOR_MUTED,
                 font: buildCanvasFont(
-                    CANVAS_FONT.size.sm,
+                    CANVAS_FONT.size.base,
                     CANVAS_FONT.weight.normal,
                     'sans',
                 ),
@@ -409,14 +411,21 @@ export class PlayersCanvas extends BaseCanvas {
             // 卡片背景 + 投影
             renderCard(ctx, cardX, y, cardW, cardH);
 
-            // 头部信息行
-            ctx.textBaseline = 'middle';
-            drawSegments(
+            // 头部信息行: 不同字号的段按同一 alphabetic baseline 居中，
+            // 避免 middle baseline 下小字号段视觉偏上。
+            const headerSegments = this.buildHeaderSegments(server, ctx);
+            const headerNameFont = buildCanvasFont(
+                CANVAS_FONT.size.lg,
+                CANVAS_FONT.weight.bold,
+                'sans',
+            );
+            drawSegmentsAlphabeticCentered(
                 ctx,
                 cardX + CARD_PAD_X,
-                y + CARD_PAD_Y + HEADER_H / 2,
-                this.buildHeaderSegments(server, ctx),
+                y + CARD_PAD_Y + HEADER_H / 2 + HEADER_OFFSET_Y,
+                headerSegments,
                 'left',
+                headerNameFont,
             );
 
             // chip 区

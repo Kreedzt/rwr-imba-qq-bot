@@ -213,7 +213,7 @@ export abstract class BaseCanvas {
         ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
 
         // 添加半透明蒙层
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; // 半透明黑色
+        ctx.fillStyle = CANVAS_COLORS.BG_IMG_OVERLAY;
         ctx.fillRect(0, 0, width, height); // 绘制蒙层
     }
 
